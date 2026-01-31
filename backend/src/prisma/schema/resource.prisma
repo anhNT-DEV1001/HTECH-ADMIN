@@ -1,0 +1,32 @@
+model Resource {
+  id              Int              @id @default(autoincrement())
+  alias           String           @unique
+  description     String?
+  is_active       Boolean          @default(true)
+  resourceDetails ResourceDetail[]
+  icon            String?
+  href            String?
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  created_by      Int?
+  updated_by      Int?
+
+  @@map("resource")
+}
+
+model ResourceDetail {
+  id           Int      @id @default(autoincrement())
+  alias        String   @unique
+  resource     Resource @relation(fields: [parent_alias], references: [alias])
+  parent_alias String
+  is_active    Boolean  @default(true)
+  icon         String?
+  herf         String?
+  actions      Action[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  created_by   Int?
+  updated_by   Int?
+
+  @@map("resource_detail")
+}

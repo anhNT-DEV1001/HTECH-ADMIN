@@ -1,0 +1,23 @@
+model RoleGroupPermission {
+  id         Int      @id @default(autoincrement())
+  action     Action   @relation(fields: [action_id], references: [id])
+  action_id  Int
+  roleGroup  Role     @relation(fields: [role_name], references: [name])
+  role_name  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@map("role_group_permission")
+}
+
+model UserPermission {
+  id        Int      @id @default(autoincrement())
+  userRole  UserRole @relation(fields: [user_role], references: [id])
+  user_role Int
+  action    Action   @relation(fields: [action_id], references: [id])
+  action_id Int
+
+  @@map("user_permission")
+}
