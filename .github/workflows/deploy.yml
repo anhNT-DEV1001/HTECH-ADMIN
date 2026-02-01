@@ -1,0 +1,43 @@
+name: Deploy HTECH ADMIN
+
+on:
+  push:
+    branches:
+      - main # Hoặc master tùy theo nhánh của bạn
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /var/www/HTECH-ADMIN
+            #git pull origin main
+            git fetch --all
+            git reset --hard origin/main
+
+            # --- Deploy Backend ---
+            echo "Deploying Backend..."
+            cd backend
+            npm install
+            npx prisma generate
+            npm run build
+            pm2 restart htech-admin-backend || pm2 start dist/src/main.js --name htech-admin-backend
+
+            # --- Deploy Frontend ---
+            echo "Deploying Frontend..."
+            cd ../frontend
+            npm install
+            npm run build
+            pm2 restart htech-admin-frontend || pm2 start npm --name "htech-admin-frontend" -- run start -- -p 4000
+
+            echo "Deployment successful!"
