@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRole } from "@/apis/role/hooks";
 import { IPaginationRequest } from "@/common/interfaces";
 import {
@@ -24,7 +24,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebouncedValue } from "@/common/hooks";
 import RoleLoading from "./loading";
 export default function RoleManagement() {
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,34 +36,42 @@ export default function RoleManagement() {
     orderBy: "created_at",
   });
 
-  const { rolesData, isLoading, isFetching, deleteRole , createRole , updateRole, isCreating, isUpdating} = useRole(params);
+  const {
+    rolesData,
+    isLoading,
+    isFetching,
+    deleteRole,
+    createRole,
+    updateRole,
+    isCreating,
+    isUpdating,
+  } = useRole(params);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<any>(null);
-  const {confirm} = useConfirm();
+  const { confirm } = useConfirm();
   const meta = rolesData?.data?.meta;
   const roles = rolesData?.data?.records || [];
   const [searchInput, setSearchInput] = useState(params.search || "");
   const debouncedSearch = useDebouncedValue(searchInput, 500);
-   const handleSort = (column: string) => {
-     setParams((prev) => ({
-       ...prev,
-       orderBy: column,
-       sortBy:
-         prev.orderBy === column && prev.sortBy === "asc" ? "desc" : "asc",
-       page: 1,
-     }));
-   };
+  const handleSort = (column: string) => {
+    setParams((prev) => ({
+      ...prev,
+      orderBy: column,
+      sortBy: prev.orderBy === column && prev.sortBy === "asc" ? "desc" : "asc",
+      page: 1,
+    }));
+  };
 
-   const getSortIcon = (column: string) => {
-     if (params.orderBy !== column) {
-       return <ArrowDownWideNarrow size={14} />;
-     }
-     return params.sortBy === "asc" ? (
-       <ChevronUp size={14} className="text-blue-600" />
-     ) : (
-       <ChevronDown size={14} className="text-blue-600" />
-     );
-   };
+  const getSortIcon = (column: string) => {
+    if (params.orderBy !== column) {
+      return <ArrowDownWideNarrow size={14} />;
+    }
+    return params.sortBy === "asc" ? (
+      <ChevronUp size={14} className="text-blue-600" />
+    ) : (
+      <ChevronDown size={14} className="text-blue-600" />
+    );
+  };
   useEffect(() => {
     setParams((prev) => ({
       ...prev,
@@ -105,9 +112,9 @@ export default function RoleManagement() {
   const handleSave = async (formData: any) => {
     if (selectedRole) {
       const isConfirm = await confirm({
-        title : "Xác nhận cập nhật quyền",
-        variant: 'info'
-      })
+        title: "Xác nhận cập nhật quyền",
+        variant: "info",
+      });
       if (isConfirm) {
         updateRole(
           { id: selectedRole.id, body: formData },
@@ -123,14 +130,13 @@ export default function RoleManagement() {
     }
   };
 
-  const handleDelete = async (role : IRole) => {
+  const handleDelete = async (role: IRole) => {
     const isConfirm = await confirm({
       title: `Xác nhận xóa quyền ${role.name}`,
-      variant: 'danger'
-    })
-    if(isConfirm) deleteRole(role.id);
-  }
-
+      variant: "danger",
+    });
+    if (isConfirm) deleteRole(role.id);
+  };
 
   return (
     <div>
@@ -159,9 +165,7 @@ export default function RoleManagement() {
             />
           </div>
 
-          {isFetching && (
-            <RoleLoading/>
-          )}
+          {isFetching && <RoleLoading />}
         </div>
 
         <button
@@ -169,7 +173,7 @@ export default function RoleManagement() {
           className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition shrink-0"
         >
           <Plus size={16} />
-          <span className="whitespace-nowrap">Thêm mới</span>
+          <span className="whitespace-nowrap">Thêm quyền</span>
         </button>
       </div>
 
@@ -267,7 +271,7 @@ export default function RoleManagement() {
                         {role.name}
                       </td>
                       <td className="px-4 py-2 text-gray-800 truncate max-w-2xs border border-gray-200">
-                        {role.description || "---"}
+                        {role.description}
                       </td>
                       <td className="px-4 py-2 text-gray-800 text-center text-xs border border-gray-200">
                         <span className="font-medium">
@@ -405,13 +409,12 @@ export default function RoleManagement() {
     </div>
   );
 }
-
 const RoleModal = ({
   isOpen,
   onClose,
   onSave,
   data,
-  loading
+  loading,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -422,7 +425,8 @@ const RoleModal = ({
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   React.useEffect(() => {
-    if (data) setFormData({ name: data.name, description: data.description || "" });
+    if (data)
+      setFormData({ name: data.name, description: data.description || "" });
     else setFormData({ name: "", description: "" });
   }, [data, isOpen]);
 
@@ -432,17 +436,28 @@ const RoleModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="font-bold text-gray-800">{data ? `Cập nhật quyền ${data.name}` : "Thêm quyền mới"}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full"><X size={18} /></button>
+          <h2 className="font-bold text-gray-800">
+            {data ? `Cập nhật quyền ${data.name}` : "Thêm quyền mới"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-full"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <div className="p-4 space-y-4 text-sm">
           <div className="space-y-1">
-            <label className="font-medium text-gray-700">Tên quyền <span className="text-red-500">*</span></label>
+            <label className="font-medium text-gray-700">
+              Tên quyền <span className="text-red-500">*</span>
+            </label>
             <input
               className="w-full border rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500"
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="Ví dụ: Quản trị viên"
             />
           </div>
@@ -451,14 +466,21 @@ const RoleModal = ({
             <textarea
               className="w-full border rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 h-24"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Mô tả ngắn gọn về quyền này..."
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-2 p-4 bg-gray-50">
-          <button onClick={onClose} className="px-4 py-1.5 hover:bg-gray-200 rounded-md transition text-gray-600">Hủy</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 hover:bg-gray-200 rounded-md transition text-gray-600"
+          >
+            Hủy
+          </button>
           <button
             onClick={() => onSave(formData)}
             disabled={loading || !formData.name}
@@ -472,4 +494,3 @@ const RoleModal = ({
     </div>
   );
 };
-

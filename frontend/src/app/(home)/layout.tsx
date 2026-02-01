@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/apis/auth/hooks";
+import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { useToast } from "@/common/providers/ToastProvider";
 import { useAuthStore } from "@/common/stores";
 import {
@@ -7,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   LayoutDashboard,
+  LogOut,
   Menu,
   Settings,
   Users,
@@ -22,7 +24,7 @@ export default function HomeLayout({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [openSubMenus, setOpenSubMenus] = useState<string[]>([]);
-
+  const { confirm } = useConfirm();
   // Hàm toggle menu con
   const toggleSubMenu = (label: string) => {
     setOpenSubMenus((prev) =>
@@ -36,18 +38,23 @@ export default function HomeLayout({
   const userName = user?.user?.fullName || user?.user?.username || "Người dùng";
   const userInitial = user?.user?.fullName?.charAt(0).toUpperCase() || "A";
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    // Xử lý đăng xuất ở đây
-    logout.mutate(void 0, {
-      onSuccess: (response) => {
-        showToast(`${response.message}`, "success");
-        navigate.push("/login");
-      },
-      onError: (error: any) => {
-        showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error");
-      },
+    const isConfirm = await confirm({
+      title: "Bạn có chắc chắn muốn đăng xuất ?",
+      variant: "info",
     });
+    if (isConfirm) {
+      logout.mutate(void 0, {
+        onSuccess: (response) => {
+          showToast(`${response.message}`, "success");
+          navigate.push("/login");
+        },
+        onError: (error: any) => {
+          showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error");
+        },
+      });
+    }
   };
 
   return (
@@ -143,10 +150,10 @@ export default function HomeLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-400 hover:text-blue-600">
+            {/* <button className="relative p-2 text-gray-400 hover:text-blue-600">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            </button> */}
             {/* <div className="h-8 bg-slate-200 mx-2"></div> */}
             <div className="flex items-center gap-2 cursor-pointer group">
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
@@ -157,10 +164,11 @@ export default function HomeLayout({
               </span>
             </div>
             <button
-              className="text-sm font-medium text-gray-700 hover:text-blue-600"
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-red-500 transition-colors"
               onClick={handleLogout}
             >
-              Đăng xuất
+              <LogOut size={16} />
+              <span>Đăng xuất</span>
             </button>
           </div>
         </header>
@@ -184,14 +192,17 @@ export default function HomeLayout({
 const MENU_ITEMS = [
   { label: "Trang chủ", icon: <LayoutDashboard size={20} />, href: "/" },
   {
-    label: "Phân quyền",
-    icon: <Users size={20} />,
+    label: "Quản lý hệ thống",
+    icon: <Settings size={20} />,
+    // href: "/menus",
     children: [
       { label: "Nhóm quyền", href: "/roles" },
       { label: "Người dùng", href: "/users" },
-      // { label: "Quản lý Menus", href: "/menus" },
+      {
+        label: "Danh sách tài nguyên",
+        icon: <Settings size={16} />,
+        href: "/menus",
+      },
     ],
   },
-  { label: "Danh sách tài nguyên", icon: <Settings size={20} />, href: "/menus" },
-  { label: "Cấu hình email", icon: <Settings size={20} />, href: "/mail" },
 ];

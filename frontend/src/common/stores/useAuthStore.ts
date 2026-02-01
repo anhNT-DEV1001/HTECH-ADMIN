@@ -17,18 +17,15 @@ export const useAuthStore = create<AuthState>()(
       isAuth: false,
       setUser: (user) => set({ user, isAuth: !!user }),
       logout: () => set({ user: null, isAuth: false }),
-      hydrate: () => {
-        // Hook này dùng để restore state từ localStorage sau khi mount
-        // Zustand tự động xử lý, nhưng ta có thể dùng cho custom logic nếu cần
-      },
+      hydrate: () => {},
     }),
     {
-      name: "auth-storage", // Key lưu trong localStorage
+      name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
         isAuth: state.isAuth,
-      }), // Chỉ lưu những state này
+      }),
     },
   ),
 );

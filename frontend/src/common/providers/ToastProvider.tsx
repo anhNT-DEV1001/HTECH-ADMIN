@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
-// --- Types ---
 type ToastType = "success" | "error";
 
 interface Toast {
@@ -25,7 +24,6 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-// --- Provider Component ---
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -44,7 +42,6 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {/* Container chứa các Toast - Fix: bg-transparent để không che nội dung */}
       <div className="fixed top-4 right-4 z-9999 flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
           <ToastItem

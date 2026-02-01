@@ -93,7 +93,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 flex justify-center items-center p-4">
-      {/* Tăng chiều rộng container lên max-w-2xl */}
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl">
         <div className="flex flex-col items-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-600 tracking-tight">
@@ -103,7 +102,6 @@ export default function RegisterPage() {
         </div>
 
         <form className="space-y-6">
-          {/* Grid Container: 1 cột trên mobile, 2 cột trên md trở lên */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             {/* --- Cột 1: Thông tin tài khoản --- */}
             <div className="space-y-4">
@@ -256,7 +254,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Nút bấm và link điều hướng chiếm toàn bộ chiều rộng */}
+          {/* Nút bấm và link điều hướng */}
           <div className="pt-4">
             <button
               type="button"

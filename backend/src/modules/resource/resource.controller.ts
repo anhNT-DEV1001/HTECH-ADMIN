@@ -18,9 +18,13 @@ import {
   UpdateResourceWithDetailDto,
 } from './dto';
 import { BaseResponse } from 'src/common/apis';
-import type { IPaginationRequest, IPaginationResponse } from 'src/common/interfaces';
-import type{ Resource, User} from '@prisma/client';
-import { AuthUser } from 'src/common/decorators'; 
+import type {
+  IPaginationRequest,
+  IPaginationResponse,
+} from 'src/common/interfaces';
+import type { Resource, User } from '@prisma/client';
+import { AuthUser } from 'src/common/decorators';
+import type { IResourceQuery } from './interfaces';
 
 @ApiTags('Resource')
 @Controller('resource')
@@ -78,7 +82,7 @@ export class ResourceController {
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách Resource kèm phân trang và Detail' })
   async findAll(
-    @Query() query: IPaginationRequest // => object,
+    @Query() query: IResourceQuery,
   ): Promise<BaseResponse<IPaginationResponse<Resource>>> {
     const data =
       await this.resourceService.getAllResourcesWithResourceDetail(query);

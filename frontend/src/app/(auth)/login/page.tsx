@@ -29,14 +29,12 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.username || !formData.password) {
-      // alert("Vui lòng nhập đầy đủ thông tin!");
       showToast("Vui lòng nhập đầy đủ thông tin!", "error");
       return;
     }
 
     login.mutate(formData, {
       onSuccess: (response) => {
-        // Xử lý lưu token ở đây nếu cần (thường useAuth đã lo việc này)
         showToast("Đăng nhập thành công!", "success");
         router.push("/");
       },
@@ -70,10 +68,10 @@ export default function LoginPage() {
             </label>
             <input
               id="username"
-              name="username" // Bắt buộc phải có name để handleChange hoạt động
+              name="username"
               type="text"
-              value={formData.username} // Binding dữ liệu
-              onChange={handleChange} // Binding sự kiện
+              value={formData.username}
+              onChange={handleChange}
               placeholder="Nhập tên đăng nhập"
               disabled={login.isPending}
               className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -91,10 +89,10 @@ export default function LoginPage() {
             <div className="relative">
               <input
                 id="password"
-                name="password" // Bắt buộc phải có name
+                name="password"
                 type={showPassword ? "text" : "password"}
-                value={formData.password} // Binding dữ liệu
-                onChange={handleChange} // Binding sự kiện
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="••••••••"
                 disabled={login.isPending}
                 className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -112,7 +110,7 @@ export default function LoginPage() {
           </div>
 
           <button
-            type="submit" // Quan trọng: type submit để kích hoạt onSubmit của form
+            type="submit"
             disabled={login.isPending}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-lg transition duration-300 shadow-md hover:shadow-lg mt-2 flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed"
           >

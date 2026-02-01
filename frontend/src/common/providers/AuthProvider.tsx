@@ -13,19 +13,16 @@ export default function AuthProvider({
   const { profileQuery } = useAuth();
   const { user } = useAuthStore();
 
-  // Hydrate từ localStorage khi component mount
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // Nếu user tồn tại trong store nhưng chưa fetch profile, fetch ngay
   useEffect(() => {
     if (isHydrated && user && !profileQuery.data) {
       profileQuery.refetch();
     }
   }, [isHydrated, user, profileQuery]);
 
-  // Tránh hydration mismatch
   if (!isHydrated) {
     return <>{children}</>;
   }

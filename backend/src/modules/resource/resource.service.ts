@@ -3,7 +3,12 @@ import { Prisma, Resource, ResourceDetail, User } from '@prisma/client';
 import { ApiError } from 'src/common/apis';
 import { IPaginationRequest, IPaginationResponse } from 'src/common/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateResourceDto, ResourceDetailDto, UpdateResourceWithDetailDto } from './dto';
+import {
+  CreateResourceDto,
+  ResourceDetailDto,
+  UpdateResourceWithDetailDto,
+} from './dto';
+import { IResourceQuery } from './interfaces';
 
 @Injectable()
 export class ResourceService {
@@ -25,7 +30,11 @@ export class ResourceService {
     return toCreate;
   }
 
-  async createResourceDetail(resourceId : number , dto: ResourceDetailDto, user: User) {
+  async createResourceDetail(
+    resourceId: number,
+    dto: ResourceDetailDto,
+    user: User,
+  ) {
     if (resourceId) throw new ApiError('', HttpStatus.BAD_REQUEST);
     const resource = await this.prisma.resource.findUnique({
       where: { id: resourceId },
@@ -122,7 +131,7 @@ export class ResourceService {
           icon: detail.icon,
           herf: detail.href,
           created_by: user.id,
-          updated_by: user.id
+          updated_by: user.id,
         }));
 
         await tx.resourceDetail.createMany({
@@ -155,7 +164,7 @@ export class ResourceService {
   }
 
   async getAllResourcesWithResourceDetail(
-    query: IPaginationRequest,
+    query: IResourceQuery,
   ): Promise<IPaginationResponse<Resource>> {
     const {
       page = 1,
@@ -164,6 +173,7 @@ export class ResourceService {
       sortBy = 'desc',
       search,
       searchBy,
+      is_active = 'all',
     } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
@@ -175,11 +185,16 @@ export class ResourceService {
         'updated_by',
         'created_by',
       ];
-      const field = validSearchFields.includes(searchBy) ? searchBy : 'name';
+      const field = validSearchFields.includes(searchBy)
+        ? searchBy
+        : 'description';
       where[field] = {
         contains: String(search),
         mode: 'insensitive',
       };
+    }
+    if (is_active === 'true' || is_active === 'false') {
+      where.is_active = is_active === 'true' ? true : false;
     }
     const validOrderFields = ['alias', 'created_at', 'updated_at'];
     const orderField = validOrderFields.includes(orderBy)

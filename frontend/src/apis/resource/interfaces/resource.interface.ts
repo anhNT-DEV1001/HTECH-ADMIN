@@ -1,3 +1,4 @@
+import { IPaginationRequest } from "@/common/interfaces";
 export interface ICreateResource {
   alias?: string;
   description?: string;
@@ -35,4 +36,8 @@ export interface IResource {
   updated_by: number;
   created_by: number;
   resourceDetails: IResourceDetail[];
+}
+
+export interface IResourceRequest extends IPaginationRequest {
+  is_active?: "all" | "true" | "false";
 }
