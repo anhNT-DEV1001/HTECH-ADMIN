@@ -34,12 +34,14 @@ export default function middleware(req: NextRequest) {
       xRequestedWith === "XMLHttpRequest";
 
     if (isApiRequest) {
-      const isPublicFlag = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+      const isPublicFlag = PUBLIC_PATHS.some((path) =>
+        pathname.startsWith(path),
+      );
       if (isPublicFlag) return NextResponse.next();
-        return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
+      return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
     const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);
