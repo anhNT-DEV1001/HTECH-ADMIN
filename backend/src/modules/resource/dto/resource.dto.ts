@@ -95,4 +95,8 @@ export class CreateResourceDto {
   @IsString()
   @IsOptional()
   href?: string;
+
+  @IsOptional()
+  @IsArray()
+  resourceDetails?: ResourceDetailDto[];
 }

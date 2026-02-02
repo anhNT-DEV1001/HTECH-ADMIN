@@ -426,7 +426,7 @@ export default function ListMenu() {
                             colSpan={8}
                             className="p-0"
                           >
-                            <div className="px-12 py-4 animate-in slide-in-from-top-2 duration-200">
+                            <div className="px-4 py-4 animate-in slide-in-from-top-2 duration-200">
                               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                                 <table className="w-full text-left border-separate border-spacing-0 table-fixed">
                                   <thead className="bg-gray-50/80">
