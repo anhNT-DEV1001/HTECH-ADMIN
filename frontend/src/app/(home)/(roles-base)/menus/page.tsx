@@ -150,22 +150,28 @@ export default function ListMenu() {
 
   const handleSave = async (formData: ICreateResource) => {
     if (selectedResource) {
-      // Gọi API update
       const isConfirm = await confirm({
         title: `Bạn có muốn cập nhập ${formData.alias}`,
         variant: "info",
       });
       if (isConfirm)
-        await updateResource({ id: selectedResource.id, ...formData });
+        await updateResource(
+          { id: selectedResource.id, ...formData },
+          {
+            onSuccess: () => handleCloseModal(),
+          },
+        );
     } else {
-      // Gọi API create
       const isConfirm = await confirm({
         title: `Bạn có muốn lưu tài nguyên này`,
         variant: "info",
       });
-      if (isConfirm) await createResource(formData);
+      if (isConfirm)
+        await createResource(formData, {
+          onSuccess: () => handleCloseModal(),
+        });
     }
-    handleCloseModal();
+    // handleCloseModal();
   };
 
   const handleCloseModal = () => {
@@ -251,7 +257,7 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                <th className="px-4 py-2.5 font-semibold w-35 text-gray-700 text-center border border-gray-200">
+                <th className="px-4 py-2.5 font-semibold w-30 text-gray-700 text-center border border-gray-200">
                   Trạng thái
                 </th>
 
@@ -285,7 +291,7 @@ export default function ListMenu() {
 
                 <th
                   className="px-4 py-2.5 font-semibold w-40 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() =>  handleSort("updated_at")}
+                  onClick={() => handleSort("updated_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                     <span>Cập nhật cuối</span>
@@ -329,7 +335,7 @@ export default function ListMenu() {
                   const currentLimit = params.limit || 10;
                   const stt = (currentPage - 1) * currentLimit + index + 1;
                   const isExpanded = expandedRowId === resource.id;
-                  return (  
+                  return (
                     <React.Fragment key={resource.id}>
                       <tr
                         key={resource.id}
@@ -359,12 +365,16 @@ export default function ListMenu() {
                         </td> */}
                         <td className="px-4 py-2 border border-gray-200 text-center">
                           {resource.is_active ? (
-                            <span className="flex items-center gap-2 justify-center text-green-500"><CheckCircle2 size={10}/> Bật</span>
+                            <span className="flex items-center gap-2 justify-center text-green-500">
+                              <CheckCircle2 size={10} /> Bật
+                            </span>
                           ) : (
-                            <span className="flex items-center gap-2 justify-center text-red-500"><CircleOff size={10}/> Tắt</span>
+                            <span className="flex items-center gap-2 justify-center text-red-500">
+                              <CircleOff size={10} /> Tắt
+                            </span>
                           )}
                         </td>
-                        
+
                         {/* <td className="px-4 py-2 border border-gray-200 ">
                           {resource.icon ? resource.icon : "Không có dữ liệu"}
                         </td> */}
@@ -407,11 +417,11 @@ export default function ListMenu() {
                               onClick={() => handleEdit(resource)}
                               className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
                               title="Chỉnh sửa"
-                            > 
+                            >
                               <Pencil size={15} />
                             </button>
                             <button
-                              onClick={() =>  handleDelete(resource)}
+                              onClick={() => handleDelete(resource)}
                               className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
                               title="Xóa"
                             >
@@ -422,11 +432,8 @@ export default function ListMenu() {
                       </tr>
                       {isExpanded && (
                         <tr className="bg-gray-50/50">
-                          <td
-                            colSpan={8}
-                            className="p-0"
-                          >
-                            <div className="px-4 py-4 animate-in slide-in-from-top-2 duration-200">
+                          <td colSpan={8} className="p-0">
+                            <div className="animate-in slide-in-from-top-2 duration-200">
                               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                                 <table className="w-full text-left border-separate border-spacing-0 table-fixed">
                                   <thead className="bg-gray-50/80">
@@ -434,13 +441,13 @@ export default function ListMenu() {
                                       <th className="px-4 py-2.5 font-semibold w-15 text-gray-700 text-center border border-gray-200">
                                         STT
                                       </th>
-                                      <th className="px-4 py-2.5 font-semibold w-50 text-gray-700 border border-gray-200">
+                                      <th className="px-4 py-2.5 font-semibold  text-gray-700 border border-gray-200">
                                         Mã
                                       </th>
-                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200">
+                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 w-45">
                                         Đường dẫn
                                       </th>
-                                      <th className="px-4 py-2.5 font-semibold w-35 text-gray-700 text-center border border-gray-200">
+                                      <th className="px-4 py-2.5 font-semibold w-25 text-gray-700 text-center border border-gray-200">
                                         Trạng thái
                                       </th>
                                     </tr>
@@ -460,15 +467,21 @@ export default function ListMenu() {
                                               {detail.alias}
                                             </td>
                                             <td className="px-4 py-2 font-mono  border border-gray-200 truncate">
-                                              {detail.href || (detail as any).herf || "—"}
+                                              {detail.href ||
+                                                (detail as any).herf ||
+                                                "—"}
                                             </td>
                                             <td className="px-4 py-2 border border-gray-200 text-center">
                                               {detail.is_active ? (
-                                                <span className="flex items-center gap-2 justify-center text-green-500"><CheckCircle2 size={10}/> Bật</span>
+                                                <span className="flex items-center gap-2 justify-center text-green-500">
+                                                  <CheckCircle2 size={10} /> Bật
+                                                </span>
                                               ) : (
-                                                <span className="flex items-center gap-2 justify-center text-red-500"><CircleOff size={10}/> Tắt</span>
+                                                <span className="flex items-center gap-2 justify-center text-red-500">
+                                                  <CircleOff size={10} /> Tắt
+                                                </span>
                                               )}
-                                            </td> 
+                                            </td>
                                           </tr>
                                         ),
                                       )
@@ -494,7 +507,7 @@ export default function ListMenu() {
                 })
               )}
             </tbody>
-            { meta && (
+            {meta && (
               <tfoot className="bg-gray-50/50">
                 <tr>
                   <td
@@ -516,7 +529,7 @@ export default function ListMenu() {
                         className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
                         value={params.limit}
                         onChange={(e) =>
-                          setParams((prev) =>({
+                          setParams((prev) => ({
                             ...prev,
                             limit: Number(e.target.value),
                             page: 1,
@@ -539,14 +552,15 @@ export default function ListMenu() {
                         </button>
 
                         <div className="flex gap-1 px-2">
-                          {[...Array(meta.totalPages)].map((_, i) =>(
+                          {[...Array(meta.totalPages)].map((_, i) => (
                             <button
                               key={i}
                               onClick={() => handlePageChange(i + 1)}
-                              className={`min-w-5 h-7 text-xs rounded transition font-medium ${params.page === i + 1
-                                ? "bg-blue-600 text-white shadow-sm"
-                                : "hover:bg-white border border-transparent hover:border-gray-200"
-                                }`}
+                              className={`min-w-5 h-7 text-xs rounded transition font-medium ${
+                                params.page === i + 1
+                                  ? "bg-blue-600 text-white shadow-sm"
+                                  : "hover:bg-white border border-transparent hover:border-gray-200"
+                              }`}
                             >
                               {i + 1}
                             </button>
