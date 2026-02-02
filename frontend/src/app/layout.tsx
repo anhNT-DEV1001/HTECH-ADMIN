@@ -4,7 +4,6 @@ import { ToastProvider } from "@/common/providers/ToastProvider";
 import "@/public/styles/globals.css";
 import { ConfirmProvider } from "@/common/providers/ConfirmProvider";
 
-
 export default function RootLayout({
   children,
 }: Readonly<{

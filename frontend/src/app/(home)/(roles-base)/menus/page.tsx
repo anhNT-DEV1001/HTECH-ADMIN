@@ -1,25 +1,35 @@
 "use client";
 
-import { useResource } from "@/apis/resource/hooks";
-import { IResource, IResourceRequest } from "@/apis/resource/interfaces";
+import { useResource } from "@/features/resource/hooks";
+import {
+  ICreateResource,
+  IResource,
+  IResourceRequest,
+  IUpdateResourceWithDetail,
+} from "@/features/resource/interfaces";
 import { useDebouncedValue } from "@/common/hooks";
 import dayjs from "dayjs";
 import {
   ArrowDownWideNarrow,
+  CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  CircleOff,
   Loader2,
   Pencil,
   Plus,
   Search,
   Trash2,
+  X,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import MenuLoading from "./loading";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import ResourceModal from "@/features/resource/components/ResourceModal";
 
 export default function ListMenu() {
   const router = useRouter();
@@ -39,6 +49,14 @@ export default function ListMenu() {
   const [selectIsActive, setSelectIsActive] = useState(
     params.is_active || "all",
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<
+    IResource | undefined
+  >(undefined);
+  const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
+  const toggleRow = (id: number) => {
+    setExpandedRowId(expandedRowId === id ? null : id);
+  };
   const debouncedSearch = useDebouncedValue(searchInput, 500);
   const {
     resourceData,
@@ -120,6 +138,41 @@ export default function ListMenu() {
     if (isConfirm) deleteResource(resource.id);
   };
 
+  const handleAddNew = () => {
+    setSelectedResource(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (resource: IResource) => {
+    setSelectedResource(resource);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (formData: ICreateResource) => {
+    if (selectedResource) {
+      // Gọi API update
+      const isConfirm = await confirm({
+        title: `Bạn có muốn cập nhập ${formData.alias}`,
+        variant: "info",
+      });
+      if (isConfirm)
+        await updateResource({ id: selectedResource.id, ...formData });
+    } else {
+      // Gọi API create
+      const isConfirm = await confirm({
+        title: `Bạn có muốn lưu tài nguyên này`,
+        variant: "info",
+      });
+      if (isConfirm) await createResource(formData);
+    }
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedResource(undefined);
+  };
+
   return (
     <section>
       <div className="flex justify-between items-end mb-2">
@@ -153,14 +206,14 @@ export default function ListMenu() {
               }
             >
               <option value="all">Tất cả trạng thái</option>
-              <option value="true">Kích hoạt</option>
-              <option value="false">Chưa kích hoạt</option>
+              <option value="true">Bật</option>
+              <option value="false">Tắt</option>
             </select>
           </div>
           {isFetching && <MenuLoading />}
         </div>
         <button
-          // onClick={handleAddNew}
+          onClick={handleAddNew}
           className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition shrink-0"
         >
           <Plus size={16} />
@@ -173,14 +226,11 @@ export default function ListMenu() {
           <table className="w-full text-left border-separate border-spacing-0 table-fixed">
             <thead className="bg-gray-50/80">
               <tr>
-                {/* STT: Cố định 60px */}
                 <th className="px-4 py-2.5 font-semibold w-15 text-gray-700 text-center border border-gray-200">
                   STT
                 </th>
-
-                {/* Mã: 120px, Flex-row để icon và text cùng hàng */}
                 <th
-                  className="px-4 py-2.5 font-semibold w-30 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold w-35 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("alias")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -189,7 +239,6 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                {/* Tên: Cột chính, để chiếm phần còn lại hoặc rộng ra */}
                 <th
                   className="px-4 py-2.5 font-semibold min-w-50 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("descreption")}
@@ -202,15 +251,14 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                {/* Trạng thái: 140px */}
                 <th className="px-4 py-2.5 font-semibold w-35 text-gray-700 text-center border border-gray-200">
                   Trạng thái
                 </th>
 
                 {/* Biểu tượng: 100px */}
-                <th className="px-4 py-2.5 font-semibold w-42 text-gray-700 text-center border border-gray-200">
+                {/* <th className="px-4 py-2.5 font-semibold w-42 text-gray-700 text-center border border-gray-200">
                   Biểu tượng
-                </th>
+                </th> */}
 
                 {/* Đường dẫn: 200px */}
                 <th
@@ -223,7 +271,6 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                {/* Các cột thời gian: 160px */}
                 <th
                   className="px-4 py-2.5 font-semibold w-40 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("created_at")}
@@ -238,7 +285,7 @@ export default function ListMenu() {
 
                 <th
                   className="px-4 py-2.5 font-semibold w-40 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("updated_at")}
+                  onClick={() =>  handleSort("updated_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                     <span>Cập nhật cuối</span>
@@ -248,7 +295,6 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                {/* Thao tác: 100px */}
                 <th className="px-4 py-2.5 font-semibold w-25 text-gray-700 text-center border border-gray-200">
                   Thao tác
                 </th>
@@ -258,7 +304,7 @@ export default function ListMenu() {
               {isLoading ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={8}
                     className="p-12 text-center text-gray-400 border border-gray-200"
                   >
                     <Loader2
@@ -271,7 +317,7 @@ export default function ListMenu() {
               ) : resources.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={8}
                     className="p-12 text-center text-gray-400 font-light italic border border-gray-200"
                   >
                     Không tìm thấy dữ liệu phù hợp
@@ -282,73 +328,177 @@ export default function ListMenu() {
                   const currentPage = params.page || 1;
                   const currentLimit = params.limit || 10;
                   const stt = (currentPage - 1) * currentLimit + index + 1;
-                  return (
-                    <tr
-                      key={resource.id}
-                      className="hover:bg-blue-50/30 transition-colors"
-                    >
-                      <td className="px-4 py-2 text-gray-400 font-mono text-xs text-center border border-gray-200">
-                        {stt}
-                      </td>
-                      <td className="px-4 py-2 font-medium text-gray-800 text-center border border-gray-200">
-                        {resource.alias}
-                      </td>
-                      <td className="px-4 py-2 font-medium text-gray-800 text-left border border-gray-200">
-                        {resource.description}
-                      </td>
-                      <td className="text-center border border-gray-200">
-                        {resource.is_active ? "Kích hoạt" : "Không kích hoạt"}
-                      </td>
-                      <td className="px-4 py-2 border border-gray-200 ">
-                        {resource.icon ? resource.icon : "Không có dữ liệu"}
-                      </td>
-                      <td className="px-4 py-2 border border-gray-200">
-                        {resource.href ? resource.href : "Không có dữ liệu"}
-                      </td>
-                      <td className="border border-gray-200 text-center text-xs">
-                        <span>
-                          {dayjs(resource.created_at).format("DD/MM/YYYY")}
-                        </span>
-                        <div className="text-gray-400 mt-0.5">
-                          {dayjs(resource.created_at).format("HH:mm:ss")}
-                        </div>
-                      </td>
-                      <td className="border border-gray-200 text-center text-xs">
-                        <span>
-                          {dayjs(resource.updated_at).format("DD/MM/YYYY")}
-                        </span>
-                        <div className="text-gray-400 mt-0.5">
-                          {dayjs(resource.updated_at).format("HH:mm:ss")}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 border border-gray-200">
-                        <div className="flex justify-center gap-1">
-                          <button
-                            // onClick={() => handleEdit(role)}
-                            className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
-                            title="Chỉnh sửa"
+                  const isExpanded = expandedRowId === resource.id;
+                  return (  
+                    <React.Fragment key={resource.id}>
+                      <tr
+                        key={resource.id}
+                        className="hover:bg-blue-50/30 transition-colors"
+                      >
+                        <td className="px-4 py-2 text-gray-400 font-mono text-xs text-center border border-gray-200">
+                          {stt}
+                        </td>
+                        <td className="px-4 py-2 font-medium text-gray-800 text-center border border-gray-200">
+                          {resource.alias}
+                        </td>
+                        <td className="px-4 py-2 font-medium text-gray-800 text-left border border-gray-200">
+                          {resource.description}
+                        </td>
+                        {/* <td className="px-4 py-2 border border-gray-200 text-center">
+                          {resource.is_active ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200 shadow-sm">
+                              <CheckCircle2 size={10} className="shrink-0" />
+                              Bật
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200 shadow-sm">
+                              <CircleOff size={10} className="shrink-0" />
+                              Tắt
+                            </span>
+                          )}
+                        </td> */}
+                        <td className="px-4 py-2 border border-gray-200 text-center">
+                          {resource.is_active ? (
+                            <span className="flex items-center gap-2 justify-center text-green-500"><CheckCircle2 size={10}/> Bật</span>
+                          ) : (
+                            <span className="flex items-center gap-2 justify-center text-red-500"><CircleOff size={10}/> Tắt</span>
+                          )}
+                        </td>
+                        
+                        {/* <td className="px-4 py-2 border border-gray-200 ">
+                          {resource.icon ? resource.icon : "Không có dữ liệu"}
+                        </td> */}
+                        <td className="px-4 py-2 border border-gray-200">
+                          {resource.href ? resource.href : "Không có dữ liệu"}
+                        </td>
+                        <td className="border border-gray-200 text-center text-xs">
+                          <span>
+                            {dayjs(resource.created_at).format("DD/MM/YYYY")}
+                          </span>
+                          <div className="text-gray-400 mt-0.5">
+                            {dayjs(resource.created_at).format("HH:mm:ss")}
+                          </div>
+                        </td>
+                        <td className="border border-gray-200 text-center text-xs">
+                          <span>
+                            {dayjs(resource.updated_at).format("DD/MM/YYYY")}
+                          </span>
+                          <div className="text-gray-400 mt-0.5">
+                            {dayjs(resource.updated_at).format("HH:mm:ss")}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 border border-gray-200">
+                          <div className="flex justify-center gap-1">
+                            <button
+                              onClick={() => toggleRow(resource.id)}
+                              className="p-1 hover:bg-gray-200 rounded transition-transform"
+                              style={{
+                                transform: isExpanded
+                                  ? "rotate(180deg)"
+                                  : "rotate(0deg)",
+                              }}
+                            >
+                              <ChevronDown
+                                size={16}
+                                className="text-gray-500"
+                              />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(resource)}
+                              className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
+                              title="Chỉnh sửa"
+                            > 
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              onClick={() =>  handleDelete(resource)}
+                              className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
+                              title="Xóa"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="bg-gray-50/50">
+                          <td
+                            colSpan={8}
+                            className="p-0"
                           >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(resource)}
-                            className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
-                            title="Xóa"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                            <div className="px-12 py-4 animate-in slide-in-from-top-2 duration-200">
+                              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                <table className="w-full text-left border-separate border-spacing-0 table-fixed">
+                                  <thead className="bg-gray-50/80">
+                                    <tr>
+                                      <th className="px-4 py-2.5 font-semibold w-15 text-gray-700 text-center border border-gray-200">
+                                        STT
+                                      </th>
+                                      <th className="px-4 py-2.5 font-semibold w-50 text-gray-700 border border-gray-200">
+                                        Mã
+                                      </th>
+                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200">
+                                        Đường dẫn
+                                      </th>
+                                      <th className="px-4 py-2.5 font-semibold w-35 text-gray-700 text-center border border-gray-200">
+                                        Trạng thái
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {resource.resourceDetails?.length > 0 ? (
+                                      resource.resourceDetails.map(
+                                        (detail, dIdx) => (
+                                          <tr
+                                            key={dIdx}
+                                            className="hover:bg-blue-50/30 transition-colors"
+                                          >
+                                            <td className="px-4 py-2 text-gray-400 font-mono text-xs text-center border border-gray-200">
+                                              {dIdx + 1}
+                                            </td>
+                                            <td className="px-4 py-2 font-medium text-gray-800 border border-gray-200">
+                                              {detail.alias}
+                                            </td>
+                                            <td className="px-4 py-2 font-mono  border border-gray-200 truncate">
+                                              {detail.href || (detail as any).herf || "—"}
+                                            </td>
+                                            <td className="px-4 py-2 border border-gray-200 text-center">
+                                              {detail.is_active ? (
+                                                <span className="flex items-center gap-2 justify-center text-green-500"><CheckCircle2 size={10}/> Bật</span>
+                                              ) : (
+                                                <span className="flex items-center gap-2 justify-center text-red-500"><CircleOff size={10}/> Tắt</span>
+                                              )}
+                                            </td> 
+                                          </tr>
+                                        ),
+                                      )
+                                    ) : (
+                                      <tr>
+                                        <td
+                                          colSpan={4}
+                                          className="p-8 text-center text-gray-400 font-light italic border border-gray-200"
+                                        >
+                                          Không có tài nguyên con
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })
               )}
             </tbody>
-            {meta && (
+            { meta && (
               <tfoot className="bg-gray-50/50">
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={8}
                     className="px-4 py-2.5 border-t border-gray-200"
                   >
                     <div className="flex justify-between items-center">
@@ -366,7 +516,7 @@ export default function ListMenu() {
                         className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
                         value={params.limit}
                         onChange={(e) =>
-                          setParams((prev) => ({
+                          setParams((prev) =>({
                             ...prev,
                             limit: Number(e.target.value),
                             page: 1,
@@ -389,15 +539,14 @@ export default function ListMenu() {
                         </button>
 
                         <div className="flex gap-1 px-2">
-                          {[...Array(meta.totalPages)].map((_, i) => (
+                          {[...Array(meta.totalPages)].map((_, i) =>(
                             <button
                               key={i}
                               onClick={() => handlePageChange(i + 1)}
-                              className={`min-w-5 h-7 text-xs rounded transition font-medium ${
-                                params.page === i + 1
-                                  ? "bg-blue-600 text-white shadow-sm"
-                                  : "hover:bg-white border border-transparent hover:border-gray-200"
-                              }`}
+                              className={`min-w-5 h-7 text-xs rounded transition font-medium ${params.page === i + 1
+                                ? "bg-blue-600 text-white shadow-sm"
+                                : "hover:bg-white border border-transparent hover:border-gray-200"
+                                }`}
                             >
                               {i + 1}
                             </button>
@@ -420,6 +569,13 @@ export default function ListMenu() {
           </table>
         </div>
       </div>
+      <ResourceModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        data={selectedResource}
+        loading={isCreating || isUpdating}
+      />
     </section>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
-import { useAuth } from "@/apis/auth/hooks";
-import { LoginResquest } from "@/apis/auth/interfaces";
+import { useAuth } from "@/features/auth/hooks";
+import { LoginResquest } from "@/features/auth/interfaces";
 import { useToast } from "@/common/providers/ToastProvider";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";

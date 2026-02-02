@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from "@/apis/auth/hooks";
+import { useAuth } from "@/features/auth/hooks";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { useToast } from "@/common/providers/ToastProvider";
 import { useAuthStore } from "@/common/stores";

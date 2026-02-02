@@ -25,9 +25,9 @@ export class UpdateResourceWithDetailDto {
   @IsOptional()
   icon?: string;
 
-  @IsBoolean()
+  // @IsBoolean()
   @IsOptional()
-  is_active?: boolean;
+  is_active?: string;
 
   @IsString()
   @IsOptional()
@@ -35,9 +35,17 @@ export class UpdateResourceWithDetailDto {
 
   @IsArray()
   @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => ResourceDetailDto)
+  // @ValidateNested({ each: true })
+  // @Type(() => ResourceDetailDto)
   resourceDetails?: ResourceDetailDto[];
+  @IsOptional()
+  created_at?: Date;
+  @IsOptional()
+  updated_at?: Date;
+  @IsOptional()
+  created_by?: Date;
+  @IsOptional()
+  updated_by?: Date;
 }
 
 export class ResourceDetailDto {
@@ -56,6 +64,15 @@ export class ResourceDetailDto {
   @IsString()
   @IsOptional()
   href?: string;
+
+  @IsOptional()
+  created_at?: Date;
+  @IsOptional()
+  updated_at?: Date;
+  @IsOptional()
+  created_by?: Date;
+  @IsOptional()
+  updated_by?: Date;
 }
 
 export class CreateResourceDto {

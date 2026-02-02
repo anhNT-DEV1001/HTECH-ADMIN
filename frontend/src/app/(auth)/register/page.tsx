@@ -1,6 +1,6 @@
 "use client";
-import { useAuth } from "@/apis/auth/hooks";
-import { ResginterRequest } from "@/apis/auth/interfaces";
+import { useAuth } from "@/features/auth/hooks";
+import { ResginterRequest } from "@/features/auth/interfaces";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";

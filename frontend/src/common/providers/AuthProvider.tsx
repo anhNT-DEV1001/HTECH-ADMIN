@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/apis/auth/hooks";
+import { useAuth } from "@/features/auth/hooks";
 import { useAuthStore } from "@/common/stores";
 import { useEffect, useState } from "react";
 

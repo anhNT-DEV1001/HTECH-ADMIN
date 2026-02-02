@@ -1,4 +1,4 @@
-import { IAuth } from "@/apis/auth/interfaces";
+import { IAuth } from "@/features/auth/interfaces";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

@@ -115,7 +115,7 @@ export class ResourceService {
           description: dto.description,
           icon: dto.icon,
           href: dto.href,
-          is_active: dto.is_active,
+          is_active: dto.is_active === 'true' ? true : false,
           updated_by: user.id,
         },
       });
