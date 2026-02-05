@@ -7,5 +7,6 @@ import { ResourceService } from './resource.service';
   imports: [PrismaModule],
   providers: [ResourceService],
   controllers: [ResourceController],
+  exports: [ResourceService],
 })
 export class ResourceModule {}

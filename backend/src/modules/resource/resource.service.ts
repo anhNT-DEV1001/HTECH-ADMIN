@@ -226,4 +226,17 @@ export class ResourceService {
       },
     };
   }
+
+  async getActionInResourceDetail(
+    resourceDetailId: number,
+  ): Promise<ResourceDetail> {
+    const resourceDetail = await this.prisma.resourceDetail.findUnique({
+      where: { id: resourceDetailId },
+      include: {
+        actions: true,
+      },
+    });
+
+    return resourceDetail as ResourceDetail;
+  }
 }

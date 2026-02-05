@@ -444,7 +444,7 @@ export default function ListMenu() {
                                       <th className="px-4 py-2.5 font-semibold  text-gray-700 border border-gray-200">
                                         Mã
                                       </th>
-                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 w-45">
+                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 w-50">
                                         Đường dẫn
                                       </th>
                                       <th className="px-4 py-2.5 font-semibold w-25 text-gray-700 text-center border border-gray-200">
@@ -458,7 +458,11 @@ export default function ListMenu() {
                                         (detail, dIdx) => (
                                           <tr
                                             key={dIdx}
-                                            className="hover:bg-blue-50/30 transition-colors"
+                                            className="hover:bg-blue-100 cursor-pointer transition-colors"
+                                            onClick={() => {
+                                              const targetUrl = `menus/${detail?.id}`;
+                                              if (targetUrl) router.push(targetUrl);
+                                            }}
                                           >
                                             <td className="px-4 py-2 text-gray-400 font-mono text-xs text-center border border-gray-200">
                                               {dIdx + 1}

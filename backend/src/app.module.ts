@@ -7,9 +7,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { RoleModule } from './modules/role/role.module';
+import { PermissionModule } from './modules/permission/permission.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule],
   controllers: [AppController],
   providers: [
     AppService,
