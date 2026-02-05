@@ -70,6 +70,9 @@ export class ResourceService {
     }
     const resource = await this.prisma.resource.findUnique({
       where: { id: resourceId },
+      include: {
+        resourceDetails: true,
+      },
     });
 
     if (!resource)
@@ -104,6 +107,9 @@ export class ResourceService {
   ): Promise<Resource> {
     const resource = await this.prisma.resource.findUnique({
       where: { id: dto.id },
+      include: {
+        resourceDetails: true,
+      },
     });
     if (!resource)
       throw new ApiError('Không tìm thấy tài nguyên!', HttpStatus.BAD_REQUEST);
@@ -119,7 +125,6 @@ export class ResourceService {
           updated_by: user.id,
         },
       });
-
       await tx.resourceDetail.deleteMany({
         where: { parent_alias: resource.alias },
       });
@@ -133,6 +138,15 @@ export class ResourceService {
           created_by: user.id,
           updated_by: user.id,
         }));
+        // Nếu detail có resource_detail_id thay đổi => xóa action liên quan;
+        // Map từ danh sách resourceDetail cũ và danh sách detail mới -> lấy mảng alias resourceDatail 
+        // xóa action theo mảng alias resourceDatail 
+        const oldAlias = resource.resourceDetails.map((detail) => detail.alias);
+        const newAlias = dto.resourceDetails.map((detail) => detail.alias);
+        const aliasToDelete = oldAlias.filter((alias) => !newAlias.includes(alias));
+        await tx.action.deleteMany({
+          where: { resource_detail_alias: { in: aliasToDelete } },
+        });
 
         await tx.resourceDetail.createMany({
           data: detailsToCreate,
