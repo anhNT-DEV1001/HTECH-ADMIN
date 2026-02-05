@@ -8,6 +8,7 @@ export interface ICreateResource {
 }
 
 export interface IResourceDetail {
+  id?: number;
   alias: string;
   is_active?: boolean;
   icon?: string;
