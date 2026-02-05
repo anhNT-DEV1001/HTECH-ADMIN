@@ -125,11 +125,34 @@ export class ResourceService {
           updated_by: user.id,
         },
       });
-      await tx.resourceDetail.deleteMany({
-        where: { parent_alias: resource.alias },
-      });
-      if (dto.resourceDetails && dto.resourceDetails.length > 0) {
-        const detailsToCreate = dto.resourceDetails.map((detail) => ({
+      const oldDetails = resource.resourceDetails;
+      const newDetailsDto = dto.resourceDetails || [];
+      const oldDetailsMap = new Map(oldDetails.map((d) => [d.alias, d]));
+      const newDetailsMap = new Map(newDetailsDto.map((d) => [d.alias, d]));
+      const aliasesToDelete = oldDetails
+        .map((d) => d.alias)
+        .filter((alias) => !newDetailsMap.has(alias));
+      const detailsToCreateDto = newDetailsDto.filter(
+        (d) => !oldDetailsMap.has(d.alias),
+      );
+      const detailsToUpdateDto = newDetailsDto.filter((d) =>
+        oldDetailsMap.has(d.alias),
+      );  
+      if (aliasesToDelete.length > 0) {
+        await tx.action.deleteMany({
+          where: { resource_detail_alias: { in: aliasesToDelete } },
+        });
+
+        await tx.resourceDetail.deleteMany({
+          where: {
+            parent_alias: resource.alias,
+            alias: { in: aliasesToDelete },
+          },
+        });
+      }
+
+      if (detailsToCreateDto.length > 0) {
+        const dataToCreate = detailsToCreateDto.map((detail) => ({
           alias: detail.alias,
           parent_alias: updatedResource.alias,
           is_active: detail.is_active,
@@ -138,20 +161,28 @@ export class ResourceService {
           created_by: user.id,
           updated_by: user.id,
         }));
-        // Nếu detail có resource_detail_id thay đổi => xóa action liên quan;
-        // Map từ danh sách resourceDetail cũ và danh sách detail mới -> lấy mảng alias resourceDatail 
-        // xóa action theo mảng alias resourceDatail 
-        const oldAlias = resource.resourceDetails.map((detail) => detail.alias);
-        const newAlias = dto.resourceDetails.map((detail) => detail.alias);
-        const aliasToDelete = oldAlias.filter((alias) => !newAlias.includes(alias));
-        await tx.action.deleteMany({
-          where: { resource_detail_alias: { in: aliasToDelete } },
-        });
 
         await tx.resourceDetail.createMany({
-          data: detailsToCreate,
+          data: dataToCreate,
         });
       }
+      if (detailsToUpdateDto.length > 0) {
+        await Promise.all(
+          detailsToUpdateDto.map((detail) =>
+            tx.resourceDetail.update({
+              where: { alias: detail.alias },
+              data: {
+                parent_alias: updatedResource.alias,
+                is_active: detail.is_active,
+                icon: detail.icon,
+                herf: detail.href,
+                updated_by: user.id,
+              },
+            }),
+          ),
+        );
+      }
+
       return updatedResource;
     });
   }
