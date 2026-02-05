@@ -7,7 +7,10 @@ import React, { useState } from "react";
 import dayjs from "dayjs";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import ActionDetailModal from "@/features/action/components/ActionDetailModal";
-import { IActionDetailForm, Action } from "@/features/action/interfaces/action.interface";
+import {
+  IActionDetailForm,
+  Action,
+} from "@/features/action/interfaces/action.interface";
 import { IResourceDetail } from "@/features/resource/interfaces";
 
 export default function MenuDetail({
@@ -16,15 +19,15 @@ export default function MenuDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = React.use(params);
-  const { 
-    actionData, 
-    isLoading, 
-    isFetching, 
+  const {
+    actionData,
+    isLoading,
+    isFetching,
     deleteActionMutation,
     createActionMutation,
-    isCreating
+    isCreating,
   } = useAction(Number(slug));
-  
+
   const router = useRouter();
   const { confirm } = useConfirm();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,7 +94,7 @@ export default function MenuDetail({
             </h1>
           </div>
         </button>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-white bg-blue-600   transition-all duration-200 ease-in-out shadow-sm active:scale-95 hover:bg-blend-hue"
         >
@@ -157,13 +160,13 @@ export default function MenuDetail({
                     key={action.id}
                     className="hover:bg-blue-50/50 transition-colors group"
                   >
-                    <td className="px-4 py-3 text-gray-500 font-mono text-sm text-center border border-gray-200 group-last:border-0">
+                    <td className="px-4 py-3 text-gray-500 font-mono text-sm text-center border border-gray-200">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 text-center font-medium text-gray-800 border border-gray-200 group-last:border-0">
+                    <td className="px-4 py-3 text-center font-medium text-gray-800 border border-gray-200">
                       {action.action}
                     </td>
-                    <td className="px-4 py-3  text-center border border-gray-200 group-last:border-0">
+                    <td className="px-4 py-3  text-center border border-gray-200">
                       <span className="text-sm text-gray-600 block">
                         {dayjs(action.created_at).format("DD/MM/YYYY")}
                       </span>
@@ -171,7 +174,7 @@ export default function MenuDetail({
                         {dayjs(action.created_at).format("HH:mm:ss")}
                       </span>
                     </td>
-                    <td className="px-4 py-3  text-center border border-gray-200 group-last:border-0">
+                    <td className="px-4 py-3  text-center border border-gray-200">
                       <span className="text-sm text-gray-600 block">
                         {dayjs(action.updated_at).format("DD/MM/YYYY")}
                       </span>
@@ -179,7 +182,7 @@ export default function MenuDetail({
                         {dayjs(action.updated_at).format("HH:mm:ss")}
                       </span>
                     </td>
-                    <td className="px-4 py-3 border  border-gray-200 group-last:border-0 text-center">
+                    <td className="px-4 py-3 border  border-gray-200 text-center">
                       <button
                         onClick={() =>
                           action.id && handleDelete(action.id, action.action)
