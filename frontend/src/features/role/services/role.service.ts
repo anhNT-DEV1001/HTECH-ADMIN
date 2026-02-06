@@ -13,6 +13,11 @@ export const roleService = {
     return response.data;
   },
 
+  async getRoleById(id : number) : Promise<BaseResponse<IRole>> {
+    const response = await axiosClient.get<BaseResponse<IRole>>(`/role/${id}`);
+    return response.data;
+  },
+
   async createRole (body : ICreateRoleRequest) : Promise<BaseResponse<IRole>> {
     const response = await axiosClient.post<BaseResponse<IRole>>("/role", body);
     return response.data;

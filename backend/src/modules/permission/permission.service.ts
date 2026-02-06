@@ -95,10 +95,11 @@ export class PermissionService {
 
   async saveRoleGroupPermission(roleId : number , actionIds : number[] , user : User) {
     try {
+      const uniqueActionIds = [...new Set(actionIds)];
       const isExist = await this.prismaService.action.findMany({
-        where : {id : {in : actionIds}}
+        where : {id : {in : uniqueActionIds}}
       })
-      if(isExist.length !== actionIds.length) {
+      if(isExist.length !== uniqueActionIds.length) {
         throw new ApiError('Thao tác không hợp lệ !', HttpStatus.BAD_REQUEST);
       }
       const role = await this.roleService.getRoleById(roleId);
@@ -108,9 +109,9 @@ export class PermissionService {
       if(roleGroupPermissions && roleGroupPermissions.length > 0) {
         // update
         const roleGroupPermissionIds = roleGroupPermissions.map((item) => item.action_id);
-        const newActions = actionIds.filter((item) => !roleGroupPermissionIds.includes(item));
-        const deletedActions = roleGroupPermissionIds.filter((item) => !actionIds.includes(item));
-        const updatedActions = actionIds.filter((item) => roleGroupPermissionIds.includes(item));
+        const newActions = uniqueActionIds.filter((item) => !roleGroupPermissionIds.includes(item));
+        const deletedActions = roleGroupPermissionIds.filter((item) => !uniqueActionIds.includes(item));
+        const updatedActions = uniqueActionIds.filter((item) => roleGroupPermissionIds.includes(item));
 
         await this.prismaService.$transaction(async (tx) => {
           if(newActions.length > 0) {
@@ -137,13 +138,8 @@ export class PermissionService {
             });
           }
           if(updatedActions.length > 0) {
-            const updatedActionsData = updatedActions.map((item) => {
-              return {
-                action_id : item,
-                role_name : role.name,
-                updated_by : user.id,
-              } as RoleGroupPermission
-            })
+            // Fix: updateMany data must be an object, not array. 
+            // Since we are only updating 'updated_by' and 'role_name' is constraint, this updates all matches.
             await tx.roleGroupPermission.updateMany({
               where : {
                 action_id : {
@@ -151,14 +147,16 @@ export class PermissionService {
                 },
                 role_name : role.name
               },
-              data : updatedActionsData
+              data : {
+                updated_by: user.id
+              }
             });
           }
         });
       }else {
         // create 
         await this.prismaService.$transaction(async (tx) => {
-          const roleGroupPermissionData = actionIds.map((item) => {
+          const roleGroupPermissionData = uniqueActionIds.map((item) => {
             return {
               action_id : item,
               role_name : role.name,
@@ -208,10 +206,11 @@ export class PermissionService {
 
   async saveUserPermission(userId : number , actionIds: number[]) {
     try {
+      const uniqueActionIds = [...new Set(actionIds)];
       const isExist = await this.prismaService.action.findMany({
-        where : {id : {in : actionIds}}
+        where : {id : {in : uniqueActionIds}}
       })
-      if(isExist.length !== actionIds.length) {
+      if(isExist.length !== uniqueActionIds.length) {
         throw new ApiError('Thao tác không hợp lệ !', HttpStatus.BAD_REQUEST);
       }
       const user = await this.prismaService.user.findUnique({
@@ -232,9 +231,10 @@ export class PermissionService {
       if(userPermissions && userPermissions.length > 0) {
         // update
         const userPermissionIds = userPermissions.map((item) => item.action_id);
-        const newActions = actionIds.filter((item) => !userPermissionIds.includes(item));
-        const deletedActions = userPermissionIds.filter((item) => !actionIds.includes(item));
-        const updatedActions = actionIds.filter((item) => userPermissionIds.includes(item));
+        const newActions = uniqueActionIds.filter((item) => !userPermissionIds.includes(item));
+        const deletedActions = userPermissionIds.filter((item) => !uniqueActionIds.includes(item));
+        // const updatedActions = uniqueActionIds.filter((item) => userPermissionIds.includes(item)); 
+        // updatedActions don't need update if no metadata fields
 
         await this.prismaService.$transaction(async (tx) => {
           if(newActions.length > 0) {
@@ -258,28 +258,12 @@ export class PermissionService {
               }
             });
           }
-          if(updatedActions.length > 0) {
-            const updatedActionsData = updatedActions.map((item) => {
-              return {
-                action_id : item,
-                user_role : userRole.id,
-              } as UserPermission
-            })
-            await tx.userPermission.updateMany({
-              where : {
-                action_id : {
-                  in : updatedActions
-                },
-                user_role : userRole.id
-              },
-              data : updatedActionsData
-            });
-          }
+          // Removing updatedActions block as it was invalid (array data) and seemingly redundant.
         });
       }else {
         // create 
         await this.prismaService.$transaction(async (tx) => {
-          const userPermissionData = actionIds.map((item) => {
+          const userPermissionData = uniqueActionIds.map((item) => {
             return {
               action_id : item,
               user_role : userRole.id,

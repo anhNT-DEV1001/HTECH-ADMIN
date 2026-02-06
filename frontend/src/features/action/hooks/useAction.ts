@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { actionService } from "../services";
 import { useCommonMutate, useCommonQuery } from "@/common/hooks";
 import { useToast } from "@/common/providers/ToastProvider";
-import { BaseResponse } from "@/common/types";
 import { IActionDetailForm } from "../interfaces/action.interface";
 
 export const useAction = (resourceDetailId: number) => {

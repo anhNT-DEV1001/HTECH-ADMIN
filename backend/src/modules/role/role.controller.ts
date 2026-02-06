@@ -4,12 +4,18 @@ import type { IPaginationRequest, IPaginationResponse } from 'src/common/interfa
 import { BaseResponse } from 'src/common/apis';
 import { Role } from '@prisma/client';
 import { CreateRoleDto } from './dto';
+import { RoleGuard } from 'src/common/guards/role.guard';
+import { UseGuards } from '@nestjs/common';
+import { RequirePermissions } from 'src/common/decorators';
+import { RoleConstant } from 'src/common/constants';
 
 @Controller('role')
+@UseGuards(RoleGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Get()
+  @RequirePermissions(RoleConstant.VIEW)
   async getRoleController(
     @Query() query : IPaginationRequest,
   ) : Promise<BaseResponse<IPaginationResponse<Role>>> {
@@ -17,6 +23,19 @@ export class RoleController {
     return {
       status : 'success',
       message : 'Lấy danh sách role thành công',
+      data : res
+    }
+  }
+
+  @Get(':id')
+  @RequirePermissions(RoleConstant.VIEW)
+  async getRoleByIdController(
+    @Param('id') id : number,
+  ) : Promise<BaseResponse<Role>> {
+    const res = await this.roleService.getRoleById(Number(id));
+    return {
+      status : 'success',
+      message : 'Lấy thông tin role thành công',
       data : res
     }
   }
