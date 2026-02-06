@@ -5,9 +5,11 @@ import { key } from 'src/configs';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { PermissionModule } from '../permission/permission.module';
 @Module({
   imports: [
     PrismaModule,
+    PermissionModule,
     JwtModule.registerAsync({
       useFactory: async () => ({
         secret: key.jwt.access_secret,

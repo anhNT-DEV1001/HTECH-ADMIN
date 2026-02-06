@@ -7,10 +7,14 @@ import { PayloadDto } from 'src/modules/auth/dto';
 import { IAuth } from 'src/modules/auth/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApiError } from '../apis';
+import { PermissionService } from 'src/modules/permission/permission.service';
 
 @Injectable()
 export class JwtMiddleware extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly permissionService: PermissionService
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
@@ -37,6 +41,7 @@ export class JwtMiddleware extends PassportStrategy(Strategy, 'jwt') {
     });
     if (!token)
       throw new ApiError('Token không hợp lệ', HttpStatus.UNAUTHORIZED);
-    return { user, token };
+    const permission = await this.permissionService.getUserPermission(user.id);
+    return { user, token, permission };
   }
 }
