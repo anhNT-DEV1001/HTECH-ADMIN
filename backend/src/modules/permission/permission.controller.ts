@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  ParseIntPipe,
 } from '@nestjs/common';
 import type { Action, Resource, ResourceDetail, User } from '@prisma/client';
 import { AuthUser } from 'src/common/decorators';
@@ -30,7 +31,7 @@ export class PermissionController {
 
   @Get('action/:resourceDetailId')
   async getActionInDetailController(
-    @Param('resourceDetailId') resourceDetailId: number,
+    @Param('resourceDetailId', ParseIntPipe) resourceDetailId: number,
   ): Promise<BaseResponse<ResourceDetail>> {
     const data =
       await this.permissionService.getActionInDetail(resourceDetailId);
@@ -43,7 +44,7 @@ export class PermissionController {
 
   @Delete('action/:id')
   async deleteActionInDetailController(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<BaseResponse<Action>> {
     const data = await this.permissionService.deleteAction(id);
     return {
@@ -99,7 +100,7 @@ export class PermissionController {
 
   @Get('role/:roleId')
   async getRolePermissionController(
-    @Param('roleId') roleId: number,
+    @Param('roleId', ParseIntPipe) roleId: number,
   ): Promise<BaseResponse<any>> {
     const data = await this.permissionService.getRoleGroupPermission(roleId);
     return {
@@ -111,7 +112,7 @@ export class PermissionController {
 
   @Post('role/:roleId')
   async saveRoleGroupPermissionController(
-    @Param('roleId') roleId: number,
+    @Param('roleId', ParseIntPipe) roleId: number,
     @Body() body: {actionIds : number[]},
     @AuthUser('user') user: User,
   ): Promise<BaseResponse<any>> {
@@ -129,7 +130,7 @@ export class PermissionController {
 
   @Get('user/:id')
   async getUserPermissionByUserIdController(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<BaseResponse<any>> {
     const data = await this.permissionService.getUserPermission(id);
     return {

@@ -8,6 +8,7 @@ export interface Action {
   updated_at?: Date;
   created_by?: number;
   updated_by?: number;
+  is_active?: boolean;
 }
 
 export interface IActionDetailForm {

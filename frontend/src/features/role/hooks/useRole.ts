@@ -77,3 +77,22 @@ export const useRole = (query?: IPaginationRequest) => {
     deleteMutation,
   };
 };
+
+export const useRoleDetail = (id?: number) => {
+  const QUERY_KEY = ["role", "getRoleById", id];
+
+  const roleQuery = useCommonQuery(
+    QUERY_KEY,
+    () => roleService.getRoleById(Number(id)),
+    {
+      enabled: !!id && !isNaN(Number(id)),
+    }
+  );
+
+  return {
+    roleData: roleQuery.data,
+    isLoading: roleQuery.isLoading,
+    isFetching: roleQuery.isFetching,
+    roleQuery,
+  };
+};
