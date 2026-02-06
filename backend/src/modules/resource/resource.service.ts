@@ -190,8 +190,14 @@ export class ResourceService {
   async deleteResource(id: number): Promise<Resource> {
     const resource = await this.prisma.resource.findUnique({
       where: { id },
+      include : {
+        resourceDetails : {
+          include : {
+            actions : true
+          }
+        }
+      }
     });
-
     if (!resource) {
       throw new ApiError(
         'Không tìm thấy tài nguyên để xóa!',
@@ -199,6 +205,12 @@ export class ResourceService {
       );
     }
     return await this.prisma.$transaction(async (tx) => {
+      const arrActionIds = resource.resourceDetails.flatMap((detail)=> {
+        return detail.actions.map((action)=> action.id)
+      });
+      await tx.action.deleteMany({
+        where : {id : {in : arrActionIds}}
+      });
       await tx.resourceDetail.deleteMany({
         where: { parent_alias: resource.alias },
       });
@@ -283,5 +295,18 @@ export class ResourceService {
     });
 
     return resourceDetail as ResourceDetail;
+  }
+
+  async getResourceAction() : Promise<Resource[]> {
+    const data = await this.prisma.resource.findMany({
+      include: {
+        resourceDetails: {
+          include: {
+            actions: true
+          }
+        }
+      }
+    });
+    return data;
   }
 }

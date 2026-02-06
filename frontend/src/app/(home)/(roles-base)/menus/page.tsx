@@ -350,19 +350,6 @@ export default function ListMenu() {
                         <td className="px-4 py-2 font-medium text-gray-800 text-left border border-gray-200">
                           {resource.description}
                         </td>
-                        {/* <td className="px-4 py-2 border border-gray-200 text-center">
-                          {resource.is_active ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200 shadow-sm">
-                              <CheckCircle2 size={10} className="shrink-0" />
-                              Bật
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200 shadow-sm">
-                              <CircleOff size={10} className="shrink-0" />
-                              Tắt
-                            </span>
-                          )}
-                        </td> */}
                         <td className="px-4 py-2 border border-gray-200 text-center">
                           {resource.is_active ? (
                             <span className="flex items-center gap-2 justify-center text-green-500">
@@ -374,10 +361,6 @@ export default function ListMenu() {
                             </span>
                           )}
                         </td>
-
-                        {/* <td className="px-4 py-2 border border-gray-200 ">
-                          {resource.icon ? resource.icon : "Không có dữ liệu"}
-                        </td> */}
                         <td className="px-4 py-2 border border-gray-200">
                           {resource.href ? resource.href : "Không có dữ liệu"}
                         </td>

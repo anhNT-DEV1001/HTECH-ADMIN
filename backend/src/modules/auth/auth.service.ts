@@ -8,12 +8,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto, PayloadDto, RegisterDto } from './dto';
 import { IAuthResponse, ILoginResponse, ITokenResponse } from './interfaces';
 import { AuthResponse } from './response';
+import { PermissionService } from '../permission/permission.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly permissionService: PermissionService,
   ) {}
   /**
    * @author Nguyễn Tuấn Anh
@@ -178,5 +180,10 @@ export class AuthService {
     });
 
     return newToken;
+  }
+
+  async getAuthPermissions(user : User) {
+    const permission = await this.permissionService.getUserPermission(user.id)
+    return permission
   }
 }

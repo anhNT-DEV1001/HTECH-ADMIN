@@ -21,9 +21,9 @@ export const useRole = (query?: IPaginationRequest) => {
   );
 
   const createMutation = useCommonMutate((body : ICreateRoleRequest) => roleService.createRole(body), {
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["role", "getAllRoles"] });
-      showToast("Tạo quyền thành công!", "success");
+      showToast(data.message, "success");
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || 'Lỗi khi tạo quyền';
@@ -35,9 +35,9 @@ export const useRole = (query?: IPaginationRequest) => {
     ({ id, body }: { id: number; body: ICreateRoleRequest }) =>
       roleService.updateRole(id, body),
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: ["role", "getAllRoles"] });
-        showToast("Cập nhật quyền thành công!", "success");
+        showToast(data.message, "success");
       },
       onError: (error: any) => {
         const message = error.response?.data?.message || 'Lỗi khi cập nhật quyền';
@@ -47,9 +47,9 @@ export const useRole = (query?: IPaginationRequest) => {
   );
 
   const deleteMutation = useCommonMutate(roleService.deleteRole, {
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["role", "getAllRoles"] });
-      showToast("Xóa quyền thành công!", "success");
+      showToast(data.message, "success");
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || 'Lỗi khi xóa quyền';

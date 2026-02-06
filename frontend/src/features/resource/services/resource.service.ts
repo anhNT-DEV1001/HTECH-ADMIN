@@ -1,10 +1,10 @@
 import axiosClient from "@/apis/axios"
 import type { ICreateResource, IResource, IUpdateResourceWithDetail } from "../interfaces";
-import type { BaseResponse } from "@/common/types";
+import type { BaseResponse  } from "@/common/types";
 import { IPaginationRequest, IPaginationResponse } from "@/common/interfaces";
 
 export const resourceService =  {
-  async createResource (resourceData : ICreateResource) : Promise<IResource>{
+  async createResource (resourceData : ICreateResource) : Promise<BaseResponse<IResource>>{
     const response = await axiosClient.post<BaseResponse<IResource>>("/resource", resourceData);
     return response.data as any;
   },
@@ -14,11 +14,11 @@ export const resourceService =  {
     });
     return response.data
   },
-  async updateResourceWithDetail(body : IUpdateResourceWithDetail) : Promise<IResource> {
+  async updateResourceWithDetail(body : IUpdateResourceWithDetail) : Promise<BaseResponse<IResource>> {
     const response = await axiosClient.patch<BaseResponse<IResource>>('/resource', body);
     return response.data as any;
   },
-  async deleteResource(id : number) {
+  async deleteResource(id : number) : Promise<BaseResponse<IResource>> {
     const response = await axiosClient.delete(`resource/${id}`);
     return response.data;
   }
