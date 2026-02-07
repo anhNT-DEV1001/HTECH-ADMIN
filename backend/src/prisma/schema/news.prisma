@@ -1,0 +1,52 @@
+model News {
+  id            Int      @id @default(autoincrement())
+  title_vn      String
+  title_en      String?
+  thumbnail_url String?
+  summary_vn    String
+  summary_en    String?
+  content_vn    String
+  content_en    String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  created_by    Int?
+  updated_by    Int?
+
+  category_id Int?
+  category    Category? @relation(fields: [category_id], references: [id])
+
+  newsImages NewsImages[]
+
+  @@map("news")
+}
+
+model NewsImages {
+  id         Int      @id @default(autoincrement())
+  news_id    Int
+  image_url  String
+  alt_text   String   @default("news_image")
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  news News @relation(fields: [news_id], references: [id])
+
+  @@map("news_images")
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name_vn    String
+  name_en    String?
+  slug       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  news News[]
+
+  @@map("news_category")
+}
