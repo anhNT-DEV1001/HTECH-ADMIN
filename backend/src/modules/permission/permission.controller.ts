@@ -20,7 +20,6 @@ export class PermissionController {
 
   @Get('action/resource')
   async getActionInResourceController(): Promise<BaseResponse<Resource[]>> {
-    console.log('getActionInResourceController');
     const data = await this.permissionService.getActionInResource();
     return {
       status: 'success',
