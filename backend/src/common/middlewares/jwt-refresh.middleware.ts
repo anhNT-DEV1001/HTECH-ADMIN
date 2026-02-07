@@ -16,7 +16,6 @@ export class JwtRefreshMiddleware extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           const token = request?.cookies?.['refreshToken'];
-          console.log('Token từ Cookie:', token); // Dòng này cực kỳ quan trọng để debug
           return token;
         },
       ]),

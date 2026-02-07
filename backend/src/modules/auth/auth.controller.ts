@@ -120,7 +120,6 @@ export class AuthController {
     @Req() req: Request,
   ): Promise<BaseResponse<IAuth>> {
     const userReq = req;
-    console.log(userReq);
     return {
       status: 'success',
       message: '',
