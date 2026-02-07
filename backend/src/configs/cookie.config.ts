@@ -6,7 +6,7 @@ export const getCookieConfig = {
     httpOnly: true,
     secure: isPord,
     sameSite: isPord ? 'none' : 'lax',
-    maxAge: 1000 * 60 * 15,
+    maxAge: 1000 * 60 * 60 * 24,
     path: '/',
     domain: isPord ? '.your-production-domain.com' : undefined,
   },
