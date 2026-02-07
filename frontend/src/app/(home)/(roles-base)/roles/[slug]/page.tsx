@@ -5,6 +5,8 @@ import { useRoleDetail } from "@/features/role/hooks/useRole"; // Import useRole
 import { Loader2, Save, ArrowLeft, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { IPermission } from "@/features/permission/interfaces";
+import { useConfirm } from "@/common/providers/ConfirmProvider";
+import { IRole } from "@/features/role/interfaces";
 
 export default function RoleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -15,7 +17,7 @@ export default function RoleDetailPage({ params }: { params: Promise<{ slug: str
   // Fetch role details
   const { roleData, isLoading: isLoadingRole } = useRoleDetail(roleId);
   const role = roleData?.data;
-
+  const {confirm} = useConfirm();
   const {
     permissionData,
     isLoading,
@@ -53,8 +55,15 @@ export default function RoleDetailPage({ params }: { params: Promise<{ slug: str
     });
   };
 
-  const handleSave = () => {
-    savePermissionMutation.mutate(selectedActionIds);
+  const handleSave = async (roleData : IRole) => {
+    const isConfirm = await confirm({
+      title : `Xác nhận cập nhật nhóm quyền ${roleData.name}!`,
+      message: `Thao tác sẽ áp dụng cho tất cả người dùng có vai trò ${roleData.name}`,
+      variant : 'info'
+    })
+    if(isConfirm){
+      savePermissionMutation.mutate(selectedActionIds);
+    }
   };
 
   const handleBack = () => {
@@ -83,7 +92,7 @@ export default function RoleDetailPage({ params }: { params: Promise<{ slug: str
         </div>
 
         <button
-          onClick={handleSave}
+          onClick={() => handleSave(role as IRole)}
           disabled={isSaving}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
