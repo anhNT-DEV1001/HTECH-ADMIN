@@ -21,7 +21,6 @@ export const useAuth = () => {
   const { setUser, logout: logoutStore } = useAuthStore();
   const isPublicFlag = ["/login", "/register"].includes(pathName);
 
-  // Mutation cho Login
   const loginMutation = useCommonMutate<
     LoginResquest,
     BaseResponse<ILoginResponse>
@@ -31,26 +30,21 @@ export const useAuth = () => {
     },
   });
 
-  // Mutation cho Register
   const registerMutation = useCommonMutate<
     ResginterRequest,
     BaseResponse<IAuthResponse>
   >(authService.register);
 
-  // Mutation cho Logout
   const logoutMutation = useCommonMutate<void, BaseResponse<IAuthResponse>>(
     authService.logout,
     {
       onSuccess: () => {
-        logoutStore(); // Xóa user trong Zustand
-        queryClient.setQueryData(["auth", "me"], null); // Xóa cache React Query
+        logoutStore();
+        queryClient.setQueryData(["auth", "me"], null);
         queryClient.removeQueries({ queryKey: ["auth", "me"] });
       },
     },
-    // {}
   );
-
-  // Mutation cho Refresh Token
   const refreshTokenMutation = useCommonMutate<
     void,
     BaseResponse<ITokenResponse>
@@ -63,14 +57,10 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    if (profileQuery.data?.data) {
-      // Giả sử API trả về structure: { data: { user: ... } } hoặc { data: ... }
-      // Bạn cần trỏ đúng vào object user
-      setUser(profileQuery.data.data as any);
-    } else if (profileQuery.isError) {
-      logoutStore();
-    }
-  }, [profileQuery.data, profileQuery.isError, setUser, logoutStore, isPublicFlag]);
+  if (profileQuery.data?.data) {
+    setUser(profileQuery.data.data as any);
+  }
+}, [profileQuery.data, setUser]);
 
   return {
     login: loginMutation,

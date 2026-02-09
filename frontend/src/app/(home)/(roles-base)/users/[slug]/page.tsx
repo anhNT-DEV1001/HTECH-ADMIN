@@ -1,30 +1,29 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { usePermission } from "@/features/permission/hooks/usePermission";
-import { useRoleDetail } from "@/features/role/hooks/useRole"; // Import useRoleDetail
+import { useUserDetail } from "@/features/user/hooks/useUser";
 import { Loader2, Save, ArrowLeft, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { IPermission } from "@/features/permission/interfaces";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
-import { IRole } from "@/features/role/interfaces";
+import { IUserResponse } from "@/features/user/interfaces/user.interface";
 
-export default function RoleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function UserPermissionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const router = useRouter();
-  const roleId = Number(slug);
+  const userId = Number(slug);
   
-  // Fetch role details
-  const { roleData, isLoading: isLoadingRole } = useRoleDetail(roleId);
-  const role = roleData?.data;
+  const { userData, isLoading: isLoadingUser } = useUserDetail(userId);
+  const user = userData?.data;
   const {confirm} = useConfirm();
   const {
-    permissionData,
-    isLoading,
-    savePermissionMutation,
-    isSaving
-  } = usePermission(roleId, undefined);
+    userPermissionData,
+    isLoadingUserPermission,
+    saveUserPermissionMutation,
+    isSavingUserPermission
+  } = usePermission(undefined, userId);
 
-  const permissions = permissionData?.data || [];
+  const permissions = userPermissionData?.data || [];
 
   const [selectedActionIds, setSelectedActionIds] = useState<number[]>([]);
 
@@ -54,14 +53,14 @@ export default function RoleDetailPage({ params }: { params: Promise<{ slug: str
     });
   };
 
-  const handleSave = async (roleData : IRole) => {
+  const handleSave = async (userData : IUserResponse) => {
     const isConfirm = await confirm({
-      title : `Xác nhận cập nhật nhóm quyền ${roleData.name}!`,
-      message: `Thao tác sẽ áp dụng cho tất cả người dùng có vai trò ${roleData.name}`,
+      title : `Xác nhận cập nhật phân quyền cho ${userData.fullName || userData.username}!`,
+      message: `Thao tác sẽ áp dụng ngay cho người dùng này`,
       variant : 'info'
     })
     if(isConfirm){
-      savePermissionMutation.mutate(selectedActionIds);
+      saveUserPermissionMutation.mutate(selectedActionIds);
     }
   };
 
@@ -82,27 +81,27 @@ export default function RoleDetailPage({ params }: { params: Promise<{ slug: str
             </button>
             <div>
                 <h1 className="text-xl font-bold text-gray-800">
-                    Phân quyền vai trò: {role?.name || '...'}
+                    Phân quyền người dùng: {user?.fullName || user?.username || '...'}
                 </h1>
                 <p className="text-sm text-gray-500">
-                    {role?.description || 'Quản lý quyền hạn truy cập tài nguyên cho vai trò này'}
+                    Quản lý quyền hạn truy cập tài nguyên cho người dùng này
                 </p>
             </div>
         </div>
 
         <button
-          onClick={() => handleSave(role as IRole)}
-          disabled={isSaving}
+          onClick={() => handleSave(user as IUserResponse)}
+          disabled={isSavingUserPermission}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {isSavingUserPermission ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
           <span>Lưu thay đổi</span>
         </button>
       </div>
 
       {/* CONTENT SECTION */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mt-2">
-        {isLoading ? (
+        {isLoadingUserPermission ? (
             <div className="flex justify-center items-center p-12 text-gray-400">
                 <Loader2 size={32} className="animate-spin mb-2" />
                 <span className="ml-2">Đang tải dữ liệu quyền...</span>

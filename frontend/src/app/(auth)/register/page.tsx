@@ -74,9 +74,7 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form data:", formData);
     if (validatePasswords()) {
-      console.log("Form data:", formData);
       register.mutate(formData, {
         onSuccess: (response) => {
           alert("Đăng nhập thành công !");
