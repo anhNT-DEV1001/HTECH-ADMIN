@@ -138,4 +138,20 @@ export class PermissionController {
       data,
     };
   }
+
+  @Post('user/:id')
+  async saveUserPermissionController(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: {actionIds : number[]},
+  ): Promise<BaseResponse<any>> {
+    const data = await this.permissionService.saveUserPermission(
+      id,
+      body.actionIds
+    );
+    return {
+      status: 'success',
+      message: 'Lưu danh sách thao tác trong tài nguyên thành công !',
+      data,
+    };
+  }
 }

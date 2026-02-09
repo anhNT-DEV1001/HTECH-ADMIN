@@ -8,9 +8,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -18,10 +19,6 @@ import { PermissionModule } from './modules/permission/permission.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
   ],
 })
 export class AppModule {}
