@@ -27,3 +27,32 @@ export class UserDto {
   @IsDate()
   dob: Date;
 }
+
+export class UpdateUserDto {
+  @ApiProperty()
+  @IsOptional()
+  username: string;
+
+  @ApiProperty()
+  @IsOptional()
+  password: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty()
+  @IsOptional()
+  fullName: string;
+
+  @ApiProperty()
+  @IsOptional()
+  phone: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsDate()
+  dob: Date;
+}
+
