@@ -64,11 +64,12 @@ export class NewsController {
   }
 
 
-  @Post(':id')
-  @RequirePermissions(RoleConstant.UPDATE)
+  @Delete(':id')
+  @RequirePermissions(RoleConstant.DELETE)
   async deleteNewsController(
     @Param('id') id: number
-  ): Promise<BaseResponse<News>> {
+  ): Promise<BaseResponse<any>> {
+    console.log("flag controller delete")
     const res = await this.service.deleteNewsService(id);
     return {
       status: 'success',

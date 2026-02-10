@@ -7,7 +7,9 @@ import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 
 @Injectable()
 export class NewsService {
+
   constructor(private readonly prisma: PrismaService) { }
+
   async createNewsService(dto: CreateNewsDto, user: User) {
     try {
       return await this.prisma.$transaction(async (db) => {
@@ -108,17 +110,28 @@ export class NewsService {
 
   async deleteNewsService(id: number) {
     try {
+
       const news = await this.prisma.news.findUnique({
         where: { id }
       });
 
       if (!news) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND);
 
-      const deletedNews = await this.prisma.news.delete({
-        where: { id }
-      });
-
-      return deletedNews;
+      console.log("flag news service found")
+      // const deletedNews = await this.prisma.news.delete({
+      //   where: { id },
+      //   include: {
+      //     newsImages: true
+      //   }
+      // });
+      return await this.prisma.$transaction(async (db) => {
+        await db.newsImage.deleteMany({
+          where: { news_id: id }
+        })
+        await db.news.delete({
+          where: { id }
+        })
+      })
     } catch (error: any) {
       throw new ApiError(
         `System error: ${error.message}`,
@@ -185,7 +198,8 @@ export class NewsService {
         newsImages: true
       }
     })
-    if (!data) throw new ApiError('News not found with provided id: ' + newsId, HttpStatus.NOT_FOUND)
+    if (!data) throw new ApiError('News not found with provided id: ' + newsId,
+      HttpStatus.BAD_REQUEST)
     return data;
   }
 }

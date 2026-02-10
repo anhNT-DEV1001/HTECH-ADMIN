@@ -1,22 +1,24 @@
 model Role {
-  id Int @id @default(autoincrement())
-  name String @unique
-  description String
-  user_role UserRole[]
+  id                  Int                   @id @default(autoincrement())
+  name                String                @unique
+  description         String
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
   roleGroupPermission RoleGroupPermission[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  user_role           UserRole[]
+
   @@map("role")
 }
 
 model UserRole {
-  id Int @id @default(autoincrement())
-  role Role @relation(fields: [role_id], references: [id])
-  role_id Int
-  user User @relation(fields: [user_id], references: [id])
-  user_id Int @unique
+  id             Int              @id @default(autoincrement())
+  role_id        Int
+  user_id        Int              @unique
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
   userPermission UserPermission[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  role           Role             @relation(fields: [role_id], references: [id])
+  user           User             @relation(fields: [user_id], references: [id])
+
   @@map("user_role")
 }

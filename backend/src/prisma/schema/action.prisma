@@ -1,13 +1,14 @@
 model Action {
-  id Int @id @default(autoincrement())
-  action String
-  resourceDetail ResourceDetail @relation(fields: [resource_detail_alias], references: [alias])
+  id                    Int                   @id @default(autoincrement())
+  action                String
   resource_detail_alias String
-  roleGroupPermission RoleGroupPermission[]
-  userPermission UserPermission[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  created_by Int?
-  updated_by Int?
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
+  created_by            Int?
+  updated_by            Int?
+  resourceDetail        ResourceDetail        @relation(fields: [resource_detail_alias], references: [alias])
+  roleGroupPermission   RoleGroupPermission[]
+  userPermission        UserPermission[]
+
   @@map("actions")
 }

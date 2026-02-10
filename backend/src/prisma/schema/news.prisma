@@ -1,21 +1,19 @@
 model News {
-  id            Int      @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   title_vn      String
   title_en      String?
-  thumbnail_url String
   summary_vn    String
   summary_en    String?
   content_vn    String
   content_en    String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
   created_by    Int?
   updated_by    Int?
-
-  category_id Int?
-  category    NewsCategory? @relation(fields: [category_id], references: [id])
-
-  newsImages NewsImage[]
+  category_id   Int?
+  thumbnail_url String?
+  category      NewsCategory? @relation(fields: [category_id], references: [id])
+  newsImages    NewsImage[]
 
   @@map("news")
 }
@@ -30,8 +28,7 @@ model NewsImage {
   updated_at DateTime @updatedAt
   created_by Int?
   updated_by Int?
-
-  news News @relation(fields: [news_id], references: [id], onDelete: Cascade)
+  news       News     @relation(fields: [news_id], references: [id])
 
   @@map("news_images")
 }
@@ -45,8 +42,7 @@ model NewsCategory {
   updated_at DateTime @updatedAt
   created_by Int?
   updated_by Int?
-
-  news News[]
+  news       News[]
 
   @@map("news_category")
 }
