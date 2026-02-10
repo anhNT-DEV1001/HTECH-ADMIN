@@ -166,7 +166,7 @@ export class NewsService {
       }),
       this.prisma.news.count({ where })
     ]);
-    
+
     return {
       records,
       meta: {
@@ -176,5 +176,15 @@ export class NewsService {
         totalPages: Math.ceil(total / Number(limit)),
       }
     }
+  }
+
+  async getNewsById(newsId: number) {
+    const data = await this.prisma.news.findUnique({
+      where: { id: newsId },
+      include: {
+        newsImages: true
+      }
+    })
+    if (!data) throw new ApiError('News not found with provided id: ' + newsId, HttpStatus.NOT_FOUND)
   }
 }
