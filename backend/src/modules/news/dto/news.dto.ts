@@ -32,7 +32,7 @@ export class CreateNewsDto {
   content_en: string
 }
 
-export class UpdateNewsDto {
+export class NewsDto {
   @IsNumber()
   @IsOptional()
   id: number
@@ -41,9 +41,9 @@ export class UpdateNewsDto {
   @IsOptional()
   thumbnail_url: string
 
-  @IsOptional()
   @IsArray()
-  newsImage: CreateNewsImageDto[] | []
+  @IsOptional()
+  newsImage: NewsImageDto[] | []
 
   @IsString()
   @IsOptional()
@@ -84,7 +84,7 @@ export class CreateNewsImageDto {
   sort_order: number
 }
 
-export class UpdateNewsImageDto {
+export class NewsImageDto {
   @IsNumber()
   @IsOptional()
   id: number
