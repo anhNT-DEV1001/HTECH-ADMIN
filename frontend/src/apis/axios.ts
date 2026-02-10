@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/common/stores";
+import Cookies from 'js-cookie';
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
@@ -46,15 +47,19 @@ axiosClient.interceptors.response.use(
 
         isRefreshing = false;
         processQueue(null);
+        console.log('refresh token success');
         return axiosClient(originalRequest);
       } catch (refreshError) {
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
         isRefreshing = false;
+        console.log('refresh token failed');
         processQueue(refreshError, null);
-        
         useAuthStore.getState().logout();        
-        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-          window.location.assign("/login"); 
-        }
+        // if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          // window.location.assign("/login"); 
+        // }
+        
         return Promise.reject(refreshError);
       }
     }

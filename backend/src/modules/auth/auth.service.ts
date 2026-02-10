@@ -140,11 +140,15 @@ export class AuthService {
    * @returns
    */
   async logout(user: User): Promise<IAuthResponse> {
-    const token = await this.prisma.token.delete({
-      where: { user_id: user.id },
-    });
-    if (!token)
-      throw new ApiError('Người dùng không hợp lệ !', HttpStatus.BAD_REQUEST);
+    // const token = await this.prisma.token.update({
+    //   where: { user_id: user.id },
+    //   data : {
+    //     token: "",
+    //     updated_by: user.id,
+    //   }
+    // });
+    // if (!token)
+    //   throw new ApiError('Người dùng không hợp lệ !', HttpStatus.BAD_REQUEST);
 
     const res = new AuthResponse(user).mapToAuthResponse();
     return res;
