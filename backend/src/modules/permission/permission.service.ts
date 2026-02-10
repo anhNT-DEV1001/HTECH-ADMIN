@@ -222,7 +222,7 @@ export class PermissionService {
       if(!user) {
         throw new ApiError('Không tìm thấy người dùng!', HttpStatus.BAD_REQUEST);
       }
-
+      // Lấy danh sách user_role
       const userRole = await this.prismaService.userRole.findUnique({
         where : {user_id : userId},
         include: { role: true }
@@ -230,20 +230,21 @@ export class PermissionService {
       if(!userRole) {
         throw new ApiError('Không tìm thấy vai trò người dùng!', HttpStatus.BAD_REQUEST);
       }
+      // Lấy danh sách role_group_permission
       const roleGroupPermissions = await this.prismaService.roleGroupPermission.findMany({
         where: { role_name: userRole.role.name }
       });
       const roleActionIds = roleGroupPermissions.map((item) => item.action_id);
-
+      // Lấy danh sách user_permission
       const userPermissions = await this.prismaService.userPermission.findMany({
         where : {user_role : userRole.id}
       });
       const userPermissionIds = userPermissions.map((item) => item.action_id);
-
+      // Lấy danh sách action cần thêm vào user_permission
       const actionsToAddToUserPermission = uniqueActionIds.filter(
         (id) => !roleActionIds.includes(id) && !userPermissionIds.includes(id)
       );
-
+      // Lấy danh sách action cần xóa khỏi user_permission
       const actionsToDeleteFromUserPermission = userPermissionIds.filter(
         (id) => !uniqueActionIds.includes(id)
       );

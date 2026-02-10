@@ -86,7 +86,6 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refreshController(
-    // dto : any,
     @Req() req: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<BaseResponse<ITokenResponse>> {
