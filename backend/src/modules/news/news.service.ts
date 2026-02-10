@@ -10,7 +10,7 @@ export class NewsService {
   constructor(private readonly prisma: PrismaService) { }
   async createNewsService(dto: CreateNewsDto, user: User) {
     try {
-      await this.prisma.$transaction(async (db) => {
+      return await this.prisma.$transaction(async (db) => {
         const newsData = {
           title_vn: dto.title_vn,
           thumbnail_url: dto.thumbnail_url,
@@ -85,7 +85,7 @@ export class NewsService {
           } : {}
       }
 
-      await this.prisma.$transaction(async (db) => {
+      return await this.prisma.$transaction(async (db) => {
 
         const updatedNews = await db.news.update({
           where: { id },
@@ -186,5 +186,6 @@ export class NewsService {
       }
     })
     if (!data) throw new ApiError('News not found with provided id: ' + newsId, HttpStatus.NOT_FOUND)
+    return data;
   }
 }
