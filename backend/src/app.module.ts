@@ -9,9 +9,10 @@ import { ResourceModule } from './modules/resource/resource.module';
 import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { UserModule } from './modules/user/user.module';
+import { NewsModule } from './modules/news/news.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, NewsModule, UserModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -21,4 +22,4 @@ import { UserModule } from './modules/user/user.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
