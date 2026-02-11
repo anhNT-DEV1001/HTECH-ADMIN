@@ -1,12 +1,13 @@
 model MasterData {
-  id Int @id @default(autoincrement())
-  dataValue String
-  dataKey String
-  name String
+  id          Int      @id @default(autoincrement())
+  dataValue   String
+  dataKey     String
+  name        String
   description String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  created_by Int?
-  updated_by Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  created_by  Int?
+  updated_by  Int?
+
   @@map("master_data")
 }
