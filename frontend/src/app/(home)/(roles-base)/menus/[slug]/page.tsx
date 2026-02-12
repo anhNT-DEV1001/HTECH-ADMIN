@@ -96,13 +96,10 @@ export default function MenuDetail({
         </button>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-white bg-blue-600   transition-all duration-200 ease-in-out shadow-sm active:scale-95 hover:bg-blend-hue"
+          className="btn btn-primary btn-md"
         >
-          <Plus
-            size={18}
-            className="group-hover:rotate-90 transition-transform"
-          />
-          <span className="font-medium">Thêm thao tác</span>
+          <Plus size={18}/>
+          Thêm thao tác
         </button>
       </header>
 

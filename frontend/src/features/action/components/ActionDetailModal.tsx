@@ -1,6 +1,6 @@
 "use client";
 
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, CircleX } from "lucide-react";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "@/common/components/ui/Modal"; 
@@ -49,15 +49,16 @@ export default function ActionDetailModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="btn btn-default btn-sm"
+            className="btn btn-default btn-md"
           >
+            <CircleX/>
             Hủy bỏ
           </button>
           <button
             type="submit"
             form="action-form"
             disabled={loading}
-            className="btn btn-primary btn-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

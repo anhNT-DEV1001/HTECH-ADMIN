@@ -63,7 +63,7 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
                 onClick={() => handleClose(false)}
                 className="btn btn-outline btn-sm"
               >
-                <CircleX className="text-gray-600" />
+                <CircleX size={16} className="text-gray-600" />
                 {config.cancelLabel}
               </button>
               <button
@@ -74,7 +74,7 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
                     : "btn-primary"
                 }`}
               >
-                <CircleCheck />
+                <CircleCheck size={16} />
                 {config.confirmLabel}
               </button>
             </>

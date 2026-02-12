@@ -173,140 +173,171 @@ export default function UserManagement() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-0">
-            <thead className="bg-gray-50/80">
+      {/* TABLE & PAGINATION CONTAINER */}
+      <div className="table-container">
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
               <tr>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 w-16 text-center border border-gray-200">STT</th>
-                <th 
-                    className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("username")}
+                <th className="w-16">STT</th>
+
+                <th
+                  className="table-header-cell"
+                  onClick={() => handleSort("username")}
                 >
-                    <div className="flex items-center gap-2 select-none">
-                        <span>Tài khoản</span>
-                        {getSortIcon("username")}
-                    </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Tài khoản</span>
+                    {getSortIcon("username")}
+                  </div>
                 </th>
-                <th 
-                    className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("fullName")}
+
+                <th
+                  className="table-header-cell"
+                  onClick={() => handleSort("fullName")}
                 >
-                    <div className="flex items-center gap-2 select-none">
-                        <span>Họ tên</span>
-                        {getSortIcon("fullName")}
-                    </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Họ tên</span>
+                    {getSortIcon("fullName")}
+                  </div>
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200">Email</th>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200">SĐT</th>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200">Ngày sinh</th>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200">Thao tác</th>
+
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Ngày sinh</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
+
             <tbody>
               {isLoading ? (
-                  <tr>
-                      <td colSpan={7} className="p-12 text-center text-gray-400">
-                          <Loader2 size={24} className="animate-spin mx-auto mb-2 opacity-20" />
-                          Đang tải dữ liệu...
-                      </td>
-                  </tr>
+                <tr>
+                  <td colSpan={7} className="table-empty">
+                    <Loader2
+                      size={24}
+                      className="animate-spin mx-auto mb-2 opacity-20"
+                    />
+                    Đang tải dữ liệu...
+                  </td>
+                </tr>
               ) : users.length === 0 ? (
-                  <tr>
-                      <td colSpan={7} className="p-12 text-center text-gray-400 font-light italic">
-                          Không tìm thấy dữ liệu phù hợp
-                      </td>
-                  </tr>
+                <tr>
+                  <td colSpan={7} className="table-empty">
+                    Không tìm thấy dữ liệu phù hợp
+                  </td>
+                </tr>
               ) : (
-                  users.map((user, index) => {
-                      const currentPage = params.page || 1;
-                      const currentLimit = params.limit || 10;
-                      const stt = (currentPage - 1) * currentLimit + index + 1;
-                      return (
-                          <tr key={user.id} className="hover:bg-blue-50/30 transition-colors">
-                              <td className="px-4 py-2 text-gray-500 font-mono text-xs text-center border border-gray-200">{stt}</td>
-                              <td className="px-4 py-2 font-medium text-gray-800 border border-gray-200">{user.username}</td>
-                              <td className="px-4 py-2 text-gray-800 border border-gray-200">{user.fullName}</td>
-                              <td className="px-4 py-2 text-gray-600 border border-gray-200">{user.email}</td>
-                              <td className="px-4 py-2 text-gray-600 border border-gray-200">{user.phone}</td>
-                              <td className="px-4 py-2 text-gray-600 border border-gray-200">
-                                  {user.dob ? dayjs(user.dob).format("DD/MM/YYYY") : "-"}
-                              </td>
-                              <td className="px-4 py-2 border border-gray-200 text-center">
-                                <div className="flex justify-center gap-1">
-                                  <button
-                                    onClick={() => handlePermission(user)}
-                                    className="p-1.5 hover:bg-blue-100 text-green-500 rounded-md transition"
-                                    title="Phân quyền"
-                                  >
-                                    <Shield size={15} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleEdit(user)}
-                                    className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
-                                    title="Cập nhật"
-                                  >
-                                    <Pencil size={15} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(user)}
-                                    className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
-                                    title="Xóa"
-                                  >
-                                    <Trash2 size={15} />
-                                  </button>
-                                </div>
-                              </td>
-                          </tr>
-                      )
-                  })
+                users.map((user, index) => {
+                  const currentPage = params.page || 1;
+                  const currentLimit = params.limit || 10;
+                  const stt = (currentPage - 1) * currentLimit + index + 1;
+
+                  return (
+                    <tr key={user.id} className="table-row">
+                      <td className="text-gray-500 font-mono text-xs">{stt}</td>
+                      <td className="font-medium text-gray-800">{user.username}</td>
+                      <td className="text-gray-800">{user.fullName}</td>
+                      <td className="text-gray-600">{user.email}</td>
+                      <td className="text-gray-600">{user.phone}</td>
+                      <td className="text-gray-600">
+                        {user.dob
+                          ? dayjs(user.dob).format("DD/MM/YYYY")
+                          : "-"}
+                      </td>
+                      <td>
+                        <div className="flex justify-center gap-1">
+                          <button
+                            onClick={() => handlePermission(user)}
+                            className="p-1.5 hover:bg-blue-100 text-green-500 rounded-md transition"
+                            title="Phân quyền"
+                          >
+                            <Shield size={15} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
+                            title="Cập nhật"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user)}
+                            className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
+                            title="Xóa"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
+
             {meta && (
-                <tfoot className="bg-gray-50/50">
-                    <tr>
-                        <td colSpan={7} className="px-4 py-2.5 border-t border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <div className="text-xs text-gray-500">
-                                    Hiển thị <span className="font-medium text-gray-700">{users.length}</span>/{meta.total} kết quả
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <select
-                                        className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
-                                        value={params.limit}
-                                        onChange={(e) => setParams(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))}
-                                    >
-                                        <option value={10}>10 / trang</option>
-                                        <option value={20}>20 / trang</option>
-                                        <option value={50}>50 / trang</option>
-                                    </select>
-                                    <div className="flex items-center gap-1">
-                                        <button
-                                            disabled={params.page === 1}
-                                            onClick={() => handlePageChange(params.page! - 1)}
-                                            className="p-1 border rounded hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition shadow-sm bg-white"
-                                        >
-                                            <ChevronLeft size={16} />
-                                        </button>
-                                        <span className="text-xs font-medium px-2">Trang {params.page} / {meta.totalPages}</span>
-                                        <button
-                                            disabled={params.page === meta.totalPages}
-                                            onClick={() => handlePageChange(params.page! + 1)}
-                                            className="p-1 border rounded hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition shadow-sm bg-white"
-                                        >
-                                            <ChevronRight size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tfoot>
+              <tfoot>
+                <tr>
+                  <td colSpan={7}>
+                    <div className="table-pagination flex justify-between items-center">
+                      {/* Tổng số hiển thị */}
+                      <div>
+                        Hiển thị{" "}
+                        <span className="font-medium text-gray-700">
+                          {users.length}
+                        </span>{" "}
+                        / {meta.total} kết quả
+                      </div>
+
+                      {/* Chọn limit & pagination */}
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
+                          value={params.limit}
+                          onChange={(e) =>
+                            setParams((prev) => ({
+                              ...prev,
+                              limit: Number(e.target.value),
+                              page: 1,
+                            }))
+                          }
+                        >
+                          <option value={1}>1 / trang</option>
+                          <option value={10}>10 / trang</option>
+                          <option value={20}>20 / trang</option>
+                        </select>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            disabled={params.page === 1}
+                            onClick={() => handlePageChange(params.page! - 1)}
+                            className="table-pagination-button"
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+
+                          <span className="text-xs font-medium px-2">
+                            Trang {params.page} / {meta.totalPages}
+                          </span>
+
+                          <button
+                            disabled={params.page === meta.totalPages}
+                            onClick={() => handlePageChange(params.page! + 1)}
+                            className="table-pagination-button"
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             )}
           </table>
         </div>
       </div>
 
+      {/* User Modal */}
       <UserModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -314,6 +345,7 @@ export default function UserManagement() {
         initialData={selectedUser}
         loading={isCreating || isUpdating}
       />
+
     </section>
   );
 }
