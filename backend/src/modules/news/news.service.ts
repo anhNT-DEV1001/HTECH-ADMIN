@@ -115,7 +115,15 @@ export class NewsService {
         where: { id }
       });
 
-      if (!news) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND); 
+      if (!news) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND);
+
+      console.log("flag news service found")
+      // const deletedNews = await this.prisma.news.delete({
+      //   where: { id },
+      //   include: {
+      //     newsImages: true
+      //   }
+      // });
       return await this.prisma.$transaction(async (db) => {
         await db.newsImage.deleteMany({
           where: { news_id: id }
