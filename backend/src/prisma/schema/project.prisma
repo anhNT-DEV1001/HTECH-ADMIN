@@ -32,14 +32,14 @@ model Project {
   client_name    String?
   venue_vn       String?
   venue_en       String?
-  location_url   String? //link map
-  start_date     DateTime?
+  location_url   String? 
+  start_date     DateTime       @default(now())
   end_date       DateTime?
   scale          String?
   industry_vn    String?
   industry_en    String?
   status         ProjectStatus    @default(UPCOMING)
-  is_featured    Boolean          @default(false) //highlight du an noi bat
+  is_featured    Boolean          @default(false)
   sort_order     Int              @default(0)
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt

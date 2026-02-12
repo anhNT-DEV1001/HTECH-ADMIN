@@ -1,6 +1,12 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
+import { AlertTriangle, CircleCheck, CircleX, X } from "lucide-react";
+import Modal from "@/common/components/ui/Modal"; // import modal common
 
 interface ConfirmOptions {
   title?: string;
@@ -45,52 +51,48 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
+
       {config && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6">
-              <div className="flex items-start gap-4">
-                <div
-                  className={`p-2 rounded-full ${config.variant === "danger" ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"}`}
-                >
-                  <AlertTriangle size={24} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {config.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-                    {config.message}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleClose(false)}
-                  className="text-gray-400 hover:text-gray-600 transition"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+        <Modal
+          open={!!config}
+          title={config.title}
+          onClose={() => handleClose(false)}
+          footer={
+            <>
               <button
                 onClick={() => handleClose(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"
+                className="btn btn-outline btn-sm"
               >
+                <CircleX className="text-gray-600" />
                 {config.cancelLabel}
               </button>
               <button
                 onClick={() => handleClose(true)}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition shadow-sm ${
+                className={`btn btn-sm ${
                   config.variant === "danger"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    ? "btn-danger"
+                    : "btn-primary"
                 }`}
               >
+                <CircleCheck />
                 {config.confirmLabel}
               </button>
+            </>
+          }
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`p-2 rounded-full ${
+                config.variant === "danger"
+                  ? "bg-red-100 text-red-600"
+                  : "bg-blue-100 text-blue-600"
+              }`}
+            >
+              <AlertTriangle size={24} />
             </div>
+            <p className="text-gray-700 leading-relaxed">{config.message}</p>
           </div>
-        </div>
+        </Modal>
       )}
     </ConfirmContext.Provider>
   );

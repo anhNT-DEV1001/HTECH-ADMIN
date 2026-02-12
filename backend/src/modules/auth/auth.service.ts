@@ -168,7 +168,7 @@ export class AuthService {
     });
     if (!existToken)
       throw new ApiError('Người dùng chưa đăng nhập !', HttpStatus.BAD_REQUEST);
-    const isMatch = await bcrypt.compare(refreshToken, existToken.token);
+    const isMatch = await bcrypt.compare(refreshToken, existToken.token as string);
     if (!isMatch)
       throw new ApiError('Token không hợp lệ !', HttpStatus.BAD_REQUEST);
 
