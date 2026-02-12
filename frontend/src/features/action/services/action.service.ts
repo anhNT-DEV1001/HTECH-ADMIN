@@ -11,17 +11,17 @@ export const actionService = {
     return response.data;
   },
 
-  async createActionInDetail(data: IActionDetailForm) {
-    const response = await axiosClient.post("/permission/action", data);
+  async createActionInDetail(data: IActionDetailForm) : Promise<BaseResponse<IResourceDetailWithAction>> {
+    const response = await axiosClient.post<BaseResponse<IResourceDetailWithAction>>("/permission/action", data);
     return response.data;
   },
-  async updatedActionInDetail(data: any) {
-    const response = await axiosClient.patch("/permission/action");
+  async updatedActionInDetail(data: any) : Promise<BaseResponse<IResourceDetailWithAction>> {
+    const response = await axiosClient.patch<BaseResponse<IResourceDetailWithAction>>("/permission/action");
     return response.data;
   },
 
-  async deleteAction(id: number) {
-    const response = await axiosClient.delete(`/permission/action/${id}`);
+  async deleteAction(id: number) : Promise<BaseResponse<IResourceDetailWithAction>> {
+    const response = await axiosClient.delete<BaseResponse<IResourceDetailWithAction>>(`/permission/action/${id}`);
     return response.data;
   },
 };

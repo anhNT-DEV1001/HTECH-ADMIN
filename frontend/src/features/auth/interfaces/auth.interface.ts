@@ -30,7 +30,7 @@ export interface ResginterRequest {
   email?: string;
   phone?: string;
   dob?: Date | string;
-  name?: string;
+  fullName?: string;
   
 }
 

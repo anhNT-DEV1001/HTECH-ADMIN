@@ -1,3 +1,6 @@
+import { useAuthStore } from "@/common/stores";
+import Cookies from 'js-cookie';
+
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 let isRefreshing = false;
@@ -15,19 +18,15 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api/v1",
   withCredentials: true,
 });
 
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-
-    // Nếu lỗi 401 (Unauthorized) và chưa từng thử lại
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -43,28 +42,29 @@ axiosClient.interceptors.response.use(
         await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
           {},
-          { withCredentials: true },
+          { withCredentials: true }
         );
 
         isRefreshing = false;
         processQueue(null);
-
+        console.log('refresh token success');
         return axiosClient(originalRequest);
       } catch (refreshError) {
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
         isRefreshing = false;
+        console.log('refresh token failed');
         processQueue(refreshError, null);
-        if (
-          typeof window !== "undefined" &&
-          window.location.pathname !== "/login"
-        ) {
-          window.location.href = "/login";
-        }
+        useAuthStore.getState().logout();        
+        // if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          // window.location.assign("/login"); 
+        // }
+        
         return Promise.reject(refreshError);
       }
     }
-
     return Promise.reject(error);
-  },
+  }
 );
 
 export default axiosClient;

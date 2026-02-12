@@ -137,4 +137,42 @@ export class RoleService {
       }
     }
   }
+
+  async getUserRole(userId : number) {
+    const data = await this.prismaService.userRole.findMany({
+      where : {user_id: userId},
+      include : {
+        role : {
+          include : {
+            roleGroupPermission : {
+              include : {
+                action : true
+              }
+            }
+          }
+        },
+        userPermission : {
+          include : {
+            action : true
+          }
+        }
+      }
+    })
+    return data;
+  }
+
+  async getRoleById (id : number)  : Promise<Role> {
+    const data = await this.prismaService.role.findUnique({
+      where: {id},
+      include : {
+        roleGroupPermission : {
+          include : {
+            action : true
+          }
+        }
+      }
+    });
+    if(!data) throw new ApiError('Không tìm thấy role', HttpStatus.NOT_FOUND);
+    return data;
+  }
 }

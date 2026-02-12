@@ -19,7 +19,7 @@ export default function RegisterPage() {
     email: "",
     phone: "",
     dob: "",
-    name: "",
+    fullName: "",
   });
   const { register } = useAuth();
 
@@ -39,14 +39,13 @@ export default function RegisterPage() {
     }
   };
 
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setConfirmPassword(e.target.value);
+ const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setConfirmPassword(value);
+  if (errors.confirmPassword) {
     setErrors((prev) => ({ ...prev, confirmPassword: "" }));
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  }
+};
 
   const validatePasswords = () => {
     const newErrors: { password?: string; confirmPassword?: string } = {};
@@ -74,9 +73,7 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form data:", formData);
     if (validatePasswords()) {
-      console.log("Form data:", formData);
       register.mutate(formData, {
         onSuccess: (response) => {
           alert("Đăng nhập thành công !");
@@ -158,16 +155,12 @@ export default function RegisterPage() {
                   Nhập lại mật khẩu
                 </label>
                 <div className="relative">
-                  <input
+                 <input
                     type={showPasswordRepet ? "text" : "password"}
-                    placeholder="Vui lòng nhập mật khẩu"
-                    className={`w-full border rounded-lg p-3 outline-none focus:ring-2 transition-all ${
-                      errors.confirmPassword
-                        ? "border-red-500 focus:ring-red-400"
-                        : "border-gray-300 focus:ring-blue-400"
-                    }`}
+                    placeholder="Vui lòng nhập lại mật khẩu" 
+                    className={`w-full border rounded-lg p-3 ...`}
                     value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
+                    onChange={handleConfirmPasswordChange} 
                   />
                   <button
                     id="repetPass"
@@ -202,10 +195,10 @@ export default function RegisterPage() {
                 </label>
                 <input
                   type="text"
-                  name="name"
+                  name="fullName"
                   placeholder="Nhập tên của bạn"
                   className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 transition-all"
-                  value={formData.name}
+                  value={formData.fullName}
                   onChange={handleChange}
                 />
               </div>

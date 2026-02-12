@@ -232,11 +232,11 @@ export default function ListMenu() {
           <table className="w-full text-left border-separate border-spacing-0 table-fixed">
             <thead className="bg-gray-50/80">
               <tr>
-                <th className="px-4 py-2.5 font-semibold w-15 text-gray-700 text-center border border-gray-200">
+                <th className="px-4 py-2.5 font-semibold w-[60px] text-gray-700 text-center border border-gray-200">
                   STT
                 </th>
                 <th
-                  className="px-4 py-2.5 font-semibold w-35 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold w-[140px] text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("alias")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -246,7 +246,7 @@ export default function ListMenu() {
                 </th>
 
                 <th
-                  className="px-4 py-2.5 font-semibold min-w-50 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold min-w-[200px] text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("descreption")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -257,18 +257,18 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                <th className="px-4 py-2.5 font-semibold w-30 text-gray-700 text-center border border-gray-200">
+                <th className="px-4 py-2.5 font-semibold w-[120px] text-gray-700 text-center border border-gray-200">
                   Trạng thái
                 </th>
 
                 {/* Biểu tượng: 100px */}
-                {/* <th className="px-4 py-2.5 font-semibold w-42 text-gray-700 text-center border border-gray-200">
+                {/* <th className="px-4 py-2.5 font-semibold w-[168px] text-gray-700 text-center border border-gray-200">
                   Biểu tượng
                 </th> */}
 
                 {/* Đường dẫn: 200px */}
                 <th
-                  className="px-4 py-2.5 font-semibold w-55 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold w-[220px] text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("href")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -278,7 +278,7 @@ export default function ListMenu() {
                 </th>
 
                 <th
-                  className="px-4 py-2.5 font-semibold w-40 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold w-[160px] text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("created_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -290,7 +290,7 @@ export default function ListMenu() {
                 </th>
 
                 <th
-                  className="px-4 py-2.5 font-semibold w-40 text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 font-semibold w-[160px] text-gray-700 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort("updated_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -301,7 +301,7 @@ export default function ListMenu() {
                   </div>
                 </th>
 
-                <th className="px-4 py-2.5 font-semibold w-25 text-gray-700 text-center border border-gray-200">
+                <th className="px-4 py-2.5 font-semibold w-[100px] text-gray-700 text-center border border-gray-200">
                   Thao tác
                 </th>
               </tr>
@@ -350,19 +350,6 @@ export default function ListMenu() {
                         <td className="px-4 py-2 font-medium text-gray-800 text-left border border-gray-200">
                           {resource.description}
                         </td>
-                        {/* <td className="px-4 py-2 border border-gray-200 text-center">
-                          {resource.is_active ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200 shadow-sm">
-                              <CheckCircle2 size={10} className="shrink-0" />
-                              Bật
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200 shadow-sm">
-                              <CircleOff size={10} className="shrink-0" />
-                              Tắt
-                            </span>
-                          )}
-                        </td> */}
                         <td className="px-4 py-2 border border-gray-200 text-center">
                           {resource.is_active ? (
                             <span className="flex items-center gap-2 justify-center text-green-500">
@@ -374,10 +361,6 @@ export default function ListMenu() {
                             </span>
                           )}
                         </td>
-
-                        {/* <td className="px-4 py-2 border border-gray-200 ">
-                          {resource.icon ? resource.icon : "Không có dữ liệu"}
-                        </td> */}
                         <td className="px-4 py-2 border border-gray-200">
                           {resource.href ? resource.href : "Không có dữ liệu"}
                         </td>
@@ -436,22 +419,22 @@ export default function ListMenu() {
                             <div className="animate-in slide-in-from-top-2 duration-200">
                               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                                 <table className="w-full text-left border-separate border-spacing-0 table-fixed">
-                                  <thead className="bg-gray-50/80">
-                                    <tr>
-                                      <th className="px-4 py-2.5 font-semibold w-15 text-gray-700 text-center border border-gray-200">
-                                        STT
-                                      </th>
-                                      <th className="px-4 py-2.5 font-semibold  text-gray-700 border border-gray-200">
-                                        Mã
-                                      </th>
-                                      <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 w-50">
-                                        Đường dẫn
-                                      </th>
-                                      <th className="px-4 py-2.5 font-semibold w-25 text-gray-700 text-center border border-gray-200">
-                                        Trạng thái
-                                      </th>
-                                    </tr>
-                                  </thead>
+                                    <thead className="bg-gray-50/80">
+                                      <tr>
+                                        <th className="px-4 py-2.5 font-semibold w-[60px] text-gray-700 text-center border border-gray-200">
+                                          STT
+                                        </th>
+                                        <th className="px-4 py-2.5 font-semibold  text-gray-700 border border-gray-200">
+                                          Mã
+                                        </th>
+                                        <th className="px-4 py-2.5 font-semibold text-gray-700 border border-gray-200 w-[200px]">
+                                          Đường dẫn
+                                        </th>
+                                        <th className="px-4 py-2.5 font-semibold w-[100px] text-gray-700 text-center border border-gray-200">
+                                          Trạng thái
+                                        </th>
+                                      </tr>
+                                    </thead>
                                   <tbody>
                                     {resource.resourceDetails?.length > 0 ? (
                                       resource.resourceDetails.map(

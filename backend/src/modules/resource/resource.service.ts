@@ -70,6 +70,9 @@ export class ResourceService {
     }
     const resource = await this.prisma.resource.findUnique({
       where: { id: resourceId },
+      include: {
+        resourceDetails: true,
+      },
     });
 
     if (!resource)
@@ -104,6 +107,9 @@ export class ResourceService {
   ): Promise<Resource> {
     const resource = await this.prisma.resource.findUnique({
       where: { id: dto.id },
+      include: {
+        resourceDetails: true,
+      },
     });
     if (!resource)
       throw new ApiError('Không tìm thấy tài nguyên!', HttpStatus.BAD_REQUEST);
@@ -119,12 +125,34 @@ export class ResourceService {
           updated_by: user.id,
         },
       });
+      const oldDetails = resource.resourceDetails;
+      const newDetailsDto = dto.resourceDetails || [];
+      const oldDetailsMap = new Map(oldDetails.map((d) => [d.alias, d]));
+      const newDetailsMap = new Map(newDetailsDto.map((d) => [d.alias, d]));
+      const aliasesToDelete = oldDetails
+        .map((d) => d.alias)
+        .filter((alias) => !newDetailsMap.has(alias));
+      const detailsToCreateDto = newDetailsDto.filter(
+        (d) => !oldDetailsMap.has(d.alias),
+      );
+      const detailsToUpdateDto = newDetailsDto.filter((d) =>
+        oldDetailsMap.has(d.alias),
+      );  
+      if (aliasesToDelete.length > 0) {
+        await tx.action.deleteMany({
+          where: { resource_detail_alias: { in: aliasesToDelete } },
+        });
 
-      await tx.resourceDetail.deleteMany({
-        where: { parent_alias: resource.alias },
-      });
-      if (dto.resourceDetails && dto.resourceDetails.length > 0) {
-        const detailsToCreate = dto.resourceDetails.map((detail) => ({
+        await tx.resourceDetail.deleteMany({
+          where: {
+            parent_alias: resource.alias,
+            alias: { in: aliasesToDelete },
+          },
+        });
+      }
+
+      if (detailsToCreateDto.length > 0) {
+        const dataToCreate = detailsToCreateDto.map((detail) => ({
           alias: detail.alias,
           parent_alias: updatedResource.alias,
           is_active: detail.is_active,
@@ -135,9 +163,26 @@ export class ResourceService {
         }));
 
         await tx.resourceDetail.createMany({
-          data: detailsToCreate,
+          data: dataToCreate,
         });
       }
+      if (detailsToUpdateDto.length > 0) {
+        await Promise.all(
+          detailsToUpdateDto.map((detail) =>
+            tx.resourceDetail.update({
+              where: { alias: detail.alias },
+              data: {
+                parent_alias: updatedResource.alias,
+                is_active: detail.is_active,
+                icon: detail.icon,
+                herf: detail.href,
+                updated_by: user.id,
+              },
+            }),
+          ),
+        );
+      }
+
       return updatedResource;
     });
   }
@@ -145,8 +190,14 @@ export class ResourceService {
   async deleteResource(id: number): Promise<Resource> {
     const resource = await this.prisma.resource.findUnique({
       where: { id },
+      include : {
+        resourceDetails : {
+          include : {
+            actions : true
+          }
+        }
+      }
     });
-
     if (!resource) {
       throw new ApiError(
         'Không tìm thấy tài nguyên để xóa!',
@@ -154,6 +205,12 @@ export class ResourceService {
       );
     }
     return await this.prisma.$transaction(async (tx) => {
+      const arrActionIds = resource.resourceDetails.flatMap((detail)=> {
+        return detail.actions.map((action)=> action.id)
+      });
+      await tx.action.deleteMany({
+        where : {id : {in : arrActionIds}}
+      });
       await tx.resourceDetail.deleteMany({
         where: { parent_alias: resource.alias },
       });
@@ -238,5 +295,18 @@ export class ResourceService {
     });
 
     return resourceDetail as ResourceDetail;
+  }
+
+  async getResourceAction() : Promise<Resource[]> {
+    const data = await this.prisma.resource.findMany({
+      include: {
+        resourceDetails: {
+          include: {
+            actions: true
+          }
+        }
+      }
+    });
+    return data;
   }
 }

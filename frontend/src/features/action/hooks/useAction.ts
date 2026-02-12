@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { actionService } from "../services";
 import { useCommonMutate, useCommonQuery } from "@/common/hooks";
 import { useToast } from "@/common/providers/ToastProvider";
-import { BaseResponse } from "@/common/types";
 import { IActionDetailForm } from "../interfaces/action.interface";
 
 export const useAction = (resourceDetailId: number) => {
@@ -21,11 +20,11 @@ export const useAction = (resourceDetailId: number) => {
   const createActionMutation = useCommonMutate(
     (body : IActionDetailForm) => actionService.createActionInDetail(body), 
     {
-      onSuccess: (response : BaseResponse<any>) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey : [QUERY_KEY[0], QUERY_KEY[1]],
         });
-        showToast(`Thêm mới thành công !`, "success");
+        showToast(data.message, "success");
       },
       onError: (error : any) => {
         const message = error.response?.data?.message || 'Lỗi khi tạo quyền';
@@ -37,11 +36,11 @@ export const useAction = (resourceDetailId: number) => {
   const updateActionMutation = useCommonMutate(
     (body : any) => actionService.updatedActionInDetail(body), 
     {
-      onSuccess: (response : BaseResponse<any>) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey : [QUERY_KEY[0], QUERY_KEY[1]],
         });
-        showToast(`Thêm mới thành công !`, "success");
+        showToast(data.message, "success");
       },
       onError: (error : any) => {
         const message = error.response?.data?.message || 'Lỗi khi cập nhật quyền';
@@ -53,11 +52,11 @@ export const useAction = (resourceDetailId: number) => {
   const deleteActionMutation = useCommonMutate(
     (id : number) => actionService.deleteAction(id), 
     {
-      onSuccess: (response : BaseResponse<any>) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey : [QUERY_KEY[0], QUERY_KEY[1]],
         });
-        showToast(`Xóa thành công !`, "success");
+        showToast(data.message, "success");
       },
       onError: (error : any) => {
         const message = error.response?.data?.message || 'Lỗi khi xóa quyền';

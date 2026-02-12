@@ -86,7 +86,6 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refreshController(
-    // dto : any,
     @Req() req: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<BaseResponse<ITokenResponse>> {
@@ -120,7 +119,6 @@ export class AuthController {
     @Req() req: Request,
   ): Promise<BaseResponse<IAuth>> {
     const userReq = req;
-    console.log(userReq);
     return {
       status: 'success',
       message: '',

@@ -2,14 +2,17 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateActionDto, CreateActionsDto } from './dto';
 import { ApiError } from 'src/common/apis';
-import { Action, ResourceDetail, User } from '@prisma/client';
+import { Action, Resource, ResourceDetail, RoleGroupPermission, User, UserPermission } from '@prisma/client';
 import { ResourceService } from '../resource/resource.service';
+import { RoleService } from '../role/role.service';
+import { IPermission } from '../auth/interfaces';
 
 @Injectable()
 export class PermissionService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly resourceService: ResourceService,
+    private readonly roleService : RoleService
   ) {}
 
   async createActionsInResouceDetail(dto: CreateActionsDto, user: User) {
@@ -83,5 +86,250 @@ export class PermissionService {
       );
 
     return data;
+  }
+
+  async getActionInResource(): Promise<Resource[]> {
+    const data = await this.resourceService.getResourceAction();
+    return data;
+  }
+
+  async saveRoleGroupPermission(roleId : number , actionIds : number[] , user : User) {
+    try {
+      const uniqueActionIds = [...new Set(actionIds)];
+      const isExist = await this.prismaService.action.findMany({
+        where : {id : {in : uniqueActionIds}}
+      })
+      if(isExist.length !== uniqueActionIds.length) {
+        throw new ApiError('Thao tác không hợp lệ !', HttpStatus.BAD_REQUEST);
+      }
+      const role = await this.roleService.getRoleById(roleId);
+      const roleGroupPermissions = await this.prismaService.roleGroupPermission.findMany({
+        where : {role_name : role.name}
+      });
+      if(roleGroupPermissions && roleGroupPermissions.length > 0) {
+        // update
+        const roleGroupPermissionIds = roleGroupPermissions.map((item) => item.action_id);
+        const newActions = uniqueActionIds.filter((item) => !roleGroupPermissionIds.includes(item));
+        const deletedActions = roleGroupPermissionIds.filter((item) => !uniqueActionIds.includes(item));
+        const updatedActions = uniqueActionIds.filter((item) => roleGroupPermissionIds.includes(item));
+
+        await this.prismaService.$transaction(async (tx) => {
+          if(newActions.length > 0) {
+            const newActionsData = newActions.map((item) => {
+              return {
+                action_id : item,
+                role_name : role.name,
+                created_by : user.id,
+                updated_by : user.id,
+              } as RoleGroupPermission
+            })
+            await tx.roleGroupPermission.createMany({
+              data : newActionsData
+            });
+          }
+          if(deletedActions.length > 0) {
+            await tx.roleGroupPermission.deleteMany({
+              where : {
+                action_id : {
+                  in : deletedActions
+                },
+                role_name : role.name
+              }
+            });
+          }
+          if(updatedActions.length > 0) {
+            // Fix: updateMany data must be an object, not array. 
+            // Since we are only updating 'updated_by' and 'role_name' is constraint, this updates all matches.
+            await tx.roleGroupPermission.updateMany({
+              where : {
+                action_id : {
+                  in : updatedActions
+                },
+                role_name : role.name
+              },
+              data : {
+                updated_by: user.id
+              }
+            });
+          }
+        });
+      }else {
+        // create 
+        await this.prismaService.$transaction(async (tx) => {
+          const roleGroupPermissionData = uniqueActionIds.map((item) => {
+            return {
+              action_id : item,
+              role_name : role.name,
+              created_by : user.id,
+              updated_by : user.id,
+            } as RoleGroupPermission
+          })
+          await tx.roleGroupPermission.createMany({
+            data : roleGroupPermissionData
+          });
+        });
+      }
+    } catch (error) {
+      throw new ApiError(
+        'Cập nhật quyền thất bại !',
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
+
+  async getRoleGroupPermission(roleId : number) {
+    const role = await this.roleService.getRoleById(roleId);
+    const actions = await this.prismaService.action.findMany();
+    const roleGroupPermission = await this.prismaService.roleGroupPermission.findMany({
+      where : {role_name : role.name}
+    });
+    const roleGroupPermissionIds = roleGroupPermission.map((item) => item.action_id);
+    const actionsWithIsActive = actions.map((item) => {
+      return {
+        ...item,
+        is_active : roleGroupPermissionIds.includes(item.id)
+      }
+    });
+    const resourceDtails = await this.prismaService.resourceDetail.findMany({
+      include : {
+        actions : true
+      }
+    })
+    const actionsByResourceDetails = resourceDtails.map((item) => {
+      return {
+        ...item,
+        actions : actionsWithIsActive.filter((action) => action.resource_detail_alias === item.alias)
+      }
+    });
+    return actionsByResourceDetails;
+  }
+
+  async saveUserPermission(userId : number , actionIds: number[]) {
+    try {
+      const uniqueActionIds = [...new Set(actionIds)];      
+      if (uniqueActionIds.length > 0) {
+        const isExist = await this.prismaService.action.findMany({
+          where : {id : {in : uniqueActionIds}}
+        });
+        if(isExist.length !== uniqueActionIds.length) {
+          throw new ApiError('Thao tác không hợp lệ !', HttpStatus.BAD_REQUEST);
+        }
+      }
+
+      const user = await this.prismaService.user.findUnique({
+        where : {id : userId},
+      });
+      if(!user) {
+        throw new ApiError('Không tìm thấy người dùng!', HttpStatus.BAD_REQUEST);
+      }
+      // Lấy danh sách user_role
+      const userRole = await this.prismaService.userRole.findUnique({
+        where : {user_id : userId},
+        include: { role: true }
+      });
+      if(!userRole) {
+        throw new ApiError('Không tìm thấy vai trò người dùng!', HttpStatus.BAD_REQUEST);
+      }
+      // Lấy danh sách role_group_permission
+      const roleGroupPermissions = await this.prismaService.roleGroupPermission.findMany({
+        where: { role_name: userRole.role.name }
+      });
+      const roleActionIds = roleGroupPermissions.map((item) => item.action_id);
+      // Lấy danh sách user_permission
+      const userPermissions = await this.prismaService.userPermission.findMany({
+        where : {user_role : userRole.id}
+      });
+      const userPermissionIds = userPermissions.map((item) => item.action_id);
+      // Lấy danh sách action cần thêm vào user_permission
+      const actionsToAddToUserPermission = uniqueActionIds.filter(
+        (id) => !roleActionIds.includes(id) && !userPermissionIds.includes(id)
+      );
+      // Lấy danh sách action cần xóa khỏi user_permission
+      const actionsToDeleteFromUserPermission = userPermissionIds.filter(
+        (id) => !uniqueActionIds.includes(id)
+      );
+
+      await this.prismaService.$transaction(async (tx) => {
+        if(actionsToAddToUserPermission.length > 0) {
+          const newActionsData = actionsToAddToUserPermission.map((item) => {
+            return {
+              action_id : item,
+              user_role : userRole.id,
+            } as UserPermission
+          });
+          await tx.userPermission.createMany({
+            data : newActionsData
+          });
+        }
+
+        if(actionsToDeleteFromUserPermission.length > 0) {
+          await tx.userPermission.deleteMany({
+            where : {
+              action_id : {
+                in : actionsToDeleteFromUserPermission
+              },
+              user_role : userRole.id
+            }
+          });
+        }
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(
+        'Cập nhật quyền thất bại !',
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
+
+  async getUserPermission(userId : number) : Promise<IPermission[]> {
+    const user = await this.prismaService.user.findUnique({
+      where : {id : userId}
+    });
+    if(!user) {
+      throw new ApiError('Không tìm thấy người dùng!', HttpStatus.BAD_REQUEST);
+    }
+    const userRole = await this.prismaService.userRole.findUnique({
+      where : {user_id : userId},
+      include : {
+        role: true
+      }
+    });
+    if(!userRole) {
+      throw new ApiError('Không tìm thấy vai trò người dùng!', HttpStatus.BAD_REQUEST);
+    }
+    
+    const userPermissions = await this.prismaService.userPermission.findMany({
+      where : {user_role : userRole.id}
+    });
+    const userPermissionIds = userPermissions.map((item) => item.action_id);
+    const roleGroupPermission = await this.prismaService.roleGroupPermission.findMany({
+      where : {role_name : userRole.role.name}
+    });
+    const roleGroupPermissionIds = roleGroupPermission.map((item) => item.action_id);
+    const allActiveActionIds = [...new Set([...userPermissionIds, ...roleGroupPermissionIds])];
+
+    const actions = await this.prismaService.action.findMany();
+
+    const resourceDtails = await this.prismaService.resourceDetail.findMany({
+      include : {
+        actions : true
+      }
+    })
+        const actionsByResourceDetails = resourceDtails.map((item) => {
+      return {
+        ...item,
+        actions : actions.filter((action) => action.resource_detail_alias === item.alias).map((action) => {
+          return {
+            ...action,
+            is_active : allActiveActionIds.includes(action.id)
+          }
+        })
+      }
+    });
+
+    return actionsByResourceDetails as IPermission[];
   }
 }

@@ -1,0 +1,68 @@
+enum ProjectStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model ProjectCategory {
+  id         Int       @id @default(autoincrement())
+  name_vn    String
+  name_en    String?
+  slug       String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  created_by Int?
+  updated_by Int?
+  projects   Project[]
+
+  @@map("project_category")
+}
+
+model Project {
+  id             Int             @id @default(autoincrement())
+  title_vn       String
+  title_en       String?
+  slug           String          @unique
+  summary_vn     String
+  summary_en     String?
+  description_vn String
+  description_en String?
+  thumbnail_url  String?
+  client_name    String?
+  venue_vn       String?
+  venue_en       String?
+  location_url   String? //link map
+  start_date     DateTime        @default(now())
+  end_date       DateTime?
+  scale          String?
+  industry_vn    String?
+  industry_en    String?
+  status         ProjectStatus   @default(UPCOMING)
+  is_featured    Boolean         @default(false) //highlight du an noi bat
+  sort_order     Int             @default(0)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+  created_by     Int?
+  updated_by     Int?
+  category_id    Int
+  category       ProjectCategory @relation(fields: [category_id], references: [id])
+  projectImages  ProjectImage[]
+
+  @@map("projects")
+}
+
+model ProjectImage {
+  id         Int      @id @default(autoincrement())
+  project_id Int
+  image_url  String
+  alt_text   String   @default("project_image")
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+  project    Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("project_images")
+}

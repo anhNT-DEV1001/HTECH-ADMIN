@@ -8,12 +8,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto, PayloadDto, RegisterDto } from './dto';
 import { IAuthResponse, ILoginResponse, ITokenResponse } from './interfaces';
 import { AuthResponse } from './response';
+import { PermissionService } from '../permission/permission.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly permissionService: PermissionService,
   ) {}
   /**
    * @author Nguyễn Tuấn Anh
@@ -138,11 +140,15 @@ export class AuthService {
    * @returns
    */
   async logout(user: User): Promise<IAuthResponse> {
-    const token = await this.prisma.token.delete({
-      where: { user_id: user.id },
-    });
-    if (!token)
-      throw new ApiError('Người dùng không hợp lệ !', HttpStatus.BAD_REQUEST);
+    // const token = await this.prisma.token.update({
+    //   where: { user_id: user.id },
+    //   data : {
+    //     token: "",
+    //     updated_by: user.id,
+    //   }
+    // });
+    // if (!token)
+    //   throw new ApiError('Người dùng không hợp lệ !', HttpStatus.BAD_REQUEST);
 
     const res = new AuthResponse(user).mapToAuthResponse();
     return res;
@@ -162,7 +168,7 @@ export class AuthService {
     });
     if (!existToken)
       throw new ApiError('Người dùng chưa đăng nhập !', HttpStatus.BAD_REQUEST);
-    const isMatch = await bcrypt.compare(refreshToken, existToken.token);
+    const isMatch = await bcrypt.compare(refreshToken, existToken.token as string);
     if (!isMatch)
       throw new ApiError('Token không hợp lệ !', HttpStatus.BAD_REQUEST);
 
@@ -178,5 +184,10 @@ export class AuthService {
     });
 
     return newToken;
+  }
+
+  async getAuthPermissions(user : User) {
+    const permission = await this.permissionService.getUserPermission(user.id)
+    return permission
   }
 }

@@ -17,11 +17,11 @@ export const useResource = (query? : IPaginationRequest) => {
   );
 
   const createResourceMutation = useCommonMutate((body: ICreateResource) =>resourceService.createResource(body),{
-    onSuccess: ()=> {
+    onSuccess: (data)=> {
       queryClient.invalidateQueries({
         queryKey : [QUERY_KEY[0], QUERY_KEY[1]]
       });
-      showToast("Tạo tài nguyên thành công !", 'success');
+      showToast(data.message, 'success');
     },
     onError: (error: any) => {
       const errorMsg = error.response?.data?.message || "Lỗi hệ thông !";
@@ -33,11 +33,11 @@ export const useResource = (query? : IPaginationRequest) => {
     (body: IUpdateResourceWithDetail) =>
       resourceService.updateResourceWithDetail(body),
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY[0], QUERY_KEY[1]],
         });
-        showToast("Cập nhật tài nguyên thành công !", "success");
+        showToast(data.message, "success");
       },
       onError: (error: any) => {
         const errorMsg = error.response?.data?.message || "Lỗi hệ thông !";
@@ -46,11 +46,11 @@ export const useResource = (query? : IPaginationRequest) => {
     },
   );
   const deleteResourceMutation = useCommonMutate(resourceService.deleteResource, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY[0], QUERY_KEY[1]],
         });
-        showToast("Xóa tài nguyên thành công!", "success");
+        showToast(data.message, "success");
       },
       onError: (error: any) => {
         const message = error.response?.data?.message || 'Lỗi khi xóa quyền';

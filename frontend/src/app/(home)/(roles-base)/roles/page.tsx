@@ -297,7 +297,7 @@ export default function RoleManagement() {
                       <td className="px-4 py-2 border border-gray-200">
                         <div className="flex justify-center gap-1">
                           <button
-                            onClick={() => {}}
+                            onClick={() => {router.push(`/roles/${role.id}`)}}
                             className="p-1.5 hover:bg-blue-100 text-green-500 rounded-md transition"
                             title="Phân quyền"
                           >
