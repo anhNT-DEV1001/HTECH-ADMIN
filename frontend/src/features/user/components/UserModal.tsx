@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { CircleX, Eye, EyeOff, Loader2, Save } from "lucide-react";
 import { IUserResponse, IUserForm } from "../interfaces/user.interface";
 import Modal from "@/common/components/ui/Modal"; 
 
@@ -77,18 +77,20 @@ export default function UserModal({
           <button
             onClick={onClose}
             type="button"
-            className="btn btn-default btn-sm"
+            className="btn btn-default btn-md"
             disabled={loading}
           >
+            <CircleX size={16}/>
             Hủy bỏ
           </button>
           <button
             form="user-form"
             type="submit"
             disabled={loading}
-            className="btn btn-primary btn-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
+            {!loading && <Save size={16}/>}
             {isUpdateMode ? "Cập nhật" : "Tạo mới"}
           </button>
         </>

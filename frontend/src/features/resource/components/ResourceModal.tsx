@@ -3,7 +3,7 @@
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { IResource, IUpdateResourceWithDetail } from "../interfaces";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { CircleX, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import Modal from "@/common/components/ui/Modal";
 
 export default function ResourceModal({
@@ -92,8 +92,9 @@ export default function ResourceModal({
           <button
             type="button"
             onClick={onClose}
-            className="btn btn-default btn-sm"
+            className="btn btn-default btn-md"
           >
+            <CircleX size={16}/>
             Hủy
           </button>
           <button
@@ -102,7 +103,8 @@ export default function ResourceModal({
             disabled={loading}
             className="btn btn-primary btn-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading && <Loader2 size={16} className="animate-spin" />}
+            {loading && <Loader2 size={16} className="animate-spin"/>}
+            {!loading && <Save size={16}/>}
             {data ? "Cập nhật" : "Lưu mới"}
           </button>
         </>

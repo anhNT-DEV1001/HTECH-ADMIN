@@ -1,5 +1,8 @@
-import { X, Loader2 } from "lucide-react";
-import React, { useState } from "react";
+"use client";
+
+import { CircleX, Loader2, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import Modal from "@/common/components/ui/Modal";
 
 export default function RoleModal({
   isOpen,
@@ -16,73 +19,87 @@ export default function RoleModal({
 }) {
   const [formData, setFormData] = useState({ name: "", description: "" });
 
-  React.useEffect(() => {
-    if (data)
-      setFormData({ name: data.name, description: data.description || "" });
-    else setFormData({ name: "", description: "" });
+  useEffect(() => {
+    if (isOpen) {
+      if (data)
+        setFormData({
+          name: data.name,
+          description: data.description || "",
+        });
+      else setFormData({ name: "", description: "" });
+    }
   }, [data, isOpen]);
 
-  if (!isOpen) return null;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+    onSave(formData);
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="flex justify-between items-center p-2 ">
-          <h2 className="font-bold text-gray-800">
-            {data ? `Cập nhật quyền ${data.name}` : "Thêm quyền mới"}
-          </h2>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={data ? `Cập nhật quyền ${data.name}` : "Thêm quyền mới"}
+      width="max-w-md"
+      footer={
+        <>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full"
+            className="btn btn-default btn-md"
+            disabled={loading}
           >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="p-4 space-y-4 text-sm">
-          <div className="space-y-1">
-            <label className="font-medium text-gray-700">
-              Tên quyền <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full border rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="Ví dụ: Quản trị viên"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="font-medium text-gray-700">Mô tả</label>
-            <textarea
-              className="w-full border rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 h-24"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              placeholder="Mô tả ngắn gọn về quyền này..."
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 p-4 bg-gray-50">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 hover:bg-gray-200 rounded-md transition text-gray-600"
-          >
+            <CircleX size={16}/>
             Hủy
           </button>
           <button
-            onClick={() => onSave(formData)}
-            disabled={loading || !formData.name}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md transition disabled:opacity-50"
+            form="role-form"
+            type="submit"
+            disabled={loading || !formData.name.trim()}
+            className="btn btn-primary btn-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading && <Loader2 size={14} className="animate-spin" />}
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            {!loading && <Save size={16}/>}
             {data ? "Cập nhật" : "Lưu lại"}
           </button>
+        </>
+      }
+    >
+      <form
+        id="role-form"
+        onSubmit={handleSubmit}
+        className="space-y-4 text-sm"
+      >
+        <div className="space-y-1">
+          <label className="font-medium text-gray-700">
+            Tên quyền <span className="text-red-500">*</span>
+          </label>
+          <input
+            className={`w-full border rounded-md px-3 py-2 outline-none focus:ring-2 transition-all ${
+              !formData.name.trim()
+                ? "focus:ring-red-200 border-gray-300"
+                : "focus:ring-blue-100 border-gray-300"
+            }`}
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({ ...formData, name: e.target.value })
+            }
+            placeholder="Ví dụ: Quản trị viên"
+          />
         </div>
-      </div>
-    </div>
+
+        <div className="space-y-1">
+          <label className="font-medium text-gray-700">Mô tả</label>
+          <textarea
+            className="w-full border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-100 h-24 transition-all"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            placeholder="Mô tả ngắn gọn về quyền này..."
+          />
+        </div>
+      </form>
+    </Modal>
   );
 }

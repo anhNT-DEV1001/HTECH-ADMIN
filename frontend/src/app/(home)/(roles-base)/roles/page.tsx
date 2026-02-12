@@ -179,65 +179,53 @@ export default function RoleManagement() {
       </div>
 
       {/* TABLE & PAGINATION CONTAINER */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="table-container">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-0">
-            <thead className="bg-gray-50/80">
+          <table className="table">
+            <thead>
               <tr>
-                <th className="px-4 py-2.5 font-semibold text-gray-700 w-16 text-center border border-gray-200">
-                  STT
-                </th>
+                <th className="w-16">STT</th>
 
-                {/* Cột Tên Quyền */}
                 <th
-                  className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="table-header-cell"
                   onClick={() => handleSort("name")}
                 >
-                  <div className="flex items-center justify-center gap-2 select-none">
+                  <div className="flex items-center justify-center gap-2">
                     <span>Tên quyền</span>
                     {getSortIcon("name")}
                   </div>
                 </th>
 
-                {/* Cột Mô tả  */}
-                <th className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200">
-                  Mô tả
-                </th>
+                <th>Mô tả</th>
 
-                {/* Cột Ngày tạo */}
                 <th
-                  className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="table-header-cell"
                   onClick={() => handleSort("created_at")}
                 >
-                  <div className="flex items-center justify-center gap-2 select-none">
+                  <div className="flex items-center justify-center gap-2">
                     <span>Ngày tạo</span>
                     {getSortIcon("created_at")}
                   </div>
                 </th>
 
-                {/* Cột Cập nhật lần cuối */}
                 <th
-                  className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="table-header-cell"
                   onClick={() => handleSort("updated_at")}
                 >
-                  <div className="flex items-center justify-center gap-2 select-none">
+                  <div className="flex items-center justify-center gap-2">
                     <span>Cập nhật lần cuối</span>
                     {getSortIcon("updated_at")}
                   </div>
                 </th>
 
-                <th className="px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200">
-                  Thao tác
-                </th>
+                <th>Thao tác</th>
               </tr>
             </thead>
+
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="p-12 text-center text-gray-400 border border-gray-200"
-                  >
+                  <td colSpan={6} className="table-empty">
                     <Loader2
                       size={24}
                       className="animate-spin mx-auto mb-2 opacity-20"
@@ -247,10 +235,7 @@ export default function RoleManagement() {
                 </tr>
               ) : roles.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="p-12 text-center text-gray-400 font-light italic border border-gray-200"
-                  >
+                  <td colSpan={6} className="table-empty">
                     Không tìm thấy dữ liệu phù hợp
                   </td>
                 </tr>
@@ -259,50 +244,47 @@ export default function RoleManagement() {
                   const currentPage = params.page || 1;
                   const currentLimit = params.limit || 10;
                   const stt = (currentPage - 1) * currentLimit + index + 1;
+
                   return (
-                    <tr
-                      key={role.id}
-                      className="hover:bg-blue-50/30 transition-colors"
-                    >
-                      {/* Thêm 'border border-gray-200' cho mỗi td */}
-                      <td className="px-4 py-2 text-gray-400 font-mono text-xs text-center border border-gray-200">
-                        {stt}
-                      </td>
-                      <td className="px-4 py-2 font-medium text-gray-800 text-center border border-gray-200">
-                        {role.name}
-                      </td>
-                      <td className="px-4 py-2 text-gray-800 truncate max-w-2xs border border-gray-200">
+                    <tr key={role.id} className="table-row">
+                      <td className="text-gray-400 font-mono text-xs">{stt}</td>
+                      <td className="font-medium text-gray-800">{role.name}</td>
+                      <td className="text-gray-800 truncate max-w-[200px]">
                         {role.description}
                       </td>
-                      <td className="px-4 py-2 text-gray-800 text-center text-xs border border-gray-200">
+
+                      <td className="text-gray-800 text-xs">
                         <span className="font-medium">
                           {dayjs(role.created_at).format("DD/MM/YYYY")}
                         </span>
-                        <div className="text-gray-400 mt-0.5">
+                        <div className="text-gray-400">
                           {dayjs(role.created_at).format("HH:mm:ss")}
                         </div>
                       </td>
-                      <td className="px-4 py-2 text-gray-800 text-center text-xs border border-gray-200">
+
+                      <td className="text-gray-800 text-xs">
                         <span className="font-medium">
                           {dayjs(role.updated_at || role.created_at).format(
-                            "DD/MM/YYYY",
+                            "DD/MM/YYYY"
                           )}
                         </span>
-                        <div className="text-gray-400 mt-0.5">
+                        <div className="text-gray-400">
                           {dayjs(role.updated_at || role.created_at).format(
-                            "HH:mm:ss",
+                            "HH:mm:ss"
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-2 border border-gray-200">
+
+                      <td>
                         <div className="flex justify-center gap-1">
                           <button
-                            onClick={() => {router.push(`/roles/${role.id}`)}}
+                            onClick={() => router.push(`/roles/${role.id}`)}
                             className="p-1.5 hover:bg-blue-100 text-green-500 rounded-md transition"
                             title="Phân quyền"
                           >
                             <Shield size={15} />
                           </button>
+
                           <button
                             onClick={() => handleEdit(role)}
                             className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
@@ -310,6 +292,7 @@ export default function RoleManagement() {
                           >
                             <Pencil size={15} />
                           </button>
+
                           <button
                             onClick={() => handleDelete(role)}
                             className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
@@ -324,24 +307,22 @@ export default function RoleManagement() {
                 })
               )}
             </tbody>
+
             {meta && (
-              <tfoot className="bg-gray-50/50">
+              <tfoot>
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-4 py-2.5 border-t border-gray-200"
-                  >
-                    <div className="flex justify-between items-center">
-                      {/* PHẦN HIỂN THỊ SỐ KẾT QUẢ */}
-                      <div className="text-xs text-gray-500">
+                  <td colSpan={6}>
+                    <div className="table-pagination flex justify-between items-center">
+                      {/* Tổng số hiển thị */}
+                      <div>
                         Hiển thị{" "}
                         <span className="font-medium text-gray-700">
                           {roles.length}
-                        </span>
-                        /{meta.total} kết quả
+                        </span>{" "}
+                        / {meta.total} kết quả
                       </div>
 
-                      {/* PHẦN CHỌN LIMIT */}
+                      {/* Chọn limit */}
                       <select
                         className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
                         value={params.limit}
@@ -358,12 +339,12 @@ export default function RoleManagement() {
                         <option value={20}>20 / trang</option>
                       </select>
 
-                      {/* PHẦN ĐIỀU HƯỚNG TRANG */}
+                      {/* Phân trang */}
                       <div className="flex items-center gap-1">
                         <button
                           disabled={params.page === 1}
                           onClick={() => handlePageChange(params.page! - 1)}
-                          className="p-1 border rounded hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition shadow-sm bg-white"
+                          className="table-pagination-button"
                         >
                           <ChevronLeft size={16} />
                         </button>
@@ -373,10 +354,10 @@ export default function RoleManagement() {
                             <button
                               key={i}
                               onClick={() => handlePageChange(i + 1)}
-                              className={`min-w-5 h-7 text-xs rounded transition font-medium ${
+                              className={`table-pagination-page ${
                                 params.page === i + 1
-                                  ? "bg-blue-600 text-white shadow-sm"
-                                  : "hover:bg-white border border-transparent hover:border-gray-200"
+                                  ? "table-pagination-page-active"
+                                  : "table-pagination-page-inactive"
                               }`}
                             >
                               {i + 1}
@@ -387,7 +368,7 @@ export default function RoleManagement() {
                         <button
                           disabled={params.page === meta.totalPages}
                           onClick={() => handlePageChange(params.page! + 1)}
-                          className="p-1 border rounded hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition shadow-sm bg-white"
+                          className="table-pagination-button"
                         >
                           <ChevronRight size={16} />
                         </button>
@@ -399,6 +380,7 @@ export default function RoleManagement() {
             )}
           </table>
         </div>
+        {/* Modal */}
         <RoleModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -407,6 +389,7 @@ export default function RoleManagement() {
           loading={isCreating || isUpdating}
         />
       </div>
+
     </div>
   );
 }

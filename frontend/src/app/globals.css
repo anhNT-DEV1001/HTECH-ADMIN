@@ -47,6 +47,10 @@
     @apply px-3 py-1 text-sm; /* dùng cho nút có icon + text nhỏ */
   }
 
+  .btn-md {
+    @apply px-4 py-2 text-sm font-medium;
+  }
+
   .btn-lg {
     @apply px-5 py-3 text-base; /* nút lớn, icon + text */
   }
@@ -78,5 +82,57 @@
 
   .modal-close {
     @apply text-gray-400 hover:text-gray-600 transition-colors duration-200;
+  }
+
+  .table-container {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+  }
+
+  .table {
+    @apply w-full text-sm text-left border-separate border-spacing-0;
+  }
+
+  .table thead {
+    @apply bg-gray-50/80;
+  }
+
+  .table th {
+    @apply px-4 py-2.5 font-semibold text-gray-700 text-center border border-gray-200 select-none;
+  }
+
+  .table td {
+    @apply px-4 py-2 border border-gray-200 text-center align-middle;
+  }
+
+  .table-row {
+    @apply hover:bg-blue-50/30 transition-colors;
+  }
+
+  .table-header-cell {
+    @apply cursor-pointer hover:bg-gray-100 transition-colors;
+  }
+
+  .table-empty {
+    @apply p-12 text-center text-gray-400 italic font-light border border-gray-200;
+  }
+
+  .table-pagination {
+    @apply  border-gray-200 px-4 py-2.5 text-xs text-gray-500;
+  }
+
+  .table-pagination-button {
+    @apply p-1 border rounded bg-white shadow-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .table-pagination-page {
+    @apply min-w-5 h-7 text-xs rounded transition font-medium;
+  }
+
+  .table-pagination-page-active {
+    @apply bg-blue-600 text-white shadow-sm;
+  }
+
+  .table-pagination-page-inactive {
+    @apply hover:bg-white border border-transparent hover:border-gray-200;
   }
 }
