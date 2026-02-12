@@ -7,13 +7,14 @@ import {
   Bell,
   ChevronDown,
   ChevronRight,
+  Image,
   LayoutDashboard,
   LogOut,
   Menu,
   Settings,
   Users,
 } from "lucide-react";
-import { useRouter } from "next/dist/client/components/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -32,6 +33,7 @@ export default function HomeLayout({
     );
   };
   const navigate = useRouter();
+  const pathname = usePathname();
   const { logout } = useAuth();
   const { user } = useAuthStore();
   const { showToast } = useToast();
@@ -61,17 +63,16 @@ export default function HomeLayout({
     <div className="min-h-screen bg-slate-50 flex">
       {/* SIDEBAR */}
       <aside
-        className={`${
-          isSidebarOpen ? "w-64" : "w-20"
-        } bg-white border-r border-slate-200 transition-all duration-300 flex flex-col fixed h-full z-50`}
+        className={`${isSidebarOpen ? "w-64" : "w-20"
+          } bg-slate-100  transition-all duration-300 flex flex-col fixed h-full z-50`}
       >
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between h-16">
+        <div className="p-4 flex items-center justify-between h-16">
           <span
-            className={`font-bold text-xl text-gray-600 ${
-              !isSidebarOpen && "hidden"
-            }`}
+            className={`font-bold text-xl text-gray-600 ${!isSidebarOpen && "hidden"
+              }`}
           >
-            HTECH
+            <img src="logo.svg" alt="Htech-logo" className="w-auto h-15"
+            />
           </span>
           <button
             onClick={() => setSidebarOpen(!isSidebarOpen)}
@@ -81,7 +82,7 @@ export default function HomeLayout({
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 font-sm">
+        <nav className="bg-blue-900 flex-1 overflow-y-auto p-3 space-y-1 font-sm">
           {MENU_ITEMS.map((item) => (
             <div key={item.label}>
               {item.children ? (
@@ -89,7 +90,10 @@ export default function HomeLayout({
                 <div>
                   <button
                     onClick={() => toggleSubMenu(item.label)}
-                    className="w-full flex items-center justify-between p-3 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                    className={`w-full flex items-center justify-between cursor-pointer p-3 rounded-lg transition-colors ${item.children?.some(child => pathname === child.href)
+                      ? " text-orange-300"
+                      : "text-white hover:text-orange-300"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       {item.icon}
@@ -112,7 +116,10 @@ export default function HomeLayout({
                         <Link
                           key={child.label}
                           href={child.href}
-                          className="block p-2 text-sm text-gray-500 hover:text-blue-600 rounded-md"
+                          className={`block p-2 text-sm rounded-md transition-colors ${pathname === child.href
+                            ? "text-orange-300 font-medium "
+                            : "text-white hover:text-orange-300"
+                            }`}
                         >
                           {child.label}
                         </Link>
@@ -124,7 +131,10 @@ export default function HomeLayout({
                 // Menu đơn
                 <Link
                   href={item.href || "#"}
-                  className="flex items-center gap-3 p-3 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${pathname === item.href
+                    ? "text-orange-300 font-medium "
+                    : "text-white hover:text-orange-300"
+                    }`}
                 >
                   {item.icon}
                   <span className={`${!isSidebarOpen && "hidden"}`}>
@@ -139,13 +149,12 @@ export default function HomeLayout({
 
       {/* MAIN CONTENT AREA */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-20"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"
+          }`}
       >
         {/* HEADER */}
-        <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-40 flex items-center justify-between px-6">
-          <div className="text-sm text-gray-500 font-medium">
+        <header className="h-16 bg-blue-900 sticky top-0 z-40 flex items-center justify-between px-6">
+          <div className="text-sm text-white font-medium">
             Chào mừng trở lại, {userName}!
           </div>
 
@@ -159,12 +168,12 @@ export default function HomeLayout({
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                 {userInitial}
               </div>
-              <span className="text-sm font-semibold text-gray-700 group-hover:text-blue-600">
+              <span className="text-sm font-semibold text-white group-hover:text-orange-300">
                 {userName}
               </span>
             </div>
             <button
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-red-500 transition-colors"
+              className="flex items-center gap-2 text-sm font-medium text-white hover:text-red-500 transition-colors"
               onClick={handleLogout}
             >
               <LogOut size={16} />
