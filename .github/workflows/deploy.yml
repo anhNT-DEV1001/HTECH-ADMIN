@@ -28,7 +28,8 @@ jobs:
             echo "Deploying Backend..."
             cd backend
             npm install
-            npx prisma generate
+            # npx prisma generate
+            npm run prisma:generate
             npm run build
             pm2 restart htech-admin-backend || pm2 start dist/src/main.js --name htech-admin-backend
 
