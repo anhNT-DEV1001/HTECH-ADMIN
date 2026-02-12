@@ -20,10 +20,10 @@ model ProjectCategory {
 }
 
 model Project {
-  id             Int              @id @default(autoincrement())
+  id             Int             @id @default(autoincrement())
   title_vn       String
   title_en       String?
-  slug           String           @unique
+  slug           String          @unique
   summary_vn     String
   summary_en     String?
   description_vn String
@@ -32,21 +32,21 @@ model Project {
   client_name    String?
   venue_vn       String?
   venue_en       String?
-  location_url   String? 
-  start_date     DateTime       @default(now())
+  location_url   String? //link map
+  start_date     DateTime        @default(now())
   end_date       DateTime?
   scale          String?
   industry_vn    String?
   industry_en    String?
-  status         ProjectStatus    @default(UPCOMING)
-  is_featured    Boolean          @default(false)
-  sort_order     Int              @default(0)
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
+  status         ProjectStatus   @default(UPCOMING)
+  is_featured    Boolean         @default(false) //highlight du an noi bat
+  sort_order     Int             @default(0)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
   created_by     Int?
   updated_by     Int?
-  category_id    Int?
-  category       ProjectCategory? @relation(fields: [category_id], references: [id])
+  category_id    Int
+  category       ProjectCategory @relation(fields: [category_id], references: [id])
   projectImages  ProjectImage[]
 
   @@map("projects")
