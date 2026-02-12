@@ -1,7 +1,7 @@
 import AuthProvider from "@/common/providers/AuthProvider";
 import ReactQueryProvider from "@/common/providers/QueryProvider";
 import { ToastProvider } from "@/common/providers/ToastProvider";
-import "@/public/styles/globals.css";
+import "./globals.css";
 import { ConfirmProvider } from "@/common/providers/ConfirmProvider";
 
 export default function RootLayout({

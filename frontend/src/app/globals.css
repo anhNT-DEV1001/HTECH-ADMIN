@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer components {
+  /* === Base Button === */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium text-white transition-colors duration-200;
+  }
+
+  /* === Button Variants === */
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700;
+  }
+
+  .btn-secondary {
+    @apply bg-orange-400 hover:bg-amber-600;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700;
+  }
+
+  .btn-default {
+    @apply bg-gray-500 hover:bg-gray-700;
+  }
+
+  .btn-outline {
+    @apply border border-gray-600 text-gray-600 hover:bg-gray-300;
+  }
+
+  .btn-xs {
+    @apply p-2 text-sm leading-none rounded-md; /* dùng cho nút chỉ có icon */
+  }
+
+  .btn-sm {
+    @apply px-3 py-1 text-sm; /* dùng cho nút có icon + text nhỏ */
+  }
+
+  .btn-lg {
+    @apply px-5 py-3 text-base; /* nút lớn, icon + text */
+  }
+
+  /* === Modal === */
+  .modal {
+    @apply fixed inset-0 flex items-center justify-center bg-black/50 z-50;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg shadow-xl w-full max-w-lg flex flex-col;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between px-6 py-3 border-b border-gray-200;
+  }
+
+  .modal-title {
+    @apply text-lg font-semibold text-gray-800;
+  }
+
+  .modal-body {
+    @apply p-6 text-gray-700;
+  }
+
+  .modal-footer {
+    @apply flex justify-end gap-2 px-3 py-3 border-t border-gray-200;
+  }
+
+  .modal-close {
+    @apply text-gray-400 hover:text-gray-600 transition-colors duration-200;
+  }
+}
