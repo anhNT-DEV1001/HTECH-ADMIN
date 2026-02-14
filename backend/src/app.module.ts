@@ -10,9 +10,10 @@ import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { UserModule } from './modules/user/user.module';
 import { NewsModule } from './modules/news/news.module';
+import { ProjectModule } from './modules/project/project.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, NewsModule, UserModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, NewsModule, UserModule, ProjectModule],
   controllers: [AppController],
   providers: [
     AppService,
