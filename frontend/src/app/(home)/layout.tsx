@@ -181,7 +181,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <footer className="p-4 bg-white border-t border-slate-200 text-center text-sm text-gray-500">
-          © 2026 HTECH System. Bảo lưu mọi quyền.
+          © 2026 HTECH ADMIN. Bảo lưu mọi quyền.
         </footer>
       </div>
     </div>

@@ -305,12 +305,12 @@ export default function ListMenu() {
                         <td className="table-col-text text-left">{resource.description}</td>
                         <td>
                           {resource.is_active ? (
-                            <span className="table-status table-status-active">
-                              <CheckCircle2 size={10} /> Bật
+                            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              Bật
                             </span>
                           ) : (
-                            <span className="table-status table-status-inactive">
-                              <CircleOff size={10} /> Tắt
+                            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                              Tắt
                             </span>
                           )}
                         </td>
@@ -381,16 +381,16 @@ export default function ListMenu() {
                                           <td className="table-col-xs">{dIdx + 1}</td>
                                           <td className="table-col-text">{detail.alias}</td>
                                           <td className="table-col-truncate font-mono">
-                                            {detail.href || "—"}
+                                            {detail.herf || "—"}
                                           </td>
                                           <td>
                                             {detail.is_active ? (
-                                              <span className="table-status table-status-active">
-                                                <CheckCircle2 size={10} /> Bật
+                                              <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                Bật
                                               </span>
                                             ) : (
-                                              <span className="table-status table-status-inactive">
-                                                <CircleOff size={10} /> Tắt
+                                              <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                                Tắt
                                               </span>
                                             )}
                                           </td>
@@ -420,16 +420,16 @@ export default function ListMenu() {
               <tfoot>
                 <tr>
                   <td colSpan={8}>
-                    <div className="table-pagination flex justify-between items-center">
-                      <div>
+                    <div className="table-pagination grid grid-cols-3 items-center">
+                      <div className="text-sm text-gray-500">
                         Hiển thị{" "}
-                        <span className="font-medium text-gray-700">
+                        <span className="font-medium text-gray-900">
                           {resources.length}
                         </span>{" "}
                         / {meta.total} kết quả
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex justify-center">
                         <select
                           className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
                           value={params.limit}
@@ -445,40 +445,40 @@ export default function ListMenu() {
                           <option value={10}>10 / trang</option>
                           <option value={20}>20 / trang</option>
                         </select>
+                      </div>
 
-                        <div className="flex items-center gap-1">
-                          <button
-                            disabled={params.page === 1}
-                            onClick={() => handlePageChange(params.page! - 1)}
-                            className="table-pagination-button"
-                          >
-                            <ChevronLeft size={16} />
-                          </button>
+                      <div className="flex justify-end gap-1">
+                        <button
+                          disabled={params.page === 1}
+                          onClick={() => handlePageChange(params.page! - 1)}
+                          className="table-pagination-button"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
 
-                          <div className="flex gap-1 px-2">
-                            {[...Array(meta.totalPages)].map((_, i) => (
-                              <button
-                                key={i}
-                                onClick={() => handlePageChange(i + 1)}
-                                className={`table-pagination-page ${
-                                  params.page === i + 1
-                                    ? "table-pagination-page-active"
-                                    : "table-pagination-page-inactive"
-                                }`}
-                              >
-                                {i + 1}
-                              </button>
-                            ))}
-                          </div>
-
-                          <button
-                            disabled={params.page === meta.totalPages}
-                            onClick={() => handlePageChange(params.page! + 1)}
-                            className="table-pagination-button"
-                          >
-                            <ChevronRight size={16} />
-                          </button>
+                        <div className="flex gap-1 px-2">
+                          {[...Array(meta.totalPages)].map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handlePageChange(i + 1)}
+                              className={`table-pagination-page ${
+                                params.page === i + 1
+                                  ? "table-pagination-page-active"
+                                  : "table-pagination-page-inactive"
+                              }`}
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
                         </div>
+
+                        <button
+                          disabled={params.page === meta.totalPages}
+                          onClick={() => handlePageChange(params.page! + 1)}
+                          className="table-pagination-button"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
                       </div>
                     </div>
                   </td>

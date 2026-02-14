@@ -7,7 +7,8 @@ export default function HtechNew() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex flex-wrap gap-4 p-6">
+    <div>
+      <h1>Htech Quản lý tin tức</h1>
       <button className="btn btn-outline btn-sm" onClick={() => setOpen(true)}>
         Mở Modal
       </button>
