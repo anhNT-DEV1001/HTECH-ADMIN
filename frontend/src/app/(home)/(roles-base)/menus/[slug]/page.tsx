@@ -60,7 +60,7 @@ export default function MenuDetail({
       alias: resourceDetail.alias,
       is_active: resourceDetail.is_active,
       icon: resourceDetail.icon,
-      href: resourceDetail.href,
+      herf: resourceDetail.herf,
     };
 
     const payload: IActionDetailForm = {
