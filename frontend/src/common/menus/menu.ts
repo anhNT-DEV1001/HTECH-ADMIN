@@ -1,4 +1,4 @@
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Newspaper, PanelsTopLeft, ProjectorIcon } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -24,4 +24,20 @@ export const MENU_ITEMS: MenuItem[] = [
       },
     ],
   },
+  {
+    label : "HTECH",
+    icon : PanelsTopLeft,
+    children : [
+      {
+        label : "Tin tức",
+        icon : Newspaper,
+        href : "/htech-news"
+      },
+      {
+        label : "Dự án",
+        icon : ProjectorIcon,
+        href : "/htech-projects"
+      }
+    ]
+  }
 ];

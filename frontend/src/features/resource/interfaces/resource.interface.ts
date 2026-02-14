@@ -12,7 +12,7 @@ export interface IResourceDetail {
   alias: string;
   is_active?: boolean;
   icon?: string;
-  href?: string;
+  herf?: string;
 }
 
 export interface IUpdateResourceWithDetail {
