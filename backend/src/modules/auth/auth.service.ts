@@ -16,7 +16,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly permissionService: PermissionService,
-  ) {}
+  ) { }
   /**
    * @author Nguyễn Tuấn Anh
    * @Meno Api Đăng ký, có sử dụng transaction
@@ -166,7 +166,7 @@ export class AuthService {
     const existToken = await this.prisma.token.findUnique({
       where: { user_id: user.id },
     });
-    if (!existToken)
+    if (!existToken || !existToken.token)
       throw new ApiError('Người dùng chưa đăng nhập !', HttpStatus.BAD_REQUEST);
     const isMatch = await bcrypt.compare(refreshToken, existToken.token as string);
     if (!isMatch)
@@ -186,7 +186,7 @@ export class AuthService {
     return newToken;
   }
 
-  async getAuthPermissions(user : User) {
+  async getAuthPermissions(user: User) {
     const permission = await this.permissionService.getUserPermission(user.id)
     return permission
   }
