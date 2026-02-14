@@ -44,9 +44,10 @@ export default function ResourceModal({
               id: item.id,
               alias: item.alias || "",
               is_active: item.is_active ?? true,
-              href: item.href || item.herf || "",
+              herf: item.herf || "",
             })) || [],
         });
+        // console.log(data);
       } else {
         reset({
           alias: "",
@@ -74,10 +75,12 @@ export default function ResourceModal({
         const { herf, created_at, updated_at, ...validDetail } = detail;
         return {
           ...validDetail,
+          herf : String(detail.herf),
           is_active: String(detail.is_active) === "true",
         };
       }),
     };
+    console.log(cleanData);
     onSave(cleanData);
   };
 
@@ -168,7 +171,7 @@ export default function ResourceModal({
                 disabled={isAppending}
                 onClick={() => {
                   setIsAppending(true);
-                  append({ alias: "", href: "", is_active: true });
+                  append({ alias: "", herf: "", is_active: true });
                   setTimeout(() => setIsAppending(false), 300);
                 }}
                 className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md text-xs hover:bg-blue-100 disabled:opacity-50"
@@ -218,9 +221,9 @@ export default function ResourceModal({
                       <td className="p-2">
                         <input
                           {...register(
-                            `resourceDetails.${index}.href` as const
+                            `resourceDetails.${index}.herf` as const
                           )}
-                          defaultValue={field.href || ""}
+                          // defaultValue={field.herf || ""}
                           className="w-full border p-1.5 rounded text-xs"
                           placeholder="Vui lòng nhập đường dẫn"
                         />

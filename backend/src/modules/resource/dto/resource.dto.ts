@@ -63,7 +63,7 @@ export class ResourceDetailDto {
 
   @IsString()
   @IsOptional()
-  href?: string;
+  herf?: string;
 
   @IsOptional()
   created_at?: Date;
