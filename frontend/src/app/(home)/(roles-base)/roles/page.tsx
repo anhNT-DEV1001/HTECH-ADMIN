@@ -153,18 +153,19 @@ export default function RoleManagement() {
         {/* Nhóm bên trái: Gồm Search và Loader */}
         <div className="flex items-center gap-3 flex-1 max-w-md">
           <div className="relative flex-1">
-            <Search
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-              size={16}
-            />
             <input
               type="text"
               placeholder="Tìm kiếm tên quyền..."
-              className="w-full border border-gray-200 rounded-md pl-9 pr-3 py-1.5 focus:ring-1 focus:ring-blue-500 outline-none transition bg-gray-50/50"
+              className="input"
               value={searchInput}
               onChange={handleSearch}
             />
+            <Search
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={16}
+            />
           </div>
+
 
           {isFetching && <RoleLoading />}
         </div>

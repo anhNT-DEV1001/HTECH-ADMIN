@@ -80,7 +80,7 @@ export default function ResourceModal({
         };
       }),
     };
-    console.log(cleanData);
+    // console.log(cleanData);
     onSave(cleanData);
   };
 
@@ -135,7 +135,7 @@ export default function ResourceModal({
             <label className="text-sm font-semibold">Trạng thái</label>
             <select
               {...register("is_active")}
-              className="w-full border p-2 rounded-md"
+              className="w-full selectpicker"
             >
               <option value="true">Bật</option>
               <option value="false">Tắt</option>

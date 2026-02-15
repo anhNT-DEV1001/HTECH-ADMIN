@@ -28,7 +28,7 @@ export default function HtechNew() {
             <button className="btn btn-danger btn-sm flex items-center gap-1">
               <Trash2Icon size={16} />
               Xóa
-            </button>
+            </button> 
           </>
         }
       >

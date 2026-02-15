@@ -22,7 +22,7 @@ async function bootstrap() {
   const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(API_PRIFIX, app, swaggerDoc);
   await app.listen(key.app.port ?? 5050, '0.0.0.0');
-  console.log('Static Assets Path:', publicPath);
+  // console.log('Static Assets Path:', publicPath);
   console.log(
     `${key.app.env} api docs: http://${key.app.host}:${key.app.port + API_PRIFIX}`,
   );
