@@ -191,21 +191,21 @@ export default function ListMenu() {
       <div className="flex items-center justify-between gap-3 rounded-t-sm mb-2">
         <div className="flex items-center gap-3 flex-1 max-w-md">
           <div className="relative flex-1">
-            <Search
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-              size={16}
-            />
             <input
               type="text"
               placeholder="Tìm kiếm tên tài nguyên..."
-              className=" border border-gray-200 rounded-md pl-9 pr-3 py-1.5 focus:ring-1 focus:ring-blue-500 outline-none transition bg-gray-50/50"
+              className="input"
               value={searchInput}
               onChange={handleSearch}
+            />
+            <Search
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={16}
             />
           </div>
           <div className="relative flex-1">
             <select
-              className="border border-gray-200 rounded-md px-2 py-2.5 outline-none text-gray-600 text-xs cursor-pointer transition bg-gray-50/50 w-full"
+              className="selectpicker"
               value={selectIsActive}
               onChange={(e) =>
                 handleSelectIsActive(e.target.value as "all" | "true" | "false")
@@ -231,15 +231,15 @@ export default function ListMenu() {
           <table className="table">
             <thead>
               <tr>
-                <th className="w-[60px]">STT</th>
-                <th className="w-[140px] table-header-cell" onClick={() => handleSort("alias")}>
+                <th className="w-15">STT</th>
+                <th className="w-35 table-header-cell" onClick={() => handleSort("alias")}>
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                     <span>Mã</span>
                     <span className="shrink-0">{getSortIcon("alias")}</span>
                   </div>
                 </th>
                 <th
-                  className="min-w-[200px] table-header-cell"
+                  className="min-w-50 table-header-cell"
                   onClick={() => handleSort("description")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -247,9 +247,9 @@ export default function ListMenu() {
                     <span className="shrink-0">{getSortIcon("description")}</span>
                   </div>
                 </th>
-                <th className="w-[120px]">Trạng thái</th>
+                <th className="w-30">Trạng thái</th>
                 <th
-                  className="w-[220px] table-header-cell"
+                  className="w-55 table-header-cell"
                   onClick={() => handleSort("href")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -258,7 +258,7 @@ export default function ListMenu() {
                   </div>
                 </th>
                 <th
-                  className="w-[160px] table-header-cell"
+                  className="w-40 table-header-cell"
                   onClick={() => handleSort("created_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -267,7 +267,7 @@ export default function ListMenu() {
                   </div>
                 </th>
                 <th
-                  className="w-[160px] table-header-cell"
+                  className="w-40 table-header-cell"
                   onClick={() => handleSort("updated_at")}
                 >
                   <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
@@ -275,7 +275,7 @@ export default function ListMenu() {
                     <span className="shrink-0">{getSortIcon("updated_at")}</span>
                   </div>
                 </th>
-                <th className="w-[100px]">Thao tác</th>
+                <th className="w-25">Thao tác</th>
               </tr>
             </thead>
 
@@ -364,10 +364,10 @@ export default function ListMenu() {
                                 <table className="table">
                                   <thead>
                                     <tr>
-                                      <th className="w-[60px]">STT</th>
+                                      <th className="w-15">STT</th>
                                       <th>Mã</th>
-                                      <th className="w-[200px]">Đường dẫn</th>
-                                      <th className="w-[100px]">Trạng thái</th>
+                                      <th>Đường dẫn</th>
+                                      <th className="w-25`">Trạng thái</th>
                                     </tr>
                                   </thead>
                                   <tbody>

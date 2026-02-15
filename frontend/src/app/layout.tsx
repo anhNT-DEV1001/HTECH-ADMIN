@@ -1,6 +1,7 @@
 import AuthProvider from "@/common/providers/AuthProvider";
 import ReactQueryProvider from "@/common/providers/QueryProvider";
 import { ToastProvider } from "@/common/providers/ToastProvider";
+// import "react-tailwindcss-datepicker/dist/index.css";
 import "./globals.css";
 import { ConfirmProvider } from "@/common/providers/ConfirmProvider";
 

@@ -135,4 +135,17 @@
   .table-pagination-page-inactive {
     @apply hover:bg-white border border-transparent hover:border-gray-200;
   }
+
+  .selectpicker {
+    @apply w-full px-3 py-2 rounded-md border border-gray-300 bg-white 
+           text-gray-700 text-sm focus:outline-none  
+           focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .input {
+    @apply w-full px-3 py-2.5 rounded-md border border-gray-300 bg-white 
+           text-gray-800 text-sm placeholder-gray-400 
+           focus:outline-none  focus:border-blue-500 
+           disabled:opacity-60 disabled:cursor-not-allowed
+           dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
+  }
 }

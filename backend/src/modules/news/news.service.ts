@@ -4,12 +4,12 @@ import { News, NewsImage, Prisma, User } from "@prisma/client";
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApiError } from "src/common/apis";
 import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
+import { deleteFileFromPublic } from "src/common/utils";
 
 @Injectable()
 export class NewsService {
 
   constructor(private readonly prisma: PrismaService) { }
-
   async createNewsService(dto: CreateNewsDto, user: User) {
     try {
       return await this.prisma.$transaction(async (db) => {
@@ -56,50 +56,60 @@ export class NewsService {
 
   async updateNewsService(dto: NewsDto, id: number) {
     try {
-      const news = await this.prisma.news.findUnique({
-        where: { id }
+      const oldNews = await this.prisma.news.findUnique({
+        where: { id },
+        include: { newsImages: true },
       });
 
-      if (!news) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND);
+      if (!oldNews) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND);
+      const filesToDelete: string[] = [];
 
-      const newsData = {
-        title_vn: dto.title_vn ? dto.title_vn : news.title_vn,
-        thumbnail_url: dto.thumbnail_url ? dto.thumbnail_url : news.thumbnail_url,
-        summary_vn: dto.summary_vn ? dto.summary_vn : news.summary_vn,
-        content_vn: dto.content_vn ? dto.content_vn : news.content_vn,
-
-        title_en: dto.title_en ? dto.title_en : news.title_en,
-        summary_en: dto.summary_en ? dto.summary_en : news.summary_en,
-        content_en: dto.content_en ? dto.content_en : news.content_en,
-
-        updated_at: new Date(),
-
-        //Check if dto contains image -> delete all old images and create new one
-        newsImages: dto.newsImage && dto.newsImage.length > 0
-          ? {
-            deleteMany: {},
-            create: dto.newsImage.map((dtoImage: NewsImageDto) => ({
-              image_url: dtoImage.image_url || '',
-              alt_text: dtoImage.alt_text || '',
-              sort_order: dtoImage.sort_order || 1,
-              updated_at: new Date()
-            }))
-          } : {}
+      if (dto.thumbnail_url && dto.thumbnail_url !== oldNews.thumbnail_url) {
+        filesToDelete.push(oldNews.thumbnail_url as any);
       }
 
-      return await this.prisma.$transaction(async (db) => {
+      if (dto.newsImage && Array.isArray(dto.newsImage)) {
+        const newImageUrls = dto.newsImage.map(img => img.image_url).filter(url => url);
+        const oldImageUrls = oldNews.newsImages.map(img => img.image_url);
+        const imagesToDelete = oldImageUrls.filter(oldUrl => !newImageUrls.includes(oldUrl));
+        
+        filesToDelete.push(...imagesToDelete);
+      }
+      const newsData = {
+        title_vn: dto.title_vn ?? oldNews.title_vn,
+        thumbnail_url: dto.thumbnail_url ?? oldNews.thumbnail_url,
+        summary_vn: dto.summary_vn ?? oldNews.summary_vn,
+        content_vn: dto.content_vn ?? oldNews.content_vn,
+        title_en: dto.title_en ?? oldNews.title_en,
+        summary_en: dto.summary_en ?? oldNews.summary_en,
+        content_en: dto.content_en ?? oldNews.content_en,
+        updated_at: new Date(),
 
-        const updatedNews = await db.news.update({
+        newsImages: dto.newsImage && Array.isArray(dto.newsImage)
+          ? {
+              deleteMany: {}, 
+              create: dto.newsImage.map((dtoImage: NewsImageDto) => ({
+                image_url: dtoImage.image_url || '',
+                alt_text: dtoImage.alt_text || '',
+                sort_order: dtoImage.sort_order || 1,
+                updated_at: new Date()
+              }))
+            } : undefined 
+      };
+      const updatedNews = await this.prisma.$transaction(async (db) => {
+        const res = await db.news.update({
           where: { id },
           data: newsData
         });
-
-        if (!updatedNews) {
-          throw new ApiError('Failed updating news', HttpStatus.BAD_REQUEST);
-        }
-
-        return updatedNews;
+        return res;
       });
+
+      if (updatedNews) {
+        await Promise.all(filesToDelete.map(path => deleteFileFromPublic(path)));
+      }
+
+      return updatedNews;
+
     } catch (error: any) {
       throw new ApiError(
         `System error: ${error.message}`,
@@ -110,14 +120,15 @@ export class NewsService {
 
   async deleteNewsService(id: number) {
     try {
-
       const news = await this.prisma.news.findUnique({
-        where: { id }
+        where: { id },
+        include: { newsImages: true },
       });
 
       if (!news) throw new ApiError('News is not existed', HttpStatus.NOT_FOUND);
-
+      await deleteFileFromPublic(news.thumbnail_url as any);
       return await this.prisma.$transaction(async (db) => {
+        await Promise.all(news.newsImages.map(img => deleteFileFromPublic(img.image_url as any)));
         await db.newsImage.deleteMany({
           where: { news_id: id }
         })
@@ -128,7 +139,7 @@ export class NewsService {
     } catch (error: any) {
       throw new ApiError(
         `System error: ${error.message}`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST  
       );
     }
   }
@@ -169,6 +180,9 @@ export class NewsService {
         skip,
         take,
         orderBy: orderCondition,
+        include : {
+          newsImages : true
+        }
       }),
       this.prisma.news.count({ where })
     ]);

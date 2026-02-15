@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { NewsService } from "./news.service";
 import { AuthUser, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
 import type { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
-import { BaseResponse } from "src/common/apis";
+import { ApiError, BaseResponse } from "src/common/apis";
 import type { News, User } from "@prisma/client";
 import { CreateNewsDto, NewsDto } from "./dto";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
@@ -75,10 +75,48 @@ export class NewsController {
 
   @Patch(':id')
   @RequirePermissions(RoleConstant.UPDATE)
+  @UseInterceptors(FileFieldsInterceptor(
+    [
+      {name : 'thumbnail' , maxCount : 1},
+      {name : 'images' , maxCount: 10},
+    ] , multerOptions('htech', 'news'),
+  ),  DeleteFileOnErrorFilter)
   async updateNewsController(
     @Param('id') id: number,
-    @Body() dto: NewsDto
+    @Body() dto: NewsDto,
+    @UploadedFiles() files: { thumbnail?: Express.Multer.File[], images?: Express.Multer.File[] }
   ): Promise<BaseResponse<News>> {
+    if (files.thumbnail && files.thumbnail[0]) {
+      dto.thumbnail_url = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
+    } 
+
+    if (dto.newsImage && typeof dto.newsImage === 'string') {
+      try { dto.newsImage = JSON.parse(dto.newsImage as any); } catch(e) {}
+    }
+    
+    if (dto.newsImage && Array.isArray(dto.newsImage)) {
+      let fileIndex = 0; 
+      
+      dto.newsImage = dto.newsImage.map((item, index) => {
+        const isNewImage = !item.image_url || item.image_url.trim() === '';
+
+        if (isNewImage) {
+           const currentFile = files.images ? files.images[fileIndex] : undefined;
+           if (currentFile) {
+             const path = currentFile.path.replace(/\\/g, '/').split('public')[1];
+             fileIndex++;
+             return { ...item, image_url: path };
+           } else {
+             throw new ApiError(
+               `Bạn đang gửi 2 object ảnh nhưng chỉ upload ${fileIndex} file ảnh. Vui lòng kiểm tra lại Postman tại index ${index}.`,
+               HttpStatus.BAD_REQUEST
+             );
+           }
+        }
+        
+        return item;
+      });
+    }
     const res = await this.service.updateNewsService(dto, id);
     return {
       status: 'success',
@@ -86,7 +124,6 @@ export class NewsController {
       data: res
     }
   }
-
 
   @Delete(':id')
   @RequirePermissions(RoleConstant.DELETE)
