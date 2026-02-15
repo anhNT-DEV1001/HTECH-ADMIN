@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
 
 export class CreateNewsDto {
@@ -5,7 +6,8 @@ export class CreateNewsDto {
   @IsNotEmpty({ message: '' })
   title_vn: string
 
-  @IsString()
+  // @IsString()
+  @IsOptional()
   @IsNotEmpty({ message: '' })
   thumbnail_url: string
 
@@ -18,6 +20,17 @@ export class CreateNewsDto {
   content_vn: string
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return [];
+      }
+    }
+    return value;
+  })
+  @IsArray()
   @IsArray()
   newsImage: CreateNewsImageDto[] | []
 
@@ -41,8 +54,18 @@ export class NewsDto {
   @IsOptional()
   thumbnail_url: string
 
-  @IsArray()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return [];
+      }
+    }
+    return value;
+  })
+  @IsArray()
   newsImage: NewsImageDto[] | []
 
   @IsString()
