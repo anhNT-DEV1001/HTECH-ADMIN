@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { NewsService } from "./news.service";
 import { AuthUser, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
@@ -6,6 +6,9 @@ import type { IPaginationRequest, IPaginationResponse } from "src/common/interfa
 import { BaseResponse } from "src/common/apis";
 import type { News, User } from "@prisma/client";
 import { CreateNewsDto, NewsDto } from "./dto";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { multerOptions } from "src/configs";
+import { DeleteFileOnErrorFilter } from "src/common/interceptors";
 
 @Controller('news')
 export class NewsController {
@@ -37,10 +40,31 @@ export class NewsController {
 
   @Post()
   @RequirePermissions(RoleConstant.CREATE)
+  @UseInterceptors(FileFieldsInterceptor(
+    [
+      {name : 'thumbnail' , maxCount : 1},
+      {name : 'images' , maxCount: 10},
+    ] , multerOptions('htech', 'news'),
+  ),  DeleteFileOnErrorFilter)
   async createNewsController(
     @AuthUser('user') user: User,
     @Body() dto: CreateNewsDto,
+    @UploadedFiles() files: { thumbnail?: Express.Multer.File[], images?: Express.Multer.File[] }
   ): Promise<BaseResponse<News>> {
+
+    if (files.thumbnail && files.thumbnail[0]) {
+      const thumbPath = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1]; 
+      dto.thumbnail_url = thumbPath;
+    }
+
+    if (files.images && files.images.length > 0 && dto.newsImage) {
+      files.images.forEach((file, index) => {
+        if (dto.newsImage[index]) {
+            const imagePath = file.path.replace(/\\/g, '/').split('public')[1];
+            dto.newsImage[index].image_url = imagePath;
+        }
+      });
+    }
     const res = await this.service.createNewsService(dto, user);
     return {
       status: 'success',
