@@ -1,14 +1,39 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { ProjectService } from "./project.service";
 import { AuthUser, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
 import type { Project, ProjectCategory, User } from "@prisma/client";
 import { CreateProjectCategoryDto, CreateProjectDto } from "./dto";
 import { BaseResponse } from "src/common/apis";
+import type { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 
 @Controller("project")
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) { }
+
+  @Get()
+  @RequirePermissions(RoleConstant.VIEW)
+  async getAllProjectController(
+    @Query() query: IPaginationRequest
+  ): Promise<BaseResponse<IPaginationResponse<Project>>> {
+    const res = await this.projectService.getAllProjectService(query);
+    return {
+      status: 'success',
+      message: 'successfully get all projects',
+      data: res,
+    }
+  }
+
+  @Get(':id')
+  @RequirePermissions(RoleConstant.VIEW)
+  async getProjectByIdController(@Param('id') id: number) {
+    const res = await this.projectService.getProjectByIdService(id);
+    return {
+      status: 'success',
+      message: 'successfully get project with id ' + id,
+      data: res,
+    }
+  }
 
   @Post('category')
   @RequirePermissions(RoleConstant.CREATE)

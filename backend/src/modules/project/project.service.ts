@@ -1,8 +1,9 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateProjectCategoryDto, CreateProjectDto, CreateProjectImageDto } from "./dto";
-import { User } from "@prisma/client";
+import { Prisma, Project, User } from "@prisma/client";
 import { ApiError } from "src/common/apis";
+import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 
 function slugify(text: string): string {
   return text
@@ -117,5 +118,71 @@ export class ProjectService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async getAllProjectService(query: IPaginationRequest): Promise<IPaginationResponse<Project>> {
+    const {
+      page = 1,
+      limit = 10,
+      orderBy = 'created_at',
+      sortBy = 'desc',
+      search,
+      searchBy = 'title_vn'
+    } = query;
+
+    const skip = (Number(page) - 1) * Number(limit)
+    const take = Number(limit)
+    const where: Prisma.ProjectWhereInput = {}
+
+    if (search && searchBy) {
+      const validSearchFields = ['title_vn', 'title_en', 'client_name', 'industry_vn'];
+      const field = validSearchFields.includes(searchBy) ? searchBy : 'title_vn';
+      where[field] = {
+        contains: String(search),
+        mode: 'insensitive',
+      };
+    }
+
+    const validOrderFields = ['id', 'title_vn', 'created_at', 'updated_at', 'sort_order', 'start_date'];
+    const orderField = validOrderFields.includes(orderBy) ? orderBy : 'created_at';
+    const orderCondition: Prisma.ProjectOrderByWithRelationInput = {
+      [orderField]: sortBy.toLowerCase() === 'desc' ? 'desc' : 'asc'
+    };
+
+    const [records, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where,
+        skip,
+        take,
+        orderBy: orderCondition,
+        include: {
+          category: true,
+          projectImages: true,
+        }
+      }),
+      this.prisma.project.count({ where }),
+    ]);
+
+    return {
+      records,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
+      }
+    }
+  }
+
+  async getProjectByIdService(projectId: number) {
+    const data = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        category: true,
+        projectImages: true,
+      }
+    })
+    if (!data) throw new ApiError("Không tìm thấy dự án với id: " + projectId, HttpStatus.NOT_FOUND);
+    return data;
   }
 }
