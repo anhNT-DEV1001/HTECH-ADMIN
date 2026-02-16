@@ -28,7 +28,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import MenuLoading from "./loading";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ResourceModal from "@/features/resource/components/ResourceModal";
 
 export default function ListMenu() {
@@ -376,7 +375,7 @@ export default function ListMenu() {
                                         <tr
                                           key={dIdx}
                                           className="hover:bg-blue-100 cursor-pointer transition-colors"
-                                          onClick={() => router.push(`menus/${detail?.id}`)}
+                                          onClick={() => router.push(`resources/${detail?.id}`)}
                                         >
                                           <td className="table-col-xs">{dIdx + 1}</td>
                                           <td className="table-col-text">{detail.alias}</td>
@@ -420,34 +419,35 @@ export default function ListMenu() {
               <tfoot>
                 <tr>
                   <td colSpan={8}>
-                    <div className="table-pagination grid grid-cols-3 items-center">
-                      <div className="text-sm text-gray-500">
+                    <div className="table-pagination flex justify-between items-center">
+                      {/* Tổng số hiển thị */}
+                      <div>
                         Hiển thị{" "}
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-700">
                           {resources.length}
                         </span>{" "}
                         / {meta.total} kết quả
                       </div>
 
-                      <div className="flex justify-center">
-                        <select
-                          className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
-                          value={params.limit}
-                          onChange={(e) =>
-                            setParams((prev) => ({
-                              ...prev,
-                              limit: Number(e.target.value),
-                              page: 1,
-                            }))
-                          }
-                        >
-                          <option value={1}>1 / trang</option>
-                          <option value={10}>10 / trang</option>
-                          <option value={20}>20 / trang</option>
-                        </select>
-                      </div>
+                      {/* Chọn limit */}
+                      <select
+                        className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
+                        value={params.limit}
+                        onChange={(e) =>
+                          setParams((prev) => ({
+                            ...prev,
+                            limit: Number(e.target.value),
+                            page: 1,
+                          }))
+                        }
+                      >
+                        <option value={1}>1 / trang</option>
+                        <option value={10}>10 / trang</option>
+                        <option value={20}>20 / trang</option>
+                      </select>
 
-                      <div className="flex justify-end gap-1">
+                      {/* Phân trang */}
+                      <div className="flex items-center gap-1">
                         <button
                           disabled={params.page === 1}
                           onClick={() => handlePageChange(params.page! - 1)}
