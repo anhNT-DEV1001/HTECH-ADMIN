@@ -289,45 +289,56 @@ export default function UserManagement() {
                         / {meta.total} kết quả
                       </div>
 
-                      {/* Chọn limit & pagination */}
-                      <div className="flex items-center gap-2">
-                        <select
-                          className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
-                          value={params.limit}
-                          onChange={(e) =>
-                            setParams((prev) => ({
-                              ...prev,
-                              limit: Number(e.target.value),
-                              page: 1,
-                            }))
-                          }
+                      {/* Chọn limit */}
+                      <select
+                        className="border border-gray-200 rounded-md px-2 py-1.5 outline-none bg-white text-gray-600 text-xs shadow-sm cursor-pointer"
+                        value={params.limit}
+                        onChange={(e) =>
+                          setParams((prev) => ({
+                            ...prev,
+                            limit: Number(e.target.value),
+                            page: 1,
+                          }))
+                        }
+                      >
+                        <option value={1}>1 / trang</option>
+                        <option value={10}>10 / trang</option>
+                        <option value={20}>20 / trang</option>
+                      </select>
+
+                      {/* Phân trang */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          disabled={params.page === 1}
+                          onClick={() => handlePageChange(params.page! - 1)}
+                          className="table-pagination-button"
                         >
-                          <option value={1}>1 / trang</option>
-                          <option value={10}>10 / trang</option>
-                          <option value={20}>20 / trang</option>
-                        </select>
+                          <ChevronLeft size={16} />
+                        </button>
 
-                        <div className="flex items-center gap-1">
-                          <button
-                            disabled={params.page === 1}
-                            onClick={() => handlePageChange(params.page! - 1)}
-                            className="table-pagination-button"
-                          >
-                            <ChevronLeft size={16} />
-                          </button>
-
-                          <span className="text-xs font-medium px-2">
-                            Trang {params.page} / {meta.totalPages}
-                          </span>
-
-                          <button
-                            disabled={params.page === meta.totalPages}
-                            onClick={() => handlePageChange(params.page! + 1)}
-                            className="table-pagination-button"
-                          >
-                            <ChevronRight size={16} />
-                          </button>
+                        <div className="flex gap-1 px-2">
+                          {[...Array(meta.totalPages)].map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handlePageChange(i + 1)}
+                              className={`table-pagination-page ${
+                                params.page === i + 1
+                                  ? "table-pagination-page-active"
+                                  : "table-pagination-page-inactive"
+                              }`}
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
                         </div>
+
+                        <button
+                          disabled={params.page === meta.totalPages}
+                          onClick={() => handlePageChange(params.page! + 1)}
+                          className="table-pagination-button"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
                       </div>
                     </div>
                   </td>

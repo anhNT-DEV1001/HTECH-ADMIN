@@ -20,7 +20,7 @@ export const MENU_ITEMS: MenuItem[] = [
       {
         label: "Danh sách tài nguyên",
         icon: ListTree,
-        href: "/menus",
+        href: "/resources",
       },
     ],
   },

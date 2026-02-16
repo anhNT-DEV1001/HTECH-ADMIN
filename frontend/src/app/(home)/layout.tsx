@@ -26,12 +26,9 @@ const SidebarNavItem = ({
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
 
-  // Kiểm tra nếu pathname khớp hoặc nằm trong nhánh con
   const isChildActive = item.children?.some((child: any) =>
     pathname.startsWith(child.href)
   );
-
-  // Kiểm tra chính menu hiện tại
   const isActive =
     pathname === item.href ||
     (item.href !== "/" && pathname.startsWith(item.href)) ||
@@ -58,8 +55,8 @@ const SidebarNavItem = ({
             onClick={() => setIsOpen(!isOpen)}
             className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
               isActive
-                ? "text-orange-300 font-semibold"
-                : "text-white hover:text-orange-300"
+                ? "text-blue-500 font-semibold"
+                : "text-black hover:text-blue-500"
             }`}
           >
             {content}
@@ -89,8 +86,8 @@ const SidebarNavItem = ({
           href={item.href || "#"}
           className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
             isActive
-              ? "text-orange-300 font-semibold"
-              : "text-white hover:text-orange-300"
+              ? "text-blue-500 font-semibold"
+              : "text-black hover:text-blue-500"
           }`}
         >
           {content}
@@ -134,18 +131,18 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <aside
-        className={`${isSidebarOpen ? "w-64" : "w-20"} bg-blue-900 transition-all duration-300 flex flex-col fixed h-full z-50`}
+        className={`${isSidebarOpen ? "w-64" : "w-20"} bg-slate-50 transition-all duration-300 flex flex-col fixed h-full z-50`}
       >
-        <div className="p-4 flex items-center justify-between align-middle h-16 bg-slate-100">
+        <div className="p-4 flex items-center justify-between align-middle h-16 bg-white">
           <span className={`${!isSidebarOpen && "hidden"}`}>
-            <img src="/logo.svg" alt="Htech-logo" className="w-auto h-10" />
+            <img src="/logo.png" alt="Htech-logo" className="w-auto h-10" />
           </span>
           <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-slate-200 rounded text-gray-600">
             <Menu size={20} />
           </button>
         </div>  
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 bg-white">
           {MENU_ITEMS.map((item) => (
             <SidebarNavItem 
               key={item.label} 
@@ -158,11 +155,11 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"}`}>
-        <header className="h-16 bg-white sticky top-0 z-40 flex items-center justify-between px-6">
+        <header className="h-16 bg-blue-800 sticky top-0 z-40 flex items-center justify-between px-6 text-white">
           <div className="text-sm  font-medium">Chào mừng trở lại, {userName}!</div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+              <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-600 font-bold">
                 {userInitial}
               </div>
               <span className="text-sm font-semibold  group-hover:text-orange-300">{userName}</span>
@@ -180,7 +177,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
           </div>
         </main>
 
-        <footer className="p-4 bg-white border-t border-slate-200 text-center text-sm text-gray-500">
+        <footer className="p-4 bg-slate-100 border-t border-slate-200 text-center text-sm text-gray-500">
           © 2026 HTECH ADMIN. Bảo lưu mọi quyền.
         </footer>
       </div>
