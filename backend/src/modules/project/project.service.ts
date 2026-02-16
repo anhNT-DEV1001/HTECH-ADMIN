@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateProjectCategoryDto, CreateProjectDto, CreateProjectImageDto } from "./dto";
+import { CreateProjectCategoryDto, CreateProjectDto, CreateProjectImageDto, ProjectDto, ProjectImageDto } from "./dto";
 import { Prisma, Project, User } from "@prisma/client";
 import { ApiError } from "src/common/apis";
 import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
@@ -184,5 +184,96 @@ export class ProjectService {
     })
     if (!data) throw new ApiError("Không tìm thấy dự án với id: " + projectId, HttpStatus.NOT_FOUND);
     return data;
+  }
+
+  async updateProjectService(dto: ProjectDto, id: number, user: User) {
+    try {
+      const project = await this.prisma.project.findUnique({
+        where: { id }
+      });
+
+      if (!project) throw new ApiError('Không tìm thấy project', HttpStatus.NOT_FOUND);
+
+      const newSlug = dto.title_vn ? `${slugify(dto.title_vn)}-${Date.now()}` : project.slug;
+
+      const projectData = {
+        title_vn: dto.title_vn || project.title_vn,
+        slug: newSlug,
+        summary_vn: dto.summary_vn || project.summary_vn,
+        description_vn: dto.description_vn || project.description_vn,
+
+        title_en: dto.title_en || project.title_en,
+        summary_en: dto.summary_en || project.summary_en,
+        description_en: dto.description_en || project.description_en,
+
+        thumbnail_url: dto.thumbnail_url || project.thumbnail_url,
+        client_name: dto.client_name || project.client_name,
+        venue_vn: dto.venue_vn || project.venue_vn,
+        venue_en: dto.venue_en || project.venue_en,
+        location_url: dto.location_url || project.location_url,
+        start_date: dto.start_date || project.start_date,
+        end_date: dto.end_date || project.end_date,
+        scale: dto.scale || project.scale,
+        industry_vn: dto.industry_vn || project.industry_vn,
+        industry_en: dto.industry_en || project.industry_en,
+
+        status: dto.status || project.status,
+        is_featured: dto.is_featured ?? project.is_featured,
+        sort_order: dto.sort_order ?? project.sort_order,
+
+        ...(dto.category_id ? { category: { connect: { id: dto.category_id } } } : {}),
+
+        updated_by: user.id,
+        updated_at: new Date(),
+
+        projectImages: dto.projectImages && dto.projectImages.length > 0
+          ? {
+            deleteMany: {},
+            create: dto.projectImages.map((dtoImage: ProjectImageDto) => ({
+              image_url: dtoImage.image_url || '',
+              alt_text: dtoImage.alt_text || '',
+              sort_order: dtoImage.sort_order || 1,
+              updated_by: user.id,
+              updated_at: new Date(),
+            }))
+          } : {},
+      };
+
+      return await this.prisma.$transaction(async (db) => {
+        const updatedProject = await db.project.update({
+          where: { id },
+          data: projectData,
+        });
+
+        if (!updatedProject) {
+          throw new ApiError('Cập nhật thất bại', HttpStatus.BAD_REQUEST);
+        }
+        return updatedProject;
+      });
+    } catch (error: any) {
+      throw new ApiError(`System Error: ${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async deleteProjectService(id: number) {
+    try {
+      const project = await this.prisma.project.findUnique({
+        where: { id }
+      });
+
+      if (!project) throw new ApiError("Project không tồn tại", HttpStatus.NOT_FOUND);
+
+      return await this.prisma.$transaction(async (db) => {
+        await db.projectImage.deleteMany({
+          where: { project_id: id }
+        });
+
+        await db.project.delete({
+          where: { id }
+        });
+      });
+    } catch (error: any) {
+      throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
+    }
   }
 }
