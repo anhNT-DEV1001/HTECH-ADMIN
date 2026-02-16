@@ -47,15 +47,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-gray-900 flex justify-center items-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-extrabold text-center mb-2 text-gray-600 tracking-tight">
-          HTECH Trang quản trị
-        </h1>
-        <p className="text-center text-gray-600 mb-6">
-          Đăng nhập bằng tài khoản của bạn
-        </p>
-
+    <div 
+      className="min-h-screen text-gray-900 flex justify-center items-center p-4"
+      style={{
+        backgroundImage: 'url(/bg-login.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="bg-white/30 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex justify-center mb-4">
+          <img src="/logo.png" alt="HTECH Logo" className="h-12 w-auto" />
+        </div>
         {/* Thêm onSubmit vào form để hỗ trợ nhấn Enter */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username Field */}

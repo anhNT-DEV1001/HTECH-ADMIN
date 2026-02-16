@@ -69,7 +69,7 @@ const SidebarNavItem = ({
           </button>
 
           {isOpen && isSidebarOpen && (
-            <div className="ml-6 mt-1 space-y-1">
+            <div className="ml-6 mt-1 space-y-1 ">
               {item.children.map((child: any) => (
                 <SidebarNavItem
                   key={child.label}
@@ -133,16 +133,16 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <aside
         className={`${isSidebarOpen ? "w-64" : "w-20"} bg-slate-50 transition-all duration-300 flex flex-col fixed h-full z-50`}
       >
-        <div className="p-4 flex items-center justify-between align-middle h-16 bg-white">
+        <div className="p-4 flex items-center justify-between align-middle h-16 bg-gradient-to-r from-white to-blue-900">
           <span className={`${!isSidebarOpen && "hidden"}`}>
             <img src="/logo.png" alt="Htech-logo" className="w-auto h-10" />
           </span>
-          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-slate-200 rounded text-gray-600">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-orange-300 rounded text-orange-500">
             <Menu size={20} />
           </button>
         </div>  
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 bg-white">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 ">
           {MENU_ITEMS.map((item) => (
             <SidebarNavItem 
               key={item.label} 
@@ -155,7 +155,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"}`}>
-        <header className="h-16 bg-blue-800 sticky top-0 z-40 flex items-center justify-between px-6 text-white">
+        <header className="h-16 bg-blue-900 sticky top-0 z-40 flex items-center justify-between px-6 text-white">
           <div className="text-sm  font-medium">Chào mừng trở lại, {userName}!</div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 cursor-pointer group">
