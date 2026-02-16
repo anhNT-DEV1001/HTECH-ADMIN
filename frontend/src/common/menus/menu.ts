@@ -18,7 +18,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Nhóm quyền", icon: ShieldCheck, href: "/roles" },
       { label: "Người dùng", icon: Users, href: "/users" },
       {
-        label: "Danh sách tài nguyên",
+        label: "Tài nguyên",
         icon: ListTree,
         href: "/resources",
       },
