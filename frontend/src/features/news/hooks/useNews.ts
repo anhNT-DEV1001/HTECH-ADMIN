@@ -16,7 +16,7 @@ export const useNews = (query? : IPaginationRequest) => {
   );
 
   const createNewsMutation = useCommonMutate(
-    (body : ICreateNews) => newsService.createNews(body),
+    (body : ICreateNews) => newsService.createNews(body as any),
     {
       onSuccess : (data) => {
         queryClient.invalidateQueries({
@@ -31,7 +31,7 @@ export const useNews = (query? : IPaginationRequest) => {
   )
 
   const updateNewsMutation = useCommonMutate(
-    ({body, id} : {body : IUpdateNews , id : number}) => newsService.updateNews(id, body),
+    ({body, id} : {body : IUpdateNews , id : number}) => newsService.updateNews(id, body as any),
     {
       onSuccess : (data) => {
         queryClient.invalidateQueries({
