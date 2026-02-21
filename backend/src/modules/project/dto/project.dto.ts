@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, isDateString, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { ProjectStatus } from "@prisma/client";
 
 export class CreateProjectImageDto {
@@ -83,11 +83,11 @@ export class CreateProjectDto {
   location_url: string
 
   @IsOptional()
-  @IsDateString()
+  @IsDate()
   start_date: Date
 
   @IsOptional()
-  @IsDateString()
+  @IsDate()
   end_date: Date
 
   @IsString()
@@ -173,11 +173,11 @@ export class ProjectDto {
   location_url: string
 
   @IsOptional()
-  @IsDateString()
+  @  IsDate()
   start_date: Date
 
   @IsOptional()
-  @IsDateString()
+  @  IsDate()
   end_date: Date
 
   @IsString()
