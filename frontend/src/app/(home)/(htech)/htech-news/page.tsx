@@ -61,6 +61,9 @@ export default function HtechNew() {
     router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
   }, [params, pathname, router]);
 
+  const handleAddNew = () => {
+    router.push('htech-news/create');
+  }
   return (
     <section>
       <div className="flex justify-between items-end mb-2">
@@ -90,7 +93,7 @@ export default function HtechNew() {
             </div>
           </div>
         <button
-          // onClick={handleAddNew}
+          onClick={handleAddNew}
           className="btn btn-primary btn-md"
         >
           <Plus size={16} />
@@ -153,22 +156,24 @@ export default function HtechNew() {
                           <td>
                             <div className="flex justify-center gap-1">
                               <button
-                                // onClick={() => handlePermission(user)}
-                                className="p-1.5 hover:bg-blue-100 text-green-500 rounded-md transition"
-                                title="Phân quyền"
-                              >
-                                <Images size={15} />
-                              </button>
-                              <button
-                                // onClick={() => handleEdit(user)}
+                                onClick={() => router.push(`/htech-news/${newItem.id}`)}
                                 className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-md transition"
                                 title="Cập nhật"
                               >
                                 <Pencil size={15} />
                               </button>
                               <button
-                                // onClick={() => handleDelete(user)}
-                                className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition"
+                                onClick={async () => {
+                                  if (await confirm({
+                                    title: 'Xóa tin tức',
+                                    message: 'Bạn có chắc chắn muốn xóa tin tức này?',
+                                    variant: 'danger'
+                                  })) {
+                                    deleteNewsMutation.mutate(newItem.id);
+                                  }
+                                }}
+                                disabled={isDeleting}
+                                className="p-1.5 hover:bg-red-100 text-red-600 rounded-md transition disabled:opacity-50"
                                 title="Xóa"
                               >
                                 <Trash2 size={15} />

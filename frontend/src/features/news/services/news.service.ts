@@ -4,12 +4,16 @@ import { BaseResponse } from "@/common/types";
 import { IPaginationRequest, IPaginationResponse } from "@/common/interfaces";
 
 export const newsService = {
-  async createNews(body : ICreateNews) : Promise<BaseResponse<any>> {
-    const responese = await axiosClient.post<BaseResponse<any>>('/news' , body);
+  async createNews(formData : FormData) : Promise<BaseResponse<any>> {
+    const responese = await axiosClient.post<BaseResponse<any>>('/news', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return responese.data;
   },
-  async updateNews(id : number, body: IUpdateNews) : Promise<BaseResponse<any>> {
-    const response = await axiosClient.patch<BaseResponse<any>>(`/news/${id}` , body);
+  async updateNews(id : number, formData: FormData) : Promise<BaseResponse<any>> {
+    const response = await axiosClient.patch<BaseResponse<any>>(`/news/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
   async deleteNews(id : number) : Promise<BaseResponse<any>> {
@@ -26,5 +30,13 @@ export const newsService = {
   async getNewsById(id : number) : Promise<BaseResponse<INews>>{
     const response = await axiosClient.get<BaseResponse<INews>>(`/news/${id}`);
     return response.data
-  }
+  },
+  uploadImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosClient.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
 }
