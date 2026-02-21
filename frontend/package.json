@@ -11,6 +11,10 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
     "@tanstack/react-query-devtools": "^5.91.2",
+    "@tiptap/extension-image": "^3.19.0",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/react": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
     "js-cookie": "^3.0.5",

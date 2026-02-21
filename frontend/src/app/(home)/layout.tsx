@@ -55,8 +55,8 @@ const SidebarNavItem = ({
             onClick={() => setIsOpen(!isOpen)}
             className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
               isActive
-                ? "text-blue-500 font-semibold"
-                : "text-black hover:text-blue-500"
+                ? "text-orange-300 font-semibold"
+                : "text-white hover:text-orange-300"
             }`}
           >
             {content}
@@ -86,8 +86,8 @@ const SidebarNavItem = ({
           href={item.href || "#"}
           className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
             isActive
-              ? "text-blue-500 font-semibold"
-              : "text-black hover:text-blue-500"
+              ? "text-orange-300 font-semibold"
+              : "text-white hover:text-orange-300"
           }`}
         >
           {content}
@@ -133,16 +133,16 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <aside
         className={`${isSidebarOpen ? "w-64" : "w-20"} bg-slate-50 transition-all duration-300 flex flex-col fixed h-full z-50`}
       >
-        <div className="p-4 flex items-center justify-between align-middle h-16 bg-gradient-to-r from-white to-blue-900">
+        <div className="p-4 flex items-center justify-between align-middle h-16 bg-gradient-to-r from-blue-300 to-blue-900">
           <span className={`${!isSidebarOpen && "hidden"}`}>
             <img src="/logo.png" alt="Htech-logo" className="w-auto h-10" />
           </span>
-          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-orange-300 rounded text-orange-500">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-orange-500 rounded text-orange-300">
             <Menu size={20} />
           </button>
         </div>  
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 ">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 bg-blue-900 ">
           {MENU_ITEMS.map((item) => (
             <SidebarNavItem 
               key={item.label} 
