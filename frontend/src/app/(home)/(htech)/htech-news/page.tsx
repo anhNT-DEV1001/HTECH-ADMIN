@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Images, Loader2, Pencil, Plus, Search, Shield, Trash2, Trash2Icon } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Images, Loader2, Pencil, Plus, Search, Shield, Trash2, Trash2Icon } from "lucide-react";
 import { IPaginationRequest } from "@/common/interfaces";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNews } from "@/features/news/hooks";
@@ -67,11 +67,7 @@ export default function HtechNew() {
   return (
     <section>
       <div className="flex justify-between items-end mb-2">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">
-            Quản lý tin tức
-          </h1>
-        </div>
+        Quản lý tin tức
       </div>
 
       <div className="flex items-center justify-between gap-3 rounded-t-sm mb-2">
