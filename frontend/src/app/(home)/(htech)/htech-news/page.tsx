@@ -83,8 +83,7 @@ export default function HtechNew() {
                 placeholder="Tìm kiếm theo tên"
                 className="input"
                 value={searchInput}
-                // onChange={handleSearch}
-                onChange={()=> {}}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
               <Search
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
