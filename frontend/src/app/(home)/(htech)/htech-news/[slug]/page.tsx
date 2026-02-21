@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { newsService } from '@/features/news/services/news.service';
 import TiptapEditor from '@/common/components/ui/TextEditor';
 import { useToast } from '@/common/providers/ToastProvider';
-import { CircleX, Image as ImageIcon, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, CircleX, Image as ImageIcon, Loader2, Save } from 'lucide-react';
 
 export default function CreateNewsPage() {
   const router = useRouter();
@@ -129,10 +129,20 @@ export default function CreateNewsPage() {
 
   return (
     <div className="container">
-      <h1 className="text-2xl font-bold mb-6">
-        {isCreateMode ? 'Tạo Tin Tức Mới' : 'Chỉnh Sửa Tin Tức'}
-      </h1>
-
+      <button
+        className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors group mb-2"
+        onClick={() => router.back()}
+      >
+        <div className="p-1.5 rounded-md ">
+          <ArrowLeft size={18} />
+        </div>
+        <div className="flex flex-col items-start">
+          <h1 className="text-lg font-bold text-gray-800">
+             {isCreateMode ? 'Tạo Tin Tức Mới' : 'Chỉnh Sửa Tin Tức'}
+          </h1>
+        </div>
+      </button>
+      
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tiêu đề */}
         <div>
