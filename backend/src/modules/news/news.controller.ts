@@ -101,17 +101,17 @@ export class NewsController {
         const isNewImage = !item.image_url || item.image_url.trim() === '';
 
         if (isNewImage) {
-           const currentFile = files.images ? files.images[fileIndex] : undefined;
-           if (currentFile) {
-             const path = currentFile.path.replace(/\\/g, '/').split('public')[1];
-             fileIndex++;
-             return { ...item, image_url: path };
-           } else {
-             throw new ApiError(
-               `Bạn đang gửi 2 object ảnh nhưng chỉ upload ${fileIndex} file ảnh. Vui lòng kiểm tra lại Postman tại index ${index}.`,
-               HttpStatus.BAD_REQUEST
-             );
-           }
+          const currentFile = files.images ? files.images[fileIndex] : undefined;
+          if (currentFile) {
+            const path = currentFile.path.replace(/\\/g, '/').split('public')[1];
+            fileIndex++;
+            return { ...item, image_url: path };
+          } else {
+            throw new ApiError(
+              `Bạn đang gửi 2 object ảnh nhưng chỉ upload ${fileIndex} file ảnh. Vui lòng kiểm tra lại Postman tại index ${index}.`,
+              HttpStatus.BAD_REQUEST
+            );
+          }
         }
         
         return item;
@@ -133,7 +133,7 @@ export class NewsController {
     console.log("flag controller delete")
     const res = await this.service.deleteNewsService(id);
     return {
-      status: 'success',
+      status: 'success',  
       message: 'Success deleting news',
       data: res
     }

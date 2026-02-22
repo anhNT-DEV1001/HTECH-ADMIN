@@ -95,10 +95,10 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
           </button>
           <div className="border-l mx-2"></div>
           <button onClick={() => editor.chain().focus().undo().run()} className="p-1 hover:bg-gray-200 rounded" type="button">
-             <Undo size={18}/>
+            <Undo size={18}/>
           </button>
           <button onClick={() => editor.chain().focus().redo().run()} className="p-1 hover:bg-gray-200 rounded" type="button">
-             <Redo size={18}/>
+            <Redo size={18}/>
           </button>
         </div>
       )}
