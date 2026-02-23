@@ -35,7 +35,7 @@ jobs:
 
             # --- Deploy Frontend ---
             echo "Deploying Frontend..."
-            cd ../frontend
+            cd ../client
             npm install
             npm run build
             pm2 restart htech-admin-frontend || pm2 start npm --name "htech-admin-frontend" -- run start -- -p 4000
