@@ -31,13 +31,13 @@ jobs:
             # npx prisma generate
             npm run prisma:generate
             npm run build
-            pm2 restart htech-admin-backend || pm2 start dist/src/main.js --name htech-admin-backend
+            pm2 restart htech-admin-server || pm2 start dist/src/main.js --name htech-admin-server
 
             # --- Deploy Frontend ---
             echo "Deploying Frontend..."
             cd ../client
             npm install
             npm run build
-            pm2 restart htech-admin-frontend || pm2 start npm --name "htech-admin-frontend" -- run start -- -p 4000
+            pm2 restart htech-admin-client || pm2 start npm --name "htech-admin-client" -- run start -- -p 4000
 
             echo "Deployment successful!"
