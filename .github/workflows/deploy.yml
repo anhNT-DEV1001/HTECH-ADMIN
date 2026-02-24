@@ -26,7 +26,7 @@ jobs:
             git reset --hard origin/main
             # --- Deploy Backend ---
             echo "Deploying Backend..."
-            cd backend
+            cd server
             npm install
             # npx prisma generate
             npm run prisma:generate
