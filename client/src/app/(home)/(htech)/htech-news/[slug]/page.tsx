@@ -11,6 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import Cropper, { Area } from 'react-easy-crop'
+import getCroppedImg from '@/lib/cropImage'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Slider } from '@/components/ui/slider'
+import { fi } from 'date-fns/locale';
+import { ur } from 'zod/v4/locales';
+
 
 export default function CreateNewsPage() {
   const router = useRouter();
@@ -22,14 +31,27 @@ export default function CreateNewsPage() {
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [editorReady, setEditorReady] = useState(false);
-  
-  // State quản lý form
+
+  // State quản lý form Tiếng Việt
   const [title_vn, setTitle] = useState('');
   const [content_vn, setContent] = useState('');
+  const [summary_vn, setSummary] = useState('');
+
+  // State quản lý form Tiếng Anh
+  const [title_en, setTitleEn] = useState('');
+  const [content_en, setContentEn] = useState('');
+  const [summary_en, setSummaryEn] = useState('');
+
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [summary_vn, setSummary] = useState('');
-  const {showToast} = useToast();
+  const { showToast } = useToast();
+
+  // States dùng cho luồng Crop tính năng
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null); // Lưu ảnh thô (Original URL) để cho vào Cropper
+  const [cropPoint, setCropPoint] = useState({ x: 0, y: 0 }); // Toạ độ X,Y
+  const [zoom, setZoom] = useState(1); // Zoom mặc định
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null); // Tọa độ để gửi cho file Utils Canvas
 
   // Fetch dữ liệu bài viết nếu là edit mode, hoặc tắt loading nếu là create mode
   useEffect(() => {
@@ -42,7 +64,12 @@ export default function CreateNewsPage() {
             setTitle(news.title_vn || '');
             setContent(news.content_vn || '');
             setSummary(news.summary_vn || '');
-            
+
+            // Lấy dữ liệu Tiếng Anh
+            setTitleEn(news.title_en || '');
+            setContentEn(news.content_en || '');
+            setSummaryEn(news.summary_en || '');
+
             // Kết hợp base URL với thumbnail_url
             if (news.thumbnail_url) {
               const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api/v1').replace('/api/v1', '');
@@ -71,17 +98,38 @@ export default function CreateNewsPage() {
   }, []);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const thumbnail = e.target.files?.[0] || null;
-    setThumbnailFile(thumbnail);
-    
-    if (thumbnail) {
+    const file = e.target.files?.[0] || null;
+    if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setThumbnailPreview(reader.result as string);
-      };
-      reader.readAsDataURL(thumbnail);
-    } else {
-      setThumbnailPreview(null);
+        setImageToCrop(reader.result as string);
+        setIsCropModalOpen(true); // Open Popup
+
+        // Reset crop settings nếu chọn một ảnh mới
+        setCropPoint({ x: 0, y: 0 });
+        setZoom(1);
+      }
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleApplyCrop = async () => {
+    if (imageToCrop && croppedAreaPixels) {
+      try {
+        const { file, url } = await getCroppedImg(imageToCrop, croppedAreaPixels);
+
+        setThumbnailFile(file);
+        setThumbnailPreview(url);
+
+        setIsCropModalOpen(false);
+        setImageToCrop(null);
+      } catch (e) {
+        console.error('Lỗi khi crop ảnh', e);
+      }
     }
   };
 
@@ -107,6 +155,11 @@ export default function CreateNewsPage() {
       formData.append('title_vn', title_vn);
       formData.append('summary_vn', summary_vn);
       formData.append('content_vn', content_vn);
+
+      // Thêm data tiếng Anh
+      formData.append('title_en', title_en);
+      formData.append('summary_en', summary_en);
+      formData.append('content_en', content_en);
 
       if (isCreateMode) {
         // Mode tạo mới
@@ -150,7 +203,7 @@ export default function CreateNewsPage() {
       >
         <ArrowLeft size={18} />
         <h1 className="text-lg font-bold text-gray-800">
-           {isCreateMode ? 'Tạo Tin Tức Mới' : 'Chỉnh Sửa Tin Tức'}
+          {isCreateMode ? 'Tạo Tin Tức Mới' : 'Chỉnh Sửa Tin Tức'}
         </h1>
       </Button>
 
@@ -161,67 +214,110 @@ export default function CreateNewsPage() {
           <p className="text-sm text-muted-foreground">Đang khởi tạo trình soạn thảo...</p>
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-6" style={{ display: editorReady ? 'block' : 'none' }}>
-        {/* Tiêu đề */}
-        <div className="space-y-1">
-          <Label>Tiêu đề bài viết</Label>
-          <Input
-            type="text"
-            value={title_vn}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nhập tiêu đề..."
-          />
-        </div>
-
-        {/* Tóm tắt */}
-        <div className="space-y-1">
-          <Label>Tóm tắt</Label>
-          <Textarea
-            value={summary_vn}
-            onChange={(e) => setSummary(e.target.value)}
-            placeholder="Nhập tóm tắt..."
-          />
-        </div>
-
-        {/* Thumbnail */}
-        <div className="space-y-1">
-          <Label>Ảnh đại diện (Thumbnail)</Label>
-          <div className="flex flex-col gap-4 mt-2">
-            <label className="flex items-center justify-center w-40 h-40 border-2 border-dashed border-input rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleThumbnailChange}
-                className="hidden"
-              />
-              <div className="flex flex-col items-center gap-2">
-                <ImageIcon size={32} className="text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Chọn ảnh</span>
-              </div>
-            </label>
-            {thumbnailPreview && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Preview:</p>
-                <img
-                  src={thumbnailPreview}
-                  alt="Thumbnail preview"
-                  className="max-w-xs h-auto border rounded shadow-md"
-                />
-              </div>
-            )}
+        {/* Tab Switch Language */}
+        <Tabs defaultValue="vi" className="w-full">
+          <div className="flex justify-end mb-4">
+            <TabsList className="grid w-[200px] grid-cols-2">
+              <TabsTrigger value="vi">VIE</TabsTrigger>
+              <TabsTrigger value="en">ENG</TabsTrigger>
+            </TabsList>
           </div>
-        </div>
 
-        {/* Editor Content */}
-        <div className="space-y-1">
-          <Label>Nội dung bài viết</Label>
-          <TiptapEditor
-            content={content_vn}
-            onChange={(html) => setContent(html)}
-            onReady={handleEditorReady}
-          />
-        </div>
+          {/* Thumbnail */}
+          <div className="space-y-1 mb-4">
+            <Label>Ảnh đại diện (Thumbnail)</Label>
+
+            <div className="relative group w-40 h-40 border-2 border-dashed border-input rounded-lg overflow-hidden flex items-center justify-center hover:border-primary transition">
+              {thumbnailPreview ? (
+                <>
+                  <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                  {/* Overlay kèm hiệu ứng group-hover */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
+                    <label className="text-white text-sm flex flex-col items-center cursor-pointer w-full h-full justify-center">
+                      <ImageIcon size={24} className="mb-1" />
+                      <span>Đổi ảnh</span>
+                      <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-primary/5 hover:bg-primary/10 transition">
+                  <ImageIcon size={32} className="text-muted-foreground mb-2" />
+                  <span className="text-sm text-muted-foreground">Chọn ảnh</span>
+                  <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
+                </label>
+              )}
+            </div>
+          </div>
+
+          <TabsContent value="vi" className="space-y-6 mt-0">
+            {/* Tiêu đề */}
+            <div className="space-y-1">
+              <Label>Tiêu đề bài viết</Label>
+              <Input
+                type="text"
+                value={title_vn}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Nhập tiêu đề..."
+              />
+            </div>
+
+            {/* Tóm tắt */}
+            <div className="space-y-1">
+              <Label>Tóm tắt</Label>
+              <Textarea
+                value={summary_vn}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="Nhập tóm tắt..."
+              />
+            </div>
+
+            {/* Editor Content */}
+            <div className="space-y-1">
+              <Label>Nội dung bài viết</Label>
+              <TiptapEditor
+                content={content_vn}
+                onChange={(html) => setContent(html)}
+                onReady={handleEditorReady}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value='en' className='space-y-6 mt-0'>
+            {/* Title (EN) */}
+            <div className="space-y-1">
+              <Label>Tiêu đề bài viết (EN)</Label>
+              <Input
+                type="text"
+                value={title_en}
+                onChange={(e) => setTitleEn(e.target.value)}
+                placeholder="Nhập tiêu đề..."
+              />
+            </div>
+
+            {/* Summary (EN) */}
+            <div>
+              <Label>Tóm tắt (EN)</Label>
+              <Textarea
+                value={summary_en}
+                onChange={(e) => setSummaryEn(e.target.value)}
+                placeholder="Nhập tóm tắt..."
+              />
+            </div>
+
+            {/* Editor Content (EN) */}
+            <div className="space-y-1">
+              <Label>Nội dung bài viết (EN)</Label>
+              <TiptapEditor
+                content={content_en}
+                onChange={(html) => setContentEn(html)}
+                onReady={handleEditorReady}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pt-4">
@@ -230,24 +326,66 @@ export default function CreateNewsPage() {
             variant="outline"
             onClick={() => router.back()}
           >
-            <CircleX size={20}/>
+            <CircleX size={20} />
             Hủy bỏ
           </Button>
           <Button
             type="submit"
             disabled={loading}
           >
-            {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20}/>}
+            {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
             {loading
               ? isCreateMode
                 ? 'Đang tạo...'
                 : 'Đang cập nhật...'
               : isCreateMode
-              ? 'Đăng tin'
-              : 'Cập nhật'}
+                ? 'Đăng tin'
+                : 'Cập nhật'}
           </Button>
         </div>
       </form>
+
+      <Dialog open={isCropModalOpen} onOpenChange={setIsCropModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Cắt ảnh</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-6">
+            {/* Vùng Cropper Canvas */}
+            <div className="relative w-full h-[400px] bg-black/5 rounded-md overflow-hidden">
+              {imageToCrop && (
+                <Cropper
+                  image={imageToCrop}
+                  crop={cropPoint}
+                  zoom={zoom}
+                  aspect={1} // Ratio
+                  onCropChange={setCropPoint}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              )}
+            </div>
+
+            {/* Zoom Slider */}
+            <div className="space-y-4">
+              <Label>Phóng to / Thu nhỏ</Label>
+              <Slider
+                value={[zoom]}
+                min={1}
+                max={3}
+                step={0.01}
+                onValueChange={(vals) => setZoom(vals[0])}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCropModalOpen(false)}>Hủy</Button>
+            <Button onClick={handleApplyCrop}>Xác nhận</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
