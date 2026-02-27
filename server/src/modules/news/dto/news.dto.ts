@@ -43,6 +43,10 @@ export class CreateNewsDto {
   @IsString()
   @IsOptional()
   content_en: string
+
+  @IsNumber()
+  @IsOptional()
+  category_id: number
 }
 
 export class NewsDto {
@@ -87,6 +91,10 @@ export class NewsDto {
   @IsString()
   @IsOptional()
   content_en: string
+
+  @IsNumber()
+  @IsOptional()
+  category_id: number
 }
 
 export class CreateNewsImageDto {
@@ -123,4 +131,28 @@ export class NewsImageDto {
   @IsNumber()
   @IsOptional()
   sort_order: number
+}
+
+export class CreateNewsCategoryDto {
+  @IsString()
+  @IsNotEmpty({ message: "" })
+  name_vn: string
+
+  @IsString()
+  @IsOptional()
+  name_en: string
+}
+
+export class NewsCategoryDto {
+  @IsNumber()
+  @IsOptional()
+  id: number
+
+  @IsString()
+  @IsOptional()
+  name_vn: string
+
+  @IsString()
+  @IsOptional()
+  name_en: string
 }

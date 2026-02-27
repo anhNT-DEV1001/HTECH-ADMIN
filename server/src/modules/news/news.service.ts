@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import { CreateNewsDto, CreateNewsImageDto, NewsDto, NewsImageDto } from "./dto";
+import { CreateNewsCategoryDto, CreateNewsDto, CreateNewsImageDto, NewsDto, NewsImageDto } from "./dto";
 import { News, NewsImage, Prisma, User } from "@prisma/client";
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApiError } from "src/common/apis";
@@ -25,6 +25,8 @@ export class NewsService {
 
           created_by: user.id,
           updated_by: user.id,
+
+          category: { connect: { id: dto.category_id } },
 
           newsImages: dto.newsImage && dto.newsImage.length > 0
             ? {
@@ -72,7 +74,7 @@ export class NewsService {
         const newImageUrls = dto.newsImage.map(img => img.image_url).filter(url => url);
         const oldImageUrls = oldNews.newsImages.map(img => img.image_url);
         const imagesToDelete = oldImageUrls.filter(oldUrl => !newImageUrls.includes(oldUrl));
-        
+
         filesToDelete.push(...imagesToDelete);
       }
       const newsData = {
@@ -85,16 +87,18 @@ export class NewsService {
         content_en: dto.content_en ?? oldNews.content_en,
         updated_at: new Date(),
 
+        category: { connect: { id: dto.category_id ?? oldNews.category_id } },
+
         newsImages: dto.newsImage && Array.isArray(dto.newsImage)
           ? {
-              deleteMany: {}, 
-              create: dto.newsImage.map((dtoImage: NewsImageDto) => ({
-                image_url: dtoImage.image_url || '',
-                alt_text: dtoImage.alt_text || '',
-                sort_order: dtoImage.sort_order || 1,
-                updated_at: new Date()
-              }))
-            } : undefined 
+            deleteMany: {},
+            create: dto.newsImage.map((dtoImage: NewsImageDto) => ({
+              image_url: dtoImage.image_url || '',
+              alt_text: dtoImage.alt_text || '',
+              sort_order: dtoImage.sort_order || 1,
+              updated_at: new Date()
+            }))
+          } : undefined
       };
       const updatedNews = await this.prisma.$transaction(async (db) => {
         const res = await db.news.update({
@@ -139,7 +143,60 @@ export class NewsService {
     } catch (error: any) {
       throw new ApiError(
         `System error: ${error.message}`,
-        HttpStatus.BAD_REQUEST  
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  async createNewsCategoryService(dto: CreateNewsCategoryDto, user: User) {
+    try {
+      const slug = slugify(dto.name_vn);
+
+      // Kiểm tra slug đã tồn tại chưa
+      const existing = await this.prisma.newsCategory.findUnique({
+        where: { slug },
+      });
+      if (existing) {
+        throw new ApiError('News category đã tồn tại với tên tương tự', HttpStatus.BAD_REQUEST);
+      }
+
+      const createdCategory = await this.prisma.newsCategory.create({
+        data: {
+          name_vn: dto.name_vn,
+          name_en: dto.name_en || '',
+          slug,
+          created_by: user.id,
+          updated_by: user.id,
+        },
+      });
+
+      if (!createdCategory) {
+        throw new ApiError('Failed creating news category', HttpStatus.BAD_REQUEST);
+      }
+      return createdCategory;
+    } catch (error: any) {
+      throw new ApiError(
+        `System error: ${error.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async deleteNewsCategoryService(id: number) {
+    try {
+      const newscate = await this.prisma.newsCategory.findUnique({
+        where: { id },
+      });
+
+      if (!newscate) throw new ApiError('News category is not existed', HttpStatus.BAD_REQUEST);
+
+      return this.prisma.newsCategory.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      throw new ApiError(
+        `System error: ${error.message}`,
+        HttpStatus.BAD_REQUEST
       );
     }
   }
@@ -180,8 +237,8 @@ export class NewsService {
         skip,
         take,
         orderBy: orderCondition,
-        include : {
-          newsImages : true
+        include: {
+          newsImages: true
         }
       }),
       this.prisma.news.count({ where })
@@ -209,4 +266,27 @@ export class NewsService {
       HttpStatus.BAD_REQUEST)
     return data;
   }
+
+  async getAllNewsCategoryService() {
+    // console.log('flag get news category services')
+    const data = await this.prisma.newsCategory.findMany({
+      orderBy: {
+        name_vn: 'asc'
+      }
+    })
+    if (!data) throw new ApiError('List of News category not found', HttpStatus.BAD_REQUEST)
+    return data
+  }
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+    .replace(/đ/g, 'd').replace(/Đ/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric
+    .trim()
+    .replace(/\s+/g, '-') // spaces to hyphens
+    .replace(/-+/g, '-'); // collapse multiple hyphens
 }

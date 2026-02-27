@@ -4,8 +4,8 @@ import { AuthUser, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
 import type { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 import { ApiError, BaseResponse } from "src/common/apis";
-import type { News, User } from "@prisma/client";
-import { CreateNewsDto, NewsDto } from "./dto";
+import type { News, NewsCategory, User } from "@prisma/client";
+import { CreateNewsCategoryDto, CreateNewsDto, NewsDto } from "./dto";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "src/configs";
 import { DeleteFileOnErrorFilter } from "src/common/interceptors";
@@ -20,6 +20,17 @@ export class NewsController {
     @Query() query: IPaginationRequest
   ): Promise<BaseResponse<IPaginationResponse<News>>> {
     const res = await this.service.getAllNewsService(query);
+    return {
+      status: 'success',
+      message: 'Success getting list of news',
+      data: res,
+    }
+  }
+
+  @Get('category')
+  async getListNewsCategoryController() {
+    const res = await this.service.getAllNewsCategoryService();
+    // console.log('flag get news category controller')
     return {
       status: 'success',
       message: 'Success getting list of news',
@@ -42,10 +53,10 @@ export class NewsController {
   @RequirePermissions(RoleConstant.CREATE)
   @UseInterceptors(FileFieldsInterceptor(
     [
-      {name : 'thumbnail' , maxCount : 1},
-      {name : 'images' , maxCount: 10},
-    ] , multerOptions('htech', 'news'),
-  ),  DeleteFileOnErrorFilter)
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'images', maxCount: 10 },
+    ], multerOptions('htech', 'news'),
+  ), DeleteFileOnErrorFilter)
   async createNewsController(
     @AuthUser('user') user: User,
     @Body() dto: CreateNewsDto,
@@ -53,15 +64,15 @@ export class NewsController {
   ): Promise<BaseResponse<News>> {
 
     if (files.thumbnail && files.thumbnail[0]) {
-      const thumbPath = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1]; 
+      const thumbPath = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
       dto.thumbnail_url = thumbPath;
     }
 
     if (files.images && files.images.length > 0 && dto.newsImage) {
       files.images.forEach((file, index) => {
         if (dto.newsImage[index]) {
-            const imagePath = file.path.replace(/\\/g, '/').split('public')[1];
-            dto.newsImage[index].image_url = imagePath;
+          const imagePath = file.path.replace(/\\/g, '/').split('public')[1];
+          dto.newsImage[index].image_url = imagePath;
         }
       });
     }
@@ -77,10 +88,10 @@ export class NewsController {
   @RequirePermissions(RoleConstant.UPDATE)
   @UseInterceptors(FileFieldsInterceptor(
     [
-      {name : 'thumbnail' , maxCount : 1},
-      {name : 'images' , maxCount: 10},
-    ] , multerOptions('htech', 'news'),
-  ),  DeleteFileOnErrorFilter)
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'images', maxCount: 10 },
+    ], multerOptions('htech', 'news'),
+  ), DeleteFileOnErrorFilter)
   async updateNewsController(
     @Param('id') id: number,
     @Body() dto: NewsDto,
@@ -88,15 +99,15 @@ export class NewsController {
   ): Promise<BaseResponse<News>> {
     if (files.thumbnail && files.thumbnail[0]) {
       dto.thumbnail_url = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
-    } 
+    }
 
     if (dto.newsImage && typeof dto.newsImage === 'string') {
-      try { dto.newsImage = JSON.parse(dto.newsImage as any); } catch(e) {}
+      try { dto.newsImage = JSON.parse(dto.newsImage as any); } catch (e) { }
     }
-    
+
     if (dto.newsImage && Array.isArray(dto.newsImage)) {
-      let fileIndex = 0; 
-      
+      let fileIndex = 0;
+
       dto.newsImage = dto.newsImage.map((item, index) => {
         const isNewImage = !item.image_url || item.image_url.trim() === '';
 
@@ -113,7 +124,7 @@ export class NewsController {
             );
           }
         }
-        
+
         return item;
       });
     }
@@ -130,11 +141,39 @@ export class NewsController {
   async deleteNewsController(
     @Param('id') id: number
   ): Promise<BaseResponse<any>> {
-    console.log("flag controller delete")
+    // console.log("flag controller delete")
     const res = await this.service.deleteNewsService(id);
     return {
-      status: 'success',  
+      status: 'success',
       message: 'Success deleting news',
+      data: res
+    }
+  }
+
+  @Post('category')
+  @RequirePermissions(RoleConstant.CREATE)
+  async createNewsCategoryController(
+    @AuthUser('user') user: User,
+    @Body() dto: CreateNewsCategoryDto,
+  ): Promise<BaseResponse<any>> {
+    const res = await this.service.createNewsCategoryService(dto, user);
+    return {
+      status: 'success',
+      message: 'Success creating news category',
+      data: res,
+    }
+  }
+
+
+  @Delete('category/:id')
+  @RequirePermissions(RoleConstant.DELETE)
+  async deleteNewsCategoryController(
+    @Param('id') id: number
+  ): Promise<BaseResponse<any>> {
+    const res = await this.service.deleteNewsCategoryService(id);
+    return {
+      status: 'success',
+      message: 'success deleting news category',
       data: res
     }
   }
