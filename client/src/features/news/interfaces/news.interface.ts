@@ -1,3 +1,5 @@
+import { IPaginationRequest } from "@/common/interfaces";
+
 export interface INews {
   id: number;
   thumbnail_url: string;
@@ -9,7 +11,7 @@ export interface INews {
   summary_en: string;
   content_en: string;
   newImages: INewsImage[] | [];
-  created_at:Date;
+  created_at: Date;
   updated_at: Date;
 }
 
@@ -39,8 +41,23 @@ export interface IUpdateNews {
 }
 
 export interface INewsImage {
-  id ?: number;
+  id?: number;
   image_url: string;
   alt_text: string;
   sort_order: number
+}
+
+export interface INewsCategory {
+  id: number;
+  name_vn: string;
+  name_en?: string;
+  slug: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface INewsFilterParams extends IPaginationRequest {
+  category_id?: number;
+  startDate?: string;
+  endDate?: string;
 }

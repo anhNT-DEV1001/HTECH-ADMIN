@@ -201,8 +201,7 @@ export class NewsService {
     }
   }
 
-  //Not sure
-  async getAllNewsService(query: IPaginationRequest): Promise<IPaginationResponse<News>> {
+  async getAllNewsService(query: IPaginationRequest & { category_id?: number; startDate?: string; endDate?: string }): Promise<IPaginationResponse<News>> {
     const {
       page = 1,
       limit = 10,
@@ -210,6 +209,9 @@ export class NewsService {
       sortBy = 'desc',
       search,
       searchBy = 'title_vn',
+      category_id,
+      startDate,
+      endDate,
     } = query;
 
     const skip = (Number(page) - 1) * Number(limit);
@@ -225,7 +227,25 @@ export class NewsService {
       };
     }
 
-    const validOrderFields = ['id', 'title_vn', 'summary_vn', 'created_at', 'updated_at'];
+    if (category_id) {
+      where.category_id = Number(category_id);
+    }
+
+    if (startDate || endDate) {
+      where.created_at = {};
+      if (startDate) {
+        const [year, month, day] = startDate.split('-').map(Number);
+        const start = new Date(year, month - 1, day, 0, 0, 0, 0);
+        where.created_at.gte = start;
+      }
+      if (endDate) {
+        const [year, month, day] = endDate.split('-').map(Number);
+        const end = new Date(year, month - 1, day, 23, 59, 59, 999);
+        where.created_at.lte = end;
+      }
+    }
+
+    const validOrderFields = ['id', 'title_vn', 'summary_vn', 'created_at', 'updated_at', 'category_id'];
     const orderField = validOrderFields.includes(orderBy) ? orderBy : 'created_at';
     const orderCondition: Prisma.NewsOrderByWithRelationInput = {
       [orderField]: sortBy.toLowerCase() === 'desc' ? 'desc' : 'asc'
@@ -238,7 +258,8 @@ export class NewsService {
         take,
         orderBy: orderCondition,
         include: {
-          newsImages: true
+          newsImages: true,
+          category: true
         }
       }),
       this.prisma.news.count({ where })

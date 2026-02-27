@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { newsService } from '@/features/news/services/news.service';
+import { useNewsCategories } from '@/features/news/hooks';
 import TiptapEditor from '@/common/components/ui/TextEditor';
 import { useToast } from '@/common/providers/ToastProvider';
 import { ArrowLeft, CircleX, Image as ImageIcon, Loader2, Save } from 'lucide-react';
@@ -12,6 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import Cropper, { Area } from 'react-easy-crop'
 import getCroppedImg from '@/lib/cropImage'
@@ -27,6 +36,7 @@ export default function CreateNewsPage() {
   const slug = params?.slug as string;
   const isCreateMode = slug === 'create';
   const newsId = isCreateMode ? null : Number(slug);
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -45,6 +55,8 @@ export default function CreateNewsPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const { showToast } = useToast();
+  const { categories } = useNewsCategories();
+  const [categoryId, setCategoryId] = useState<string>('');
 
   // States dùng cho luồng Crop tính năng
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
@@ -69,6 +81,11 @@ export default function CreateNewsPage() {
             setTitleEn(news.title_en || '');
             setContentEn(news.content_en || '');
             setSummaryEn(news.summary_en || '');
+
+            // Lấy thể loại
+            if ((news as any).category_id) {
+              setCategoryId(String((news as any).category_id));
+            }
 
             // Kết hợp base URL với thumbnail_url
             if (news.thumbnail_url) {
@@ -161,6 +178,11 @@ export default function CreateNewsPage() {
       formData.append('summary_en', summary_en);
       formData.append('content_en', content_en);
 
+      // Thêm thể loại
+      if (categoryId) {
+        formData.append('category_id', categoryId);
+      }
+
       if (isCreateMode) {
         // Mode tạo mới
         await newsService.createNews(formData);
@@ -170,6 +192,9 @@ export default function CreateNewsPage() {
         await newsService.updateNews(newsId!, formData as any);
         showToast('Cập nhật tin tức thành công!', 'success');
       }
+
+      // Invalidate cache để trang list hiển thị dữ liệu mới
+      await queryClient.invalidateQueries({ queryKey: ['news', 'getNews'] });
 
       router.push('/htech-news');
     } catch (error) {
@@ -228,12 +253,10 @@ export default function CreateNewsPage() {
           {/* Thumbnail */}
           <div className="space-y-1 mb-4">
             <Label>Ảnh đại diện (Thumbnail)</Label>
-
             <div className="relative group w-40 h-40 border-2 border-dashed border-input rounded-lg overflow-hidden flex items-center justify-center hover:border-primary transition">
               {thumbnailPreview ? (
                 <>
                   <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                  {/* Overlay kèm hiệu ứng group-hover */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
                     <label className="text-white text-sm flex flex-col items-center cursor-pointer w-full h-full justify-center">
                       <ImageIcon size={24} className="mb-1" />
@@ -250,6 +273,23 @@ export default function CreateNewsPage() {
                 </label>
               )}
             </div>
+          </div>
+
+          {/* Thể loại */}
+          <div className="space-y-1 mb-4">
+            <Label>Thể loại</Label>
+            <Select value={categoryId} onValueChange={setCategoryId}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Chọn thể loại" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={String(cat.id)}>
+                    {cat.name_vn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <TabsContent value="vi" className="space-y-6 mt-0">

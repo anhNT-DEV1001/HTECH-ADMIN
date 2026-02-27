@@ -1,87 +1,98 @@
 import { useCommonMutate, useCommonQuery } from "@/common/hooks";
-import { IPaginationRequest } from "@/common/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { newsService } from "../services";
-import { ICreateNews, IUpdateNews } from "../interfaces";
+import { ICreateNews, INewsFilterParams, IUpdateNews } from "../interfaces";
 import { useToast } from "@/common/providers/ToastProvider";
 
-export const useNews = (query? : IPaginationRequest) => {
+export const useNews = (query?: INewsFilterParams) => {
   const queryClient = useQueryClient();
-  const QUERY_KEY = ["news" , "getNews" , query];
-  const {showToast} = useToast();
+  const QUERY_KEY = ["news", "getNews", query];
+  const { showToast } = useToast();
   const newsQuery = useCommonQuery(
-    QUERY_KEY, 
+    QUERY_KEY,
     () => newsService.getNews(query || {}),
-    {placeholderData : (prev) => prev} 
+    { placeholderData: (prev) => prev }
   );
 
   const createNewsMutation = useCommonMutate(
-    (body : ICreateNews) => newsService.createNews(body as any),
+    (body: ICreateNews) => newsService.createNews(body as any),
     {
-      onSuccess : (data) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY[0], QUERY_KEY[1]]
         });
         showToast(data.message, 'success');
       },
       onError: (data) => {
-        showToast(data.message , 'error');
+        showToast(data.message, 'error');
       }
     }
   )
 
   const updateNewsMutation = useCommonMutate(
-    ({body, id} : {body : IUpdateNews , id : number}) => newsService.updateNews(id, body as any),
+    ({ body, id }: { body: IUpdateNews, id: number }) => newsService.updateNews(id, body as any),
     {
-      onSuccess : (data) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY[0], QUERY_KEY[1]]
         });
         showToast(data.message, 'success');
       },
       onError: (data) => {
-        showToast(data.message , 'error');
+        showToast(data.message, 'error');
       }
     }
   )
 
   const deleteNewsMutation = useCommonMutate(
-    (id : number) => newsService.deleteNews(id),
+    (id: number) => newsService.deleteNews(id),
     {
-      onSuccess : (data) => {
+      onSuccess: (data) => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY[0], QUERY_KEY[1]]
         });
         showToast(data.message, 'success');
       },
       onError: (data) => {
-        showToast(data.message , 'error');
+        showToast(data.message, 'error');
       }
     }
   )
-  return  {
-    newsData : newsQuery.data,
+  return {
+    newsData: newsQuery.data,
     isLoading: newsQuery.isLoading,
-    isFetching : newsQuery.isFetching,
+    isFetching: newsQuery.isFetching,
 
     createNewsMutation,
     updateNewsMutation,
     deleteNewsMutation,
-    isCreating : createNewsMutation.isPending,
-    isUpdating : updateNewsMutation.isPending,
-    isDeleting : deleteNewsMutation.isPending,
+    isCreating: createNewsMutation.isPending,
+    isUpdating: updateNewsMutation.isPending,
+    isDeleting: deleteNewsMutation.isPending,
   }
 }
 
-export const useNewDetail = (newsId : number) => {
-  const QUERY_KEY = ['news' , 'getNewsById' , newsId];
+export const useNewsCategories = () => {
+  const QUERY_KEY = ["news", "getNewsCategories"];
+  const categoriesQuery = useCommonQuery(
+    QUERY_KEY,
+    () => newsService.getNewsCategories(),
+  );
+  return {
+    categories: categoriesQuery.data?.data || [],
+    isLoading: categoriesQuery.isLoading,
+  };
+};
+
+export const useNewDetail = (newsId: number) => {
+  const QUERY_KEY = ['news', 'getNewsById', newsId];
   const newsDetailQuery = useCommonQuery(
     QUERY_KEY,
     () => newsService.getNewsById(newsId),
-    {enabled : !!newsId && !isNaN(Number(newsId))}
-  ); 
+    { enabled: !!newsId && !isNaN(Number(newsId)) }
+  );
   return {
-    newsData : newsDetailQuery.data,
-    isLoading : newsDetailQuery.isLoading
+    newsData: newsDetailQuery.data,
+    isLoading: newsDetailQuery.isLoading
   }
 }
