@@ -147,7 +147,7 @@ export function AppSidebar() {
             {MENU_ITEMS.map((item) => {
               if (item.children && item.children.length > 0) {
                 const isActive = item.children.some(
-                  (child) => child.href === pathname
+                  (child) => child.href && pathname.startsWith(child.href)
                 );
 
                 return (
@@ -169,7 +169,7 @@ export function AppSidebar() {
                         <SidebarMenuSub>
                           {item.children.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.label}>
-                              <SidebarMenuSubButton asChild isActive={pathname === subItem.href} className="data-[active=true]:bg-orange-500/20 data-[active=true]:text-orange-400 data-[active=true]:font-medium rounded-md hover:bg-white/10 hover:text-white transition-all duration-200">
+                              <SidebarMenuSubButton asChild isActive={!!subItem.href && pathname.startsWith(subItem.href)} className="data-[active=true]:bg-orange-500/20 data-[active=true]:text-orange-400 data-[active=true]:font-medium rounded-md hover:bg-white/10 hover:text-white transition-all duration-200">
                                 <Link href={subItem.href || "#"}>
                                   {subItem.icon && <subItem.icon />}
                                   <span>{subItem.label}</span>
