@@ -4,6 +4,7 @@ import { CreateProjectCategoryDto, CreateProjectDto, CreateProjectImageDto, Proj
 import { Prisma, Project, User } from "@prisma/client";
 import { ApiError } from "src/common/apis";
 import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
+import { deleteFileFromPublic } from "src/common/utils";
 
 function slugify(text: string): string {
   return text
@@ -189,10 +190,24 @@ export class ProjectService {
   async updateProjectService(dto: ProjectDto, id: number, user: User) {
     try {
       const project = await this.prisma.project.findUnique({
-        where: { id }
+        where: { id },
+        include: { projectImages: true },
       });
 
       if (!project) throw new ApiError('Không tìm thấy project', HttpStatus.NOT_FOUND);
+      const filesToDelete: string[] = [];
+
+      if (dto.thumbnail_url && dto.thumbnail_url !== project.thumbnail_url) {
+        filesToDelete.push(project.thumbnail_url as any);
+      }
+
+      if (dto.projectImages && Array.isArray(dto.projectImages)) {
+        const newImageUrls = dto.projectImages.map(img => img.image_url).filter(url => url);
+        const oldImageUrls = project.projectImages.map(img => img.image_url);
+        const imagesToDelete = oldImageUrls.filter(oldUrl => !newImageUrls.includes(oldUrl));
+
+        filesToDelete.push(...imagesToDelete);
+      }
 
       const newSlug = dto.title_vn ? `${slugify(dto.title_vn)}-${Date.now()}` : project.slug;
 
@@ -245,9 +260,10 @@ export class ProjectService {
           data: projectData,
         });
 
-        if (!updatedProject) {
-          throw new ApiError('Cập nhật thất bại', HttpStatus.BAD_REQUEST);
+        if (updatedProject) {
+          await Promise.all(filesToDelete.map(path => deleteFileFromPublic(path)));
         }
+
         return updatedProject;
       });
     } catch (error: any) {
@@ -258,12 +274,14 @@ export class ProjectService {
   async deleteProjectService(id: number) {
     try {
       const project = await this.prisma.project.findUnique({
-        where: { id }
+        where: { id },
+        include: { projectImages: true },
       });
 
       if (!project) throw new ApiError("Project không tồn tại", HttpStatus.NOT_FOUND);
-
+      await deleteFileFromPublic(project.thumbnail_url as any);
       return await this.prisma.$transaction(async (db) => {
+        await Promise.all(project.projectImages.map(img => deleteFileFromPublic(img.image_url as any)));
         await db.projectImage.deleteMany({
           where: { project_id: id }
         });
@@ -275,5 +293,32 @@ export class ProjectService {
     } catch (error: any) {
       throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async getAllProjectCategoryService() {
+    const data = await this.prisma.projectCategory.findMany({
+      orderBy: {
+        name_vn: 'asc'
+      }
+    })
+    if (!data) throw new ApiError('Danh sach Project Category khong ton tai', HttpStatus.BAD_REQUEST);
+    return data;
+  }
+
+  async deleteProjectCategoryService(id: number) {
+    try {
+      const projectCate = await this.prisma.projectCategory.findUnique({
+        where: { id }
+      });
+
+      if (!projectCate) throw new ApiError('Khong tim thay Project Category', HttpStatus.NOT_FOUND);
+
+      return this.prisma.projectCategory.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+
   }
 }

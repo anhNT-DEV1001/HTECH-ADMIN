@@ -1,4 +1,5 @@
 import { IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { Transform, Type } from "class-transformer";
 import { ProjectStatus } from "@prisma/client";
 
 export class CreateProjectImageDto {
@@ -108,14 +109,21 @@ export class CreateProjectDto {
 
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   is_featured: boolean
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
   sort_order: number
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
   category_id: number
 
   @IsArray()
@@ -173,11 +181,11 @@ export class ProjectDto {
   location_url: string
 
   @IsOptional()
-  @  IsDate()
+  @IsDate()
   start_date: Date
 
   @IsOptional()
-  @  IsDate()
+  @IsDate()
   end_date: Date
 
   @IsString()
@@ -198,14 +206,21 @@ export class ProjectDto {
 
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   is_featured: boolean
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
   sort_order: number
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
   category_id: number
 
   @IsArray()
