@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { ProjectService } from "./project.service";
 import { AuthUser, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
@@ -7,8 +7,8 @@ import { CreateProjectCategoryDto, CreateProjectDto, ProjectDto } from "./dto";
 import { ApiError, BaseResponse } from "src/common/apis";
 import type { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { DeleteFileOnErrorFilter } from "src/common/interceptors";
 import { multerOptions } from "src/configs";
+import { DeleteFileOnErrorFilter } from "src/common/interceptors";
 
 @Controller("project")
 export class ProjectController {
@@ -23,6 +23,17 @@ export class ProjectController {
     return {
       status: 'success',
       message: 'successfully get all projects',
+      data: res,
+    }
+  }
+
+  @Get('category')
+  async getListProjectCategoryController() {
+    const res = await this.projectService.getAllProjectCategoryService();
+    // console.log('flag get news category controller')
+    return {
+      status: 'success',
+      message: 'Success getting list of news',
       data: res,
     }
   }
@@ -65,18 +76,16 @@ export class ProjectController {
     @Body() dto: CreateProjectDto,
     @UploadedFiles() files: { thumbnail?: Express.Multer.File[], images?: Express.Multer.File[] }
   ): Promise<BaseResponse<Project>> {
-    if (files.thumbnail && files.thumbnail[0]) {
+    if (files?.thumbnail && files.thumbnail[0]) {
       const thumbPath = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
       dto.thumbnail_url = thumbPath;
     }
-    if (files.images && files.images.length > 0 && dto.projectImages) {
-      files.images.forEach((file, index) => {
-        if (dto.projectImages[index]) {
-          const imagePath = file.path.replace(/\\/g, '/').split('public')[1];
-          dto.projectImages[index].image_url = imagePath;
-        }
-      });
-    }
+
+    // Parse các field dạng string từ FormData sang đúng kiểu
+    if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
+    if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
+    if (typeof dto.is_featured === 'string') dto.is_featured = dto.is_featured === 'true';
+
     const res = await this.projectService.createProjectService(dto, user);
     return {
       status: 'success',
@@ -99,34 +108,15 @@ export class ProjectController {
     @Body() dto: ProjectDto,
     @UploadedFiles() files: { thumbnail?: Express.Multer.File[], images?: Express.Multer.File[] }
   ): Promise<BaseResponse<Project>> {
-    if (files.thumbnail && files.thumbnail[0]) {
+    if (files?.thumbnail && files.thumbnail[0]) {
       dto.thumbnail_url = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
     }
-    if (dto.projectImages && typeof dto.projectImages === 'string') {
-      try { dto.projectImages = JSON.parse(dto.projectImages as any); } catch (e) { }
-    }
 
-    if (dto.projectImages && Array.isArray(dto.projectImages)) {
-      let fileIndex = 0;
-      dto.projectImages = dto.projectImages.map((item, index) => {
-        const isNewImage = !item.image_url || item.image_url.trim() === '';
+    // Parse các field dạng string từ FormData sang đúng kiểu
+    if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
+    if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
+    if (typeof dto.is_featured === 'string') dto.is_featured = (dto.is_featured as any) === 'true';
 
-        if (isNewImage) {
-          const currentFile = files.images ? files.images[fileIndex] : undefined;
-          if (currentFile) {
-            const path = currentFile.path.replace(/\\/g, '/').split('public')[1];
-            fileIndex++;
-            return { ...item, image_url: path };
-          } else {
-            throw new ApiError(
-              `Bạn đang gửi 2 object ảnh nhưng chỉ upload ${fileIndex} file ảnh. Vui lòng kiểm tra lại Postman tại index ${index}.`,
-              HttpStatus.BAD_REQUEST
-            );
-          }
-        }
-        return item;
-      });
-    }
     const res = await this.projectService.updateProjectService(dto, id, user);
     return {
       status: 'success',
@@ -145,6 +135,19 @@ export class ProjectController {
       status: 'success',
       message: 'delete project successfully',
       data: null,
+    }
+  }
+
+  @Delete('category/:id')
+  @RequirePermissions(RoleConstant.DELETE)
+  async deleteProjectCategoryController(
+    @Param('id') id: number
+  ): Promise<BaseResponse<any>> {
+    const res = await this.projectService.deleteProjectCategoryService(id);
+    return {
+      status: 'success',
+      message: 'success deleting news category',
+      data: res
     }
   }
 }

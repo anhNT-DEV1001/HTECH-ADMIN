@@ -55,11 +55,11 @@ axiosClient.interceptors.response.use(
         isRefreshing = false;
         console.log('refresh token failed');
         processQueue(refreshError, null);
-        useAuthStore.getState().logout();        
+        useAuthStore.getState().logout();
         // if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-          // window.location.assign("/login"); 
+        // window.location.assign("/login");
         // }
-        
+
         return Promise.reject(refreshError);
       }
     }

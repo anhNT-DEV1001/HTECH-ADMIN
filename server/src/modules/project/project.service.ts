@@ -294,4 +294,31 @@ export class ProjectService {
       throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async getAllProjectCategoryService() {
+    const data = await this.prisma.projectCategory.findMany({
+      orderBy: {
+        name_vn: 'asc'
+      }
+    })
+    if (!data) throw new ApiError('Danh sach Project Category khong ton tai', HttpStatus.BAD_REQUEST);
+    return data;
+  }
+
+  async deleteProjectCategoryService(id: number) {
+    try {
+      const projectCate = await this.prisma.projectCategory.findUnique({
+        where: { id }
+      });
+
+      if (!projectCate) throw new ApiError('Khong tim thay Project Category', HttpStatus.NOT_FOUND);
+
+      return this.prisma.projectCategory.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+
+  }
 }
