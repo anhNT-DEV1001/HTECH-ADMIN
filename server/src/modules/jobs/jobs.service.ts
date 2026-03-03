@@ -64,19 +64,22 @@ export class JobsService {
     }
 
     async deleteFieldOfWorkService(id: number) {
-        try {
+        return await this.prisma.$transaction(async(db) => {
+            try {
             const fieldOfWork = await this.prisma.fieldOfWork.findUnique({
                 where: { id }
             });
 
             if (!fieldOfWork) throw new ApiError('Không tìm thấy Field of Work', HttpStatus.NOT_FOUND);
+            await db.job.deleteMany({where :{field_of_work_id : id}})
 
-            return this.prisma.fieldOfWork.delete({
+            return db.fieldOfWork.delete({
                 where: { id },
             });
         } catch (error: any) {
             throw new ApiError(`System error: ${error.message}`, HttpStatus.BAD_REQUEST);
         }
+        })
     }
 
     async createJobService(dto: CreateJobDto, user: User) {
