@@ -21,9 +21,9 @@ export default function HomePage() {
   return (
     <div className="max-w-7xl ">
       {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
-        <p className="text-slate-600">Xem tổng quan các dự án, tin tức và công việc tuyển dụng</p>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-slate-900 mb-2">Trang chủ</h1>
+        <p className="text-slate-600">Tổng quan và truy cập nhanh</p>
       </div>
 
       {/* Stats Grid */}
