@@ -42,9 +42,7 @@ export class DeleteFileOnErrorFilter implements NestInterceptor {
   async deleteFile(path: string) {
     try {
       await unlinkAsync(path);
-      console.log(`[System] Deleted junk file due to error: ${path}`);
     } catch (error) {
-      console.error(`[System] Failed to delete file: ${path}`, error);
     }
   }
 }

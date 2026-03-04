@@ -1,4 +1,4 @@
-import { LucideIcon, Newspaper, PanelsTopLeft, ProjectorIcon } from 'lucide-react';
+import { LucideIcon, Newspaper, PanelsTopLeft, ProjectorIcon, UserCheck } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -17,27 +17,16 @@ export const MENU_ITEMS: MenuItem[] = [
     children: [
       { label: "Nhóm quyền", icon: ShieldCheck, href: "/roles" },
       { label: "Người dùng", icon: Users, href: "/users" },
-      {
-        label: "Tài nguyên",
-        icon: ListTree,
-        href: "/resources",
-      },
+      { label: "Tài nguyên", icon: ListTree, href: "/resources" },
     ],
   },
   {
-    label : "HTECH",
-    icon : PanelsTopLeft,
-    children : [
-      {
-        label : "Tin tức",
-        icon : Newspaper,
-        href : "/htech-news"
-      },
-      {
-        label : "Dự án",
-        icon : ProjectorIcon,
-        href : "/htech-projects"
-      }
+    label: "HTECH",
+    icon: PanelsTopLeft,
+    children: [
+      { label: "Tin tức", icon: Newspaper, href: "/htech-news" },
+      { label: "Dự án", icon: ProjectorIcon, href: "/htech-projects" },
+      { label: "Tuyển dụng", icon: UserCheck, href: "/htech-careers" },
     ]
   }
 ];

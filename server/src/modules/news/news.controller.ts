@@ -30,7 +30,6 @@ export class NewsController {
   @Get('category')
   async getListNewsCategoryController() {
     const res = await this.service.getAllNewsCategoryService();
-    // console.log('flag get news category controller')
     return {
       status: 'success',
       message: 'Success getting list of news',
@@ -79,7 +78,7 @@ export class NewsController {
     const res = await this.service.createNewsService(dto, user);
     return {
       status: 'success',
-      message: 'Success creating news',
+      message: 'Tạo tin tức thành công !',
       data: res,
     }
   }
@@ -131,7 +130,7 @@ export class NewsController {
     const res = await this.service.updateNewsService(dto, id);
     return {
       status: 'success',
-      message: 'Success updating news',
+      message: 'Cập nhật tin tức thành công !',
       data: res
     }
   }
@@ -141,11 +140,10 @@ export class NewsController {
   async deleteNewsController(
     @Param('id') id: number
   ): Promise<BaseResponse<any>> {
-    // console.log("flag controller delete")
     const res = await this.service.deleteNewsService(id);
     return {
       status: 'success',
-      message: 'Success deleting news',
+      message: 'Xóa tin tức thành công !',
       data: res
     }
   }
@@ -159,7 +157,7 @@ export class NewsController {
     const res = await this.service.createNewsCategoryService(dto, user);
     return {
       status: 'success',
-      message: 'Success creating news category',
+      message: 'Tạo danh mục tin tức thành công !',
       data: res,
     }
   }
@@ -173,7 +171,7 @@ export class NewsController {
     const res = await this.service.deleteNewsCategoryService(id);
     return {
       status: 'success',
-      message: 'success deleting news category',
+      message: 'Xóa danh mục tin tức thành công !',
       data: res
     }
   }

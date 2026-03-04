@@ -27,7 +27,7 @@ export class NewsService {
           updated_by: user.id,
 
           category: { connect: { id: dto.category_id } },
-
+          is_featured: dto.is_featured,
           newsImages: dto.newsImage && dto.newsImage.length > 0
             ? {
               create: dto.newsImage.map((dtoImage: CreateNewsImageDto) => ({
@@ -88,6 +88,8 @@ export class NewsService {
         updated_at: new Date(),
 
         category: { connect: { id: dto.category_id ?? oldNews.category_id } },
+
+        is_featured: dto.is_featured,
 
         newsImages: dto.newsImage && Array.isArray(dto.newsImage)
           ? {
@@ -289,7 +291,6 @@ export class NewsService {
   }
 
   async getAllNewsCategoryService() {
-    // console.log('flag get news category services')
     const data = await this.prisma.newsCategory.findMany({
       orderBy: {
         name_vn: 'asc'

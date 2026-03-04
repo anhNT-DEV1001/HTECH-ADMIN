@@ -26,8 +26,6 @@ import Cropper, { Area } from 'react-easy-crop'
 import getCroppedImg from '@/lib/cropImage'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Slider } from '@/components/ui/slider'
-import { fi } from 'date-fns/locale';
-import { ur } from 'zod/v4/locales';
 
 
 export default function CreateNewsPage() {
@@ -54,6 +52,8 @@ export default function CreateNewsPage() {
 
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [isFeatured, setIsFeatured] = useState(false);
+
   const { showToast } = useToast();
   const { categories } = useNewsCategories();
   const [categoryId, setCategoryId] = useState<string>('');
@@ -81,7 +81,7 @@ export default function CreateNewsPage() {
             setTitleEn(news.title_en || '');
             setContentEn(news.content_en || '');
             setSummaryEn(news.summary_en || '');
-
+            setIsFeatured(news.is_featured || false);
             // Lấy thể loại
             if ((news as any).category_id) {
               setCategoryId(String((news as any).category_id));
@@ -95,7 +95,6 @@ export default function CreateNewsPage() {
             }
           }
         } catch (error) {
-          console.error('Error fetching news:', error);
           showToast('Không tìm thấy bài viết', 'error');
           router.push('/htech-news');
         } finally {
@@ -145,7 +144,6 @@ export default function CreateNewsPage() {
         setIsCropModalOpen(false);
         setImageToCrop(null);
       } catch (e) {
-        console.error('Lỗi khi crop ảnh', e);
       }
     }
   };
@@ -183,6 +181,8 @@ export default function CreateNewsPage() {
         formData.append('category_id', categoryId);
       }
 
+      formData.append('is_featured', String(isFeatured));
+
       if (isCreateMode) {
         // Mode tạo mới
         await newsService.createNews(formData);
@@ -198,7 +198,6 @@ export default function CreateNewsPage() {
 
       router.push('/htech-news');
     } catch (error) {
-      console.error(error);
       showToast(
         isCreateMode
           ? 'Có lỗi xảy ra khi tạo tin tức.'
@@ -275,21 +274,37 @@ export default function CreateNewsPage() {
             </div>
           </div>
 
-          {/* Thể loại */}
-          <div className="space-y-1 mb-4">
-            <Label>Thể loại</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger className="w-[250px]">
-                <SelectValue placeholder="Chọn thể loại" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.name_vn}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Thể loại & Nổi bật */}
+          <div className="flex items-end gap-10 mb-4">
+            <div className="space-y-1 flex-1 max-w-[250px]">
+              <Label>Thể loại</Label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn thể loại" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={String(cat.id)}>
+                      {cat.name_vn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-2 pb-3">
+              {/* pb-3 để checkbox cân đối với Select khi Select có Label ở trên */}
+              <input
+                type="checkbox"
+                id="featured"
+                className="w-4 h-4 accent-blue-600"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+              />
+              <Label htmlFor="featured" className="cursor-pointer font-medium">
+                Tin nổi bật
+              </Label>
+            </div>
           </div>
 
           <TabsContent value="vi" className="space-y-6 mt-0">

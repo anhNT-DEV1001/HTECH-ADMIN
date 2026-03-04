@@ -30,7 +30,6 @@ export class ProjectController {
   @Get('category')
   async getListProjectCategoryController() {
     const res = await this.projectService.getAllProjectCategoryService();
-    // console.log('flag get news category controller')
     return {
       status: 'success',
       message: 'Success getting list of news',
@@ -58,7 +57,7 @@ export class ProjectController {
     const res = await this.projectService.createProjectCategoryService(dto, user);
     return {
       status: 'success',
-      message: 'successfully create project category',
+      message: 'Tạo danh mục dự án thành công !',
       data: res,
     }
   }
@@ -84,12 +83,12 @@ export class ProjectController {
     // Parse các field dạng string từ FormData sang đúng kiểu
     if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
     if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
-    if (typeof dto.is_featured === 'string') dto.is_featured = dto.is_featured === 'true';
+    
 
     const res = await this.projectService.createProjectService(dto, user);
     return {
       status: 'success',
-      message: 'successfully create project',
+      message: 'Tạo dự án thành công !',
       data: res,
     }
   }
@@ -115,12 +114,11 @@ export class ProjectController {
     // Parse các field dạng string từ FormData sang đúng kiểu
     if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
     if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
-    if (typeof dto.is_featured === 'string') dto.is_featured = (dto.is_featured as any) === 'true';
-
+        
     const res = await this.projectService.updateProjectService(dto, id, user);
     return {
       status: 'success',
-      message: 'successfully update project',
+      message: 'Cập nhật dự án thành công !',
       data: res,
     }
   }
@@ -133,7 +131,7 @@ export class ProjectController {
     await this.projectService.deleteProjectService(id);
     return {
       status: 'success',
-      message: 'delete project successfully',
+      message: 'Xóa dự án thành công !',
       data: null,
     }
   }
@@ -146,7 +144,7 @@ export class ProjectController {
     const res = await this.projectService.deleteProjectCategoryService(id);
     return {
       status: 'success',
-      message: 'success deleting news category',
+      message: 'Xóa danh mục dự án thành công !',
       data: res
     }
   }
