@@ -13,6 +13,7 @@ export interface INews {
   newImages: INewsImage[] | [];
   created_at: Date;
   updated_at: Date;
+  is_featured : boolean
 }
 
 export interface ICreateNews {

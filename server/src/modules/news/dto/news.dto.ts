@@ -1,4 +1,4 @@
-import { Transform } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
 
 export class CreateNewsDto {
@@ -47,6 +47,11 @@ export class CreateNewsDto {
   @IsNumber()
   @IsOptional()
   category_id: number
+
+  @IsOptional()
+  @Type(() => String)
+  @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
+  is_featured: boolean 
 }
 
 export class NewsDto {
@@ -95,6 +100,11 @@ export class NewsDto {
   @IsNumber()
   @IsOptional()
   category_id: number
+
+  @IsOptional()
+  @Type(() => String)
+  @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
+  is_featured: boolean 
 }
 
 export class CreateNewsImageDto {

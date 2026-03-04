@@ -13,6 +13,7 @@ model News {
   category_id   Int?
   thumbnail_url String?
   category      NewsCategory? @relation(fields: [category_id], references: [id])
+  is_featured    Boolean         @default(false)
   newsImages    NewsImage[]
 
   @@map("news")

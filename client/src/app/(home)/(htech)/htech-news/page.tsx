@@ -42,7 +42,7 @@ export default function HtechNew() {
     page: Number(searchParams.get("page")) || 1,
     limit: Number(searchParams.get("limit")) || 10,
     search: searchParams.get("search") || "",
-    searchBy: "fullName",
+    searchBy: "title_vn",
     sortBy: "desc",
     orderBy: "created_at",
   });
