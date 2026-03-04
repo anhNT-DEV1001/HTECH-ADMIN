@@ -291,7 +291,6 @@ export class NewsService {
   }
 
   async getAllNewsCategoryService() {
-    // console.log('flag get news category services')
     const data = await this.prisma.newsCategory.findMany({
       orderBy: {
         name_vn: 'asc'

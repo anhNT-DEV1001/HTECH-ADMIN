@@ -10,4 +10,3 @@ class NewsDto {
 
 const reqBody = { is_featured: 'false' };
 const dto = plainToInstance(NewsDto, reqBody);
-console.log('DTO:', dto);

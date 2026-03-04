@@ -9,7 +9,7 @@ export const validationConfig: ValidationPipeOptions = {
   transform: true,
   forbidNonWhitelisted: true,
   transformOptions: {
-    enableImplicitConversion: true,
+    enableImplicitConversion: false,
   },
   exceptionFactory: (errors) => {
     return new HttpException(

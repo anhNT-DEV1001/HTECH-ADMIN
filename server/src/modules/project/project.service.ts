@@ -195,6 +195,7 @@ export class ProjectService {
       });
 
       if (!project) throw new ApiError('Không tìm thấy project', HttpStatus.NOT_FOUND);
+      
       const filesToDelete: string[] = [];
 
       if (dto.thumbnail_url && dto.thumbnail_url !== project.thumbnail_url) {
@@ -253,6 +254,7 @@ export class ProjectService {
             }))
           } : {},
       };
+
 
       return await this.prisma.$transaction(async (db) => {
         const updatedProject = await db.project.update({

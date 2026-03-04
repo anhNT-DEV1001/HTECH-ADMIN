@@ -107,12 +107,11 @@ export class CreateProjectDto {
   @IsOptional()
   status: ProjectStatus
 
-  @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
+    if (value === '1' || value === 1 || value === 'true' || value === true) return true;
+    if (value === '0' || value === 0 || value === 'false' || value === false) return false;
+    return false;
   })
   is_featured: boolean
 
@@ -204,14 +203,21 @@ export class ProjectDto {
   @IsOptional()
   status: ProjectStatus
 
-  @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
+    // Nếu giá trị đã là boolean (do NestJS ép kiểu trước đó)
+    if (typeof value === 'boolean') return value;
+
+    // Xử lý giá trị dạng chuỗi từ FormData
+    const truthyValues = ['1', 'true'];
+    const falsyValues = ['0', 'false'];
+
+    if (truthyValues.includes(String(value).toLowerCase())) return true;
+    if (falsyValues.includes(String(value).toLowerCase())) return false;
+
+    return false;
   })
-  is_featured: boolean
+  is_featured: boolean;
 
   @IsNumber()
   @IsOptional()

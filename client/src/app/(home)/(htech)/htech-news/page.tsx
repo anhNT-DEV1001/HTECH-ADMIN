@@ -12,6 +12,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Star,
   Trash2,
   X,
 } from "lucide-react";
@@ -435,6 +436,24 @@ export default function HtechNew() {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() =>
+                          updateNewsMutation.mutate({
+                            id: newItem.id,
+                            body: { is_featured: !newItem.is_featured } as any,
+                          })
+                        }
+                        disabled={isUpdating}
+                        className="hover:bg-yellow-50"
+                        title={newItem.is_featured ? "Bỏ nổi bật" : "Đánh dấu nổi bật"}
+                      >
+                        <Star
+                          size={15}
+                          className={newItem.is_featured ? "text-yellow-400 fill-yellow-400" : "text-gray-400"}
+                        />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon-xs"

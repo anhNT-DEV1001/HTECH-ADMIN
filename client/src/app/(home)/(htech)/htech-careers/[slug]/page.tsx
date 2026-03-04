@@ -94,7 +94,6 @@ export default function CreateJobPage() {
             setSortOrder(job.sort_order || 0);
           }
         } catch (error) {
-          console.error("Error fetching job:", error);
           showToast("Không tìm thấy công việc", "error");
           router.push("/htech-careers");
         } finally {
@@ -171,7 +170,6 @@ export default function CreateJobPage() {
       await queryClient.invalidateQueries({ queryKey: ["jobs", "getJobs"] });
       router.push("/htech-careers");
     } catch (error) {
-      console.error(error);
       showToast(
         isCreateMode
           ? "Có lỗi xảy ra khi tạo công việc."

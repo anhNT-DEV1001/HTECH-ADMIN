@@ -95,7 +95,6 @@ export default function CreateNewsPage() {
             }
           }
         } catch (error) {
-          console.error('Error fetching news:', error);
           showToast('Không tìm thấy bài viết', 'error');
           router.push('/htech-news');
         } finally {
@@ -145,7 +144,6 @@ export default function CreateNewsPage() {
         setIsCropModalOpen(false);
         setImageToCrop(null);
       } catch (e) {
-        console.error('Lỗi khi crop ảnh', e);
       }
     }
   };
@@ -200,7 +198,6 @@ export default function CreateNewsPage() {
 
       router.push('/htech-news');
     } catch (error) {
-      console.error(error);
       showToast(
         isCreateMode
           ? 'Có lỗi xảy ra khi tạo tin tức.'

@@ -12,6 +12,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Star,
   Trash2,
   X,
 } from "lucide-react";
@@ -482,6 +483,27 @@ export default function HtechProject() {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => {
+                          const formData = new FormData();
+                          formData.append('is_featured', !projectItem.is_featured ? '1' : '0');
+                          updateProjectMutation.mutate({
+                            id: projectItem.id,
+                            body: formData as any,
+                          });
+                        }
+                        }
+                        disabled={isUpdating}
+                        className="hover:bg-yellow-50"
+                        title={projectItem.is_featured ? "Bỏ nổi bật" : "Đánh dấu nổi bật"}
+                      >
+                        <Star
+                          size={15}
+                          className={projectItem.is_featured ? "text-yellow-400 fill-yellow-400" : "text-gray-400"}
+                        />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon-xs"

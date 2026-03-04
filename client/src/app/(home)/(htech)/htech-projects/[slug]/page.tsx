@@ -137,7 +137,6 @@ export default function CreateProjectPage() {
             }
           }
         } catch (error) {
-          console.error('Error fetching project:', error);
           showToast('Không tìm thấy dự án', 'error');
           router.push('/htech-projects');
         } finally {
@@ -181,7 +180,6 @@ export default function CreateProjectPage() {
         setIsCropModalOpen(false);
         setImageToCrop(null);
       } catch (e) {
-        console.error('Lỗi khi crop ảnh', e);
       }
     }
   };
@@ -221,7 +219,7 @@ export default function CreateProjectPage() {
       formData.append('industry_vn', industry_vn);
       formData.append('industry_en', industry_en);
       formData.append('status', status);
-      formData.append('is_featured', String(is_featured));
+      formData.append('is_featured', is_featured ? '1' : '0');
       formData.append('sort_order', String(sort_order));
 
       if (startDate) {
@@ -246,7 +244,6 @@ export default function CreateProjectPage() {
       await queryClient.invalidateQueries({ queryKey: ['project', 'getProject'] });
       router.push('/htech-projects');
     } catch (error) {
-      console.error(error);
       showToast(
         isCreateMode
           ? 'Có lỗi xảy ra khi tạo dự án.'
