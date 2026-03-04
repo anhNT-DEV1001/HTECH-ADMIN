@@ -1,9 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ArrowDownWideNarrow, CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import {
+  ArrowDownWideNarrow,
+  CalendarIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Filter,
+  Loader2,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useProject, useProjectCategories } from "@/features/project/hooks";
-import { IProjectFilterParams, ProjectStatus } from "@/features/project/interfaces";
+import {
+  IProjectFilterParams,
+  ProjectStatus,
+} from "@/features/project/interfaces";
 import { useDebouncedValue } from "@/common/hooks";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { useToast } from "@/common/providers/ToastProvider";
@@ -35,9 +52,13 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
-const STATUS_MAP: Record<ProjectStatus, { label: string; className: string }> = {
+const STATUS_MAP: Record<ProjectStatus, { label: string; className: string }> =
+{
   UPCOMING: { label: "Sắp diễn ra", className: "bg-blue-100 text-blue-700" },
-  ONGOING: { label: "Đang thực hiện", className: "bg-green-100 text-green-700" },
+  ONGOING: {
+    label: "Đang thực hiện",
+    className: "bg-green-100 text-green-700",
+  },
   COMPLETED: { label: "Hoàn thành", className: "bg-gray-100 text-gray-600" },
   CANCELLED: { label: "Đã huỷ", className: "bg-red-100 text-red-700" },
 };
@@ -77,7 +98,7 @@ export default function HtechProject() {
     deleteProjectMutation,
     isCreating,
     isDeleting,
-    isUpdating
+    isUpdating,
   } = useProject(params);
   const [searchInput, setSearchInput] = useState(params.search || "");
   const debouncedSearch = useDebouncedValue(searchInput, 500);
@@ -111,7 +132,11 @@ export default function HtechProject() {
   };
 
   // Count active filters
-  const activeFilterCount = [startDate, endDate, categoryId && categoryId !== "all" ? categoryId : null].filter(Boolean).length;
+  const activeFilterCount = [
+    startDate,
+    endDate,
+    categoryId && categoryId !== "all" ? categoryId : null,
+  ].filter(Boolean).length;
 
   const handleApplyFilter = () => {
     if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
@@ -123,7 +148,8 @@ export default function HtechProject() {
       page: 1,
       startDate: startDate ? dayjs(startDate).format("YYYY-MM-DD") : undefined,
       endDate: endDate ? dayjs(endDate).format("YYYY-MM-DD") : undefined,
-      category_id: categoryId && categoryId !== "all" ? Number(categoryId) : undefined,
+      category_id:
+        categoryId && categoryId !== "all" ? Number(categoryId) : undefined,
     }));
     setFilterOpen(false);
   };
@@ -165,7 +191,7 @@ export default function HtechProject() {
   return (
     <section>
       <div className="flex justify-between items-end mb-2">
-        <h1 className="text-xl font-bold text-gray-800">Quản lý dự án</h1>
+        <h1 className="text-xl font-bold text-gray-800">Quản lý Dự án</h1>
       </div>
 
       <div className="flex items-center justify-between gap-3 rounded-t-sm mb-2">
@@ -203,15 +229,22 @@ export default function HtechProject() {
 
                 {/* Start Date */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Ngày bắt đầu</Label>
-                  <Popover open={startDatePopoverOpen} onOpenChange={setStartDatePopoverOpen}>
+                  <Label className="text-xs text-muted-foreground">
+                    Ngày bắt đầu
+                  </Label>
+                  <Popover
+                    open={startDatePopoverOpen}
+                    onOpenChange={setStartDatePopoverOpen}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-left font-normal"
+                        className={`w-full justify-start text-left font-normal ${!startDate ? "text-muted-foreground/50" : ""}`}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? dayjs(startDate).format("DD/MM/YYYY") : "Chọn ngày bắt đầu"}
+                        {startDate
+                          ? dayjs(startDate).format("DD/MM/YYYY")
+                          : "Chọn ngày bắt đầu"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -229,15 +262,22 @@ export default function HtechProject() {
 
                 {/* End Date */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Ngày kết thúc</Label>
-                  <Popover open={endDatePopoverOpen} onOpenChange={setEndDatePopoverOpen}>
+                  <Label className="text-xs text-muted-foreground">
+                    Ngày kết thúc
+                  </Label>
+                  <Popover
+                    open={endDatePopoverOpen}
+                    onOpenChange={setEndDatePopoverOpen}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-left font-normal"
+                        className={`w-full justify-start text-left font-normal ${!endDate ? "text-muted-foreground/50" : ""}`}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? dayjs(endDate).format("DD/MM/YYYY") : "Chọn ngày kết thúc"}
+                        {endDate
+                          ? dayjs(endDate).format("DD/MM/YYYY")
+                          : "Chọn ngày kết thúc"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -255,7 +295,9 @@ export default function HtechProject() {
 
                 {/* Category */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Thể loại</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Thể loại
+                  </Label>
                   <Select value={categoryId} onValueChange={setCategoryId}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Tất cả thể loại" />
@@ -281,10 +323,7 @@ export default function HtechProject() {
                     <X size={14} />
                     Xoá bộ lọc
                   </Button>
-                  <Button
-                    className="flex-1"
-                    onClick={handleApplyFilter}
-                  >
+                  <Button className="flex-1" onClick={handleApplyFilter}>
                     Áp dụng
                   </Button>
                 </div>
@@ -302,43 +341,64 @@ export default function HtechProject() {
         <TableHeader>
           <TableRow>
             <TableHead className="text-center w-16">STT</TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("title_vn")}>
-              <div className="flex items-center gap-2 whitespace-nowrap select-none">
+            <TableHead
+              className="cursor-pointer text-center"
+              onClick={() => handleSort("title_vn")}
+            >
+              <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Tiêu đề</span>
                 <span className="shrink-0">{getSortIcon("title_vn")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("summary_vn")}>
-              <div className="flex items-center gap-2 whitespace-nowrap select-none">
+            <TableHead
+              className="cursor-pointer text-center"
+              onClick={() => handleSort("summary_vn")}
+            >
+              <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Tóm tắt</span>
                 <span className="shrink-0">{getSortIcon("summary_vn")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("client_name")}>
-              <div className="flex items-center gap-2 whitespace-nowrap select-none">
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort("client_name")}
+            >
+              <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Khách hàng</span>
                 <span className="shrink-0">{getSortIcon("client_name")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort("status")}
+            >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Trạng thái</span>
                 <span className="shrink-0">{getSortIcon("status")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("category_id")}>
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort("category_id")}
+            >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Thể loại</span>
                 <span className="shrink-0">{getSortIcon("category_id")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("created_at")}>
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort("created_at")}
+            >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Ngày tạo</span>
                 <span className="shrink-0">{getSortIcon("created_at")}</span>
               </div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("updated_at")}>
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort("updated_at")}
+            >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Ngày cập nhật</span>
                 <span className="shrink-0">{getSortIcon("updated_at")}</span>
@@ -350,7 +410,10 @@ export default function HtechProject() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+              <TableCell
+                colSpan={9}
+                className="text-center py-8 text-muted-foreground"
+              >
                 <Loader2
                   size={24}
                   className="animate-spin mx-auto mb-2 opacity-20"
@@ -360,7 +423,10 @@ export default function HtechProject() {
             </TableRow>
           ) : projects.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+              <TableCell
+                colSpan={9}
+                className="text-center py-8 text-muted-foreground"
+              >
                 Không tìm thấy dữ liệu phù hợp
               </TableCell>
             </TableRow>
@@ -369,29 +435,47 @@ export default function HtechProject() {
               const currentPage = params.page || 1;
               const currentLimit = params.limit || 10;
               const stt = (currentPage - 1) * currentLimit + Number(index) + 1;
-              const statusInfo = projectItem.status ? STATUS_MAP[projectItem.status] : null;
+              const statusInfo = projectItem.status
+                ? STATUS_MAP[projectItem.status]
+                : null;
               return (
                 <TableRow key={projectItem.id}>
-                  <TableCell className="text-center text-muted-foreground font-mono text-xs">{stt}</TableCell>
-                  <TableCell>{projectItem.title_vn}</TableCell>
-                  <TableCell className="truncate max-w-[250px]">{projectItem.summary_vn}</TableCell>
+                  <TableCell className="text-center text-muted-foreground font-mono text-xs">
+                    {stt}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {projectItem.title_vn}
+                  </TableCell>
+                  <TableCell className="text-left truncate max-w-[250px]">
+                    {projectItem.summary_vn}
+                  </TableCell>
                   <TableCell>{projectItem.client_name || "—"}</TableCell>
                   <TableCell className="text-center">
                     {statusInfo ? (
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.className}`}>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.className}`}
+                      >
                         {statusInfo.label}
                       </span>
-                    ) : "—"}
+                    ) : (
+                      "—"
+                    )}
                   </TableCell>
-                  <TableCell className="text-center">{(projectItem as any).category?.name_vn || "—"}</TableCell>
+                  <TableCell className="text-center">
+                    {(projectItem as any).category?.name_vn || "—"}
+                  </TableCell>
                   <TableCell className="text-xs">
-                    <span>{dayjs(projectItem.created_at).format("DD/MM/YYYY")}</span>
+                    <span>
+                      {dayjs(projectItem.created_at).format("DD/MM/YYYY")}
+                    </span>
                     <div className="text-muted-foreground mt-0.5">
                       {dayjs(projectItem.created_at).format("HH:mm:ss")}
                     </div>
                   </TableCell>
                   <TableCell className="text-xs">
-                    <span>{dayjs(projectItem.updated_at).format("DD/MM/YYYY")}</span>
+                    <span>
+                      {dayjs(projectItem.updated_at).format("DD/MM/YYYY")}
+                    </span>
                     <div className="text-muted-foreground mt-0.5">
                       {dayjs(projectItem.updated_at).format("HH:mm:ss")}
                     </div>
@@ -401,7 +485,9 @@ export default function HtechProject() {
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() => router.push(`/htech-projects/${projectItem.id}`)}
+                        onClick={() =>
+                          router.push(`/htech-projects/${projectItem.id}`)
+                        }
                         className="text-blue-600 hover:bg-blue-100"
                         title="Cập nhật"
                       >
@@ -411,11 +497,13 @@ export default function HtechProject() {
                         variant="ghost"
                         size="icon-xs"
                         onClick={async () => {
-                          if (await confirm({
-                            title: 'Xóa dự án',
-                            message: 'Bạn có chắc chắn muốn xóa dự án này?',
-                            variant: 'danger'
-                          })) {
+                          if (
+                            await confirm({
+                              title: "Xóa dự án",
+                              message: "Bạn có chắc chắn muốn xóa dự án này?",
+                              variant: "danger",
+                            })
+                          ) {
                             deleteProjectMutation.mutate(projectItem.id);
                           }
                         }}
@@ -428,7 +516,7 @@ export default function HtechProject() {
                     </div>
                   </TableCell>
                 </TableRow>
-              )
+              );
             })
           )}
         </TableBody>
@@ -440,10 +528,8 @@ export default function HtechProject() {
                   {/* Tổng số hiển thị */}
                   <div>
                     Hiển thị{" "}
-                    <span className="font-medium">
-                      {projects.length}
-                    </span>{" "}
-                    / {meta.total} kết quả
+                    <span className="font-medium">{projects.length}</span> /{" "}
+                    {meta.total} kết quả
                   </div>
 
                   {/* Chọn limit */}
@@ -482,7 +568,9 @@ export default function HtechProject() {
                       {[...Array(meta.totalPages)].map((_, i) => (
                         <Button
                           key={i}
-                          variant={params.page === i + 1 ? "default" : "outline"}
+                          variant={
+                            params.page === i + 1 ? "default" : "outline"
+                          }
                           size="icon-xs"
                           onClick={() => handlePageChange(i + 1)}
                         >
@@ -506,7 +594,6 @@ export default function HtechProject() {
           </TableFooter>
         )}
       </Table>
-
     </section>
   );
 }
