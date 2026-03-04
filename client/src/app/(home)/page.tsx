@@ -1,7 +1,55 @@
+"use client";
+import { useHtechStat } from "@/features/statistics/hooks";
+import StatCard from "@/features/statistics/components/StatCard";
+import { Loader2 } from "lucide-react";
+
 export default function HomePage() {
+  const { htechStatData, isLoading } = useHtechStat();
+
+  const featuredProjects = htechStatData?.data?.featuredProjects || [];
+  const featuredNews = htechStatData?.data?.featuredNews || [];
+  const openJobs = htechStatData?.data?.openJobs || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="animate-spin w-8 h-8" />
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <h1>Home Page Check flag CI/CD 02 setup by Tuấn Anh </h1>
+    <div className="max-w-7xl ">
+      {/* Header */}
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+        <p className="text-slate-600">Xem tổng quan các dự án, tin tức và công việc tuyển dụng</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Dự Án Nổi Bật"
+          count={featuredProjects.length}
+          icon="briefcase"
+          items={featuredProjects}
+          itemType="project"
+        />
+        <StatCard
+          title="Tin Tức Nổi Bật"
+          count={featuredNews.length}
+          icon="newspaper"
+          items={featuredNews}
+          itemType="news"
+        />
+        <StatCard
+          title="Công Việc Đang Mở"
+          count={openJobs.length}
+          icon="users"
+          items={openJobs}
+          itemType="job"
+        />
+      </div>
     </div>
   );
 }
