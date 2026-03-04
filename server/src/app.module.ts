@@ -10,9 +10,10 @@ import { UserModule } from './modules/user/user.module';
 import { NewsModule } from './modules/news/news.module';
 import { ProjectModule } from './modules/project/project.module';
 import { JobsModule } from './modules/jobs/jobs.module';
+import { StatisticsModule } from './modules/statistics/statistics.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule],
   controllers: [],
   providers: [
     {
