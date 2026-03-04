@@ -377,7 +377,7 @@ export default function CreateProjectPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start text-left font-normal"
+                    className={`w-full justify-start text-left font-normal ${!startDate ? "text-muted-foreground/50" : ""}`}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {startDate ? dayjs(startDate).format("DD/MM/YYYY") : "Chọn ngày bắt đầu"}
@@ -403,7 +403,7 @@ export default function CreateProjectPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start text-left font-normal"
+                    className={`w-full justify-start text-left font-normal ${!endDate ? "text-muted-foreground/50" : ""}`}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {endDate ? dayjs(endDate).format("DD/MM/YYYY") : "Chọn ngày kết thúc"}

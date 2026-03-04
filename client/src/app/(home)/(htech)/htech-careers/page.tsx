@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import {
   ArrowDownWideNarrow,
-  CalendarIcon,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -14,10 +13,12 @@ import {
   Search,
   Trash2,
   X,
+  Briefcase,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useNews, useNewsCategories } from "@/features/news/hooks";
-import { INewsFilterParams } from "@/features/news/interfaces";
+import { useJobs, useFieldsOfWork } from "@/features/jobs/hooks";
+import { IJobFilterParams } from "@/features/jobs/interfaces";
+import { ExperienceOptions, JobTypeOptions } from "@/features/jobs/constants";
 import { useDebouncedValue } from "@/common/hooks";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { useToast } from "@/common/providers/ToastProvider";
@@ -46,20 +47,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
-export default function HtechNew() {
-  const [open, setOpen] = useState(false);
+export default function HtechCareers() {
   const searchParams = useSearchParams();
-  const [params, setParams] = useState<INewsFilterParams>({
+  const [params, setParams] = useState<IJobFilterParams>({
     page: Number(searchParams.get("page")) || 1,
     limit: Number(searchParams.get("limit")) || 10,
     search: searchParams.get("search") || "",
-    searchBy: "title_vn",
     sortBy: "desc",
     orderBy: "created_at",
   });
+
   const router = useRouter();
   const pathname = usePathname();
   const { confirm } = useConfirm();
@@ -67,29 +67,19 @@ export default function HtechNew() {
 
   // Filter state
   const [filterOpen, setFilterOpen] = useState(false);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [categoryId, setCategoryId] = useState<string>("");
-  const [startDatePopoverOpen, setStartDatePopoverOpen] = useState(false);
-  const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
+  const [jobType, setJobType] = useState<string>("");
+  const [experience, setExperience] = useState<string>("");
+  const [fieldOfWorkId, setFieldOfWorkId] = useState<string>("");
 
-  const { categories } = useNewsCategories();
+  const { fieldsOfWork } = useFieldsOfWork();
 
-  const {
-    newsData,
-    isLoading,
-    isFetching,
-    createNewsMutation,
-    updateNewsMutation,
-    deleteNewsMutation,
-    isCreating,
-    isDeleting,
-    isUpdating,
-  } = useNews(params);
+  const { jobsData, isLoading, deleteJobMutation, isDeleting } =
+    useJobs(params);
+
   const [searchInput, setSearchInput] = useState(params.search || "");
   const debouncedSearch = useDebouncedValue(searchInput, 500);
-  const meta = newsData?.data?.meta;
-  const news = newsData?.data?.records || [];
+  const meta = jobsData?.data?.meta;
+  const jobs = jobsData?.data?.records || [];
 
   const handlePageChange = (newPage: number) => {
     setParams((prev) => ({ ...prev, page: newPage }));
@@ -114,42 +104,38 @@ export default function HtechNew() {
   }, [params, pathname, router]);
 
   const handleAddNew = () => {
-    router.push("htech-news/create");
+    router.push("htech-careers/create");
   };
 
   // Count active filters
   const activeFilterCount = [
-    startDate,
-    endDate,
-    categoryId && categoryId !== "all" ? categoryId : null,
+    jobType && jobType !== "all" ? jobType : null,
+    experience && experience !== "all" ? experience : null,
+    fieldOfWorkId && fieldOfWorkId !== "all" ? fieldOfWorkId : null,
   ].filter(Boolean).length;
 
   const handleApplyFilter = () => {
-    if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
-      showToast("Ngày bắt đầu không được lớn hơn ngày kết thúc", "error");
-      return;
-    }
     setParams((prev) => ({
       ...prev,
       page: 1,
-      startDate: startDate ? dayjs(startDate).format("YYYY-MM-DD") : undefined,
-      endDate: endDate ? dayjs(endDate).format("YYYY-MM-DD") : undefined,
-      category_id:
-        categoryId && categoryId !== "all" ? Number(categoryId) : undefined,
+      job_type: jobType && jobType !== "all" ? jobType : undefined,
+      experience: experience && experience !== "all" ? experience : undefined,
+      field_of_work_id:
+        fieldOfWorkId && fieldOfWorkId !== "all" ? fieldOfWorkId : undefined,
     }));
     setFilterOpen(false);
   };
 
   const handleClearFilter = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
-    setCategoryId("");
+    setJobType("");
+    setExperience("");
+    setFieldOfWorkId("");
     setParams((prev) => ({
       ...prev,
       page: 1,
-      startDate: undefined,
-      endDate: undefined,
-      category_id: undefined,
+      job_type: undefined,
+      experience: undefined,
+      field_of_work_id: undefined,
     }));
     setFilterOpen(false);
   };
@@ -177,7 +163,7 @@ export default function HtechNew() {
   return (
     <section>
       <div className="flex justify-between items-end mb-2">
-        <h1 className="text-xl font-bold text-gray-800">Quản lý Tin tức</h1>
+        <h1 className="text-xl font-bold text-gray-800">Quản lý Tuyển dụng</h1>
       </div>
 
       <div className="flex items-center justify-between gap-3 rounded-t-sm mb-2">
@@ -185,7 +171,7 @@ export default function HtechNew() {
           <div className="relative flex-1">
             <Input
               type="text"
-              placeholder="Tìm kiếm theo tên"
+              placeholder="Tìm kiếm theo tiêu đề"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pr-9"
@@ -213,86 +199,63 @@ export default function HtechNew() {
               <div className="space-y-4">
                 <h4 className="font-medium text-sm">Bộ lọc nâng cao</h4>
 
-                {/* Start Date */}
+                {/* Job Type */}
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">
-                    Ngày bắt đầu
+                    Loại công việc
                   </Label>
-                  <Popover
-                    open={startDatePopoverOpen}
-                    onOpenChange={setStartDatePopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={`w-full justify-start text-left font-normal ${!startDate ? "text-muted-foreground/50" : ""}`}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate
-                          ? dayjs(startDate).format("DD/MM/YYYY")
-                          : "Chọn ngày bắt đầu"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={(date) => {
-                          setStartDate(date);
-                          setStartDatePopoverOpen(false);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {/* End Date */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">
-                    Ngày kết thúc
-                  </Label>
-                  <Popover
-                    open={endDatePopoverOpen}
-                    onOpenChange={setEndDatePopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={`w-full justify-start text-left font-normal ${!endDate ? "text-muted-foreground/50" : ""}`}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate
-                          ? dayjs(endDate).format("DD/MM/YYYY")
-                          : "Chọn ngày kết thúc"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={(date) => {
-                          setEndDate(date);
-                          setEndDatePopoverOpen(false);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {/* Category */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">
-                    Thể loại
-                  </Label>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
+                  <Select value={jobType} onValueChange={setJobType}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Tất cả thể loại" />
+                      <SelectValue placeholder="Tất cả loại hình" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tất cả thể loại</SelectItem>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={String(cat.id)}>
-                          {cat.name_vn}
+                      <SelectItem value="all">Tất cả loại hình</SelectItem>
+                      {JobTypeOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Experience */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">
+                    Kinh nghiệm
+                  </Label>
+                  <Select value={experience} onValueChange={setExperience}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Tất cả kinh nghiệm" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tất cả kinh nghiệm</SelectItem>
+                      {ExperienceOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Field of Work */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">
+                    Lĩnh vực chuyên môn
+                  </Label>
+                  <Select
+                    value={fieldOfWorkId}
+                    onValueChange={setFieldOfWorkId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Tất cả lĩnh vực" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tất cả lĩnh vực</SelectItem>
+                      {fieldsOfWork.map((field) => (
+                        <SelectItem key={field.id} value={String(field.id)}>
+                          {field.name_vn}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -319,7 +282,7 @@ export default function HtechNew() {
         </div>
         <Button onClick={handleAddNew}>
           <Plus size={16} />
-          <span className="whitespace-nowrap">Thêm tin tức</span>
+          <span className="whitespace-nowrap">Thêm công việc</span>
         </Button>
       </div>
 
@@ -332,44 +295,36 @@ export default function HtechNew() {
               onClick={() => handleSort("title_vn")}
             >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
-                <span>Tiêu đề</span>
+                <span>Vị trí</span>
                 <span className="shrink-0">{getSortIcon("title_vn")}</span>
               </div>
             </TableHead>
-            <TableHead
-              className="cursor-pointer text-center"
-              onClick={() => handleSort("summary_vn")}
-            >
+            <TableHead className="text-center">
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
-                <span>Tóm tắt</span>
-                <span className="shrink-0">{getSortIcon("summary_vn")}</span>
+                <span>Thông tin</span>
+              </div>
+            </TableHead>
+            <TableHead className="text-center">
+              <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
+                <span>Lĩnh vực</span>
               </div>
             </TableHead>
             <TableHead
-              className="cursor-pointer"
-              onClick={() => handleSort("category_id")}
+              className="text-center cursor-pointer"
+              onClick={() => handleSort("sort_order")}
             >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
-                <span>Thể loại</span>
-                <span className="shrink-0">{getSortIcon("category_id")}</span>
+                <span>Trạng thái</span>
+                <span className="shrink-0">{getSortIcon("sort_order")}</span>
               </div>
             </TableHead>
             <TableHead
-              className="cursor-pointer"
+              className="text-center cursor-pointer"
               onClick={() => handleSort("created_at")}
             >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
                 <span>Ngày tạo</span>
                 <span className="shrink-0">{getSortIcon("created_at")}</span>
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer"
-              onClick={() => handleSort("updated_at")}
-            >
-              <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
-                <span>Ngày cập nhật</span>
-                <span className="shrink-0">{getSortIcon("updated_at")}</span>
               </div>
             </TableHead>
             <TableHead className="text-center">Thao tác</TableHead>
@@ -389,7 +344,7 @@ export default function HtechNew() {
                 Đang tải dữ liệu...
               </TableCell>
             </TableRow>
-          ) : news.length === 0 ? (
+          ) : jobs.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={7}
@@ -399,46 +354,60 @@ export default function HtechNew() {
               </TableCell>
             </TableRow>
           ) : (
-            news.map((newItem, index) => {
+            jobs.map((job, index) => {
               const currentPage = params.page || 1;
               const currentLimit = params.limit || 10;
               const stt = (currentPage - 1) * currentLimit + Number(index) + 1;
               return (
-                <TableRow key={newItem.id}>
+                <TableRow key={job.id}>
                   <TableCell className="text-center text-muted-foreground font-mono text-xs">
                     {stt}
                   </TableCell>
-                  <TableCell className="text-left">
-                    {newItem.title_vn}
+                  <TableCell className="text-left align-top py-4">
+                    <div className="font-medium text-blue-600 mb-1">
+                      {job.title_vn || job.title_en}
+                    </div>
+                    {job.recruitment_url && (
+                      <a
+                        href={job.recruitment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-muted-foreground hover:text-blue-500 underline"
+                      >
+                        Link ứng tuyển (hoặc JD)
+                      </a>
+                    )}
                   </TableCell>
-                  <TableCell className="text-left truncate max-w-[250px]">
-                    {newItem.summary_vn}
+                  <TableCell className="text-center text-xs align-top py-4">
+                    <div className="mb-1 text-gray-800 font-medium">
+                      {job.job_type_vn || job.job_type_en || "—"}
+                    </div>
+                    <div className="text-muted-foreground">
+                      EXP: {job.experience_vn || job.experience_en || "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center font-medium">
+                    {job.field_of_work?.name_vn || "—"}
                   </TableCell>
                   <TableCell className="text-center">
-                    {(newItem as any).category?.name_vn || "—"}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    <span>
-                      {dayjs(newItem.created_at).format("DD/MM/YYYY")}
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${job.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                    >
+                      {job.is_active ? "Đang mở" : "Đã đóng"}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center text-xs">
+                    <span>{dayjs(job.created_at).format("DD/MM/YYYY")}</span>
                     <div className="text-muted-foreground mt-0.5">
-                      {dayjs(newItem.created_at).format("HH:mm:ss")}
+                      {dayjs(job.created_at).format("HH:mm:ss")}
                     </div>
                   </TableCell>
-                  <TableCell className="text-xs">
-                    <span>
-                      {dayjs(newItem.updated_at).format("DD/MM/YYYY")}
-                    </span>
-                    <div className="text-muted-foreground mt-0.5">
-                      {dayjs(newItem.updated_at).format("HH:mm:ss")}
-                    </div>
-                  </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <div className="flex justify-center gap-1">
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() => router.push(`/htech-news/${newItem.id}`)}
+                        onClick={() => router.push(`/htech-careers/${job.id}`)}
                         className="text-blue-600 hover:bg-blue-100"
                         title="Cập nhật"
                       >
@@ -450,12 +419,13 @@ export default function HtechNew() {
                         onClick={async () => {
                           if (
                             await confirm({
-                              title: "Xóa tin tức",
-                              message: "Bạn có chắc chắn muốn xóa tin tức này?",
+                              title: "Xóa công việc",
+                              message:
+                                "Bạn có chắc chắn muốn xóa tin tuyển dụng này?",
                               variant: "danger",
                             })
                           ) {
-                            deleteNewsMutation.mutate(newItem.id);
+                            deleteJobMutation.mutate(job.id);
                           }
                         }}
                         disabled={isDeleting}
@@ -478,7 +448,7 @@ export default function HtechNew() {
                 <div className="flex justify-between items-center">
                   {/* Tổng số hiển thị */}
                   <div>
-                    Hiển thị <span className="font-medium">{news.length}</span>{" "}
+                    Hiển thị <span className="font-medium">{jobs.length}</span>{" "}
                     / {meta.total} kết quả
                   </div>
 
@@ -497,9 +467,9 @@ export default function HtechNew() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 / trang</SelectItem>
                       <SelectItem value="10">10 / trang</SelectItem>
                       <SelectItem value="20">20 / trang</SelectItem>
+                      <SelectItem value="50">50 / trang</SelectItem>
                     </SelectContent>
                   </Select>
 
