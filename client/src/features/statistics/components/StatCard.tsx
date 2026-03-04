@@ -85,11 +85,11 @@ export default function StatCard({
     router.push(url);
   };
 
-  const handleTitleClick = () => {
+  const handleTitleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const url = getListPageUrl();
     router.push(url);
   };
-
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -100,7 +100,10 @@ export default function StatCard({
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <IconComponent className="w-6 h-6 text-blue-600" />
                 </div>
-                <div onClick={handleTitleClick} className="flex-1 hover:opacity-70 transition-opacity">
+                <div
+                  onClick={handleTitleClick}
+                  className="flex-1 hover:opacity-70 transition-opacity"
+                >
                   <CardTitle className="text-lg hover:text-blue-600 transition-colors cursor-pointer">
                     {title}
                   </CardTitle>
@@ -109,6 +112,8 @@ export default function StatCard({
                   </p>
                 </div>
               </div>
+
+              {/* Phần Chevron - Click vào đây vẫn đóng/mở bình thường */}
               <ChevronDown
                 className={`w-5 h-5 transition-transform duration-300 ${
                   isOpen ? "rotate-180" : ""
