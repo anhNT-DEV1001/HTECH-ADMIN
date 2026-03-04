@@ -27,7 +27,8 @@ export default function HomePage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Thêm class items-start ở đây */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-start">
         <StatCard
           title="Dự Án Nổi Bật"
           count={featuredProjects.length}
