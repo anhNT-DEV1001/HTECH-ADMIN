@@ -290,7 +290,7 @@ export default function CreateProjectPage() {
       <form onSubmit={handleSubmit} className="space-y-6" style={{ display: editorReady ? 'block' : 'none' }}>
         {/* Tab Switch Language */}
         <Tabs defaultValue="vi" className="w-full">
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-2">
             <TabsList className="grid w-[200px] grid-cols-2">
               <TabsTrigger value="vi">VIE</TabsTrigger>
               <TabsTrigger value="en">ENG</TabsTrigger>
