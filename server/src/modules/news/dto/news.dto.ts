@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
 
 export class CreateNewsDto {
   @IsString()
@@ -44,13 +44,21 @@ export class CreateNewsDto {
   @IsOptional()
   content_en: string
 
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
   @IsOptional()
   category_id: number
 
+  @Transform(({ value }) => {
+    if (value === '1' || value === 1 || value === 'true' || value === true) return true;
+    if (value === '0' || value === 0 || value === 'false' || value === false) return false;
+    return false;
+  })
+  @IsBoolean()
   @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
   is_featured: boolean 
 }
 
@@ -97,13 +105,21 @@ export class NewsDto {
   @IsOptional()
   content_en: string
 
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return typeof value === 'string' ? Number(value) : value;
+  })
   @IsNumber()
   @IsOptional()
   category_id: number
 
+  @Transform(({ value }) => {
+    if (value === '1' || value === 1 || value === 'true' || value === true) return true;
+    if (value === '0' || value === 0 || value === 'false' || value === false) return false;
+    return false;
+  })
+  @IsBoolean()
   @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => value === 'true' || value === true || value === 1 || value === '1')
   is_featured: boolean 
 }
 

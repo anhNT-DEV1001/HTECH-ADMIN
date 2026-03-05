@@ -234,6 +234,8 @@ export default function CreateProjectPage() {
       }
 
       if (isCreateMode) {
+        console.log('Creating project with data:' , Object.fromEntries(formData.entries()));
+
         await projectService.createProject(formData);
         showToast('Tạo dự án thành công!', 'success');
       } else {

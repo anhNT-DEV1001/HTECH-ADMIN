@@ -80,11 +80,6 @@ export class ProjectController {
       dto.thumbnail_url = thumbPath;
     }
 
-    // Parse các field dạng string từ FormData sang đúng kiểu
-    if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
-    if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
-    
-
     const res = await this.projectService.createProjectService(dto, user);
     return {
       status: 'success',
@@ -111,10 +106,6 @@ export class ProjectController {
       dto.thumbnail_url = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
     }
 
-    // Parse các field dạng string từ FormData sang đúng kiểu
-    if (typeof dto.category_id === 'string') dto.category_id = Number(dto.category_id);
-    if (typeof dto.sort_order === 'string') dto.sort_order = Number(dto.sort_order);
-        
     const res = await this.projectService.updateProjectService(dto, id, user);
     return {
       status: 'success',
