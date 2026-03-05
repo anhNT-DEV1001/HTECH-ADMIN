@@ -607,7 +607,7 @@ export default function CreateProjectPage() {
                   image={imageToCrop}
                   crop={cropPoint}
                   zoom={zoom}
-                  aspect={16 / 9}
+                  aspect={4 / 3}
                   onCropChange={setCropPoint}
                   onZoomChange={setZoom}
                   onCropComplete={onCropComplete}
