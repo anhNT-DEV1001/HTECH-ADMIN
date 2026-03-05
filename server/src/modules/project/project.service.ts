@@ -89,7 +89,7 @@ export class ProjectService {
           is_featured: dto.is_featured || false,
           sort_order: dto.sort_order || 0,
 
-          category: { connect: { id: dto.category_id } },
+          ...(dto.category_id ? { category: { connect: { id: dto.category_id } } } : {}),
 
           created_by: user.id,
           updated_by: user.id,
@@ -106,7 +106,7 @@ export class ProjectService {
             } : undefined,
         };
 
-        const createdProject = await db.project.create({ data: projectData });
+        const createdProject = await db.project.create({ data: projectData as any });
 
         if (!createdProject) {
           throw new ApiError('Failed creating project', HttpStatus.BAD_REQUEST);
