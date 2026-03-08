@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { NewsService } from "./news.service";
-import { AuthUser, RequirePermissions } from "src/common/decorators";
+import { AuthUser, Public, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
 import type { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 import { ApiError, BaseResponse } from "src/common/apis";
@@ -13,6 +13,17 @@ import { DeleteFileOnErrorFilter } from "src/common/interceptors";
 @Controller('news')
 export class NewsController {
   constructor(private readonly service: NewsService) { }
+
+  @Public()
+  @Get('htech/outstanding')
+  async getOutStandingNewsController() {
+    const res = await this.service.getOutStandingNews();
+    return {
+      status: 'success',
+      message: 'Success getting list of news',
+      data: res,
+    }
+  }
 
   @Get()
   @RequirePermissions(RoleConstant.VIEW)

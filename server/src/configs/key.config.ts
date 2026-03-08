@@ -9,6 +9,8 @@ export const key = {
   },
   web: {
     url: String(process.env.FRONTEND_URL),
+    htech_url_local: String(process.env.HTECH_URL) || 'http://localhost:3000',
+    htech_url: String(process.env.HTECH_URL) || 'http://htechevent.com',
   },
   jwt: {
     access_secret: String(process.env.ACCESS_SECRET),

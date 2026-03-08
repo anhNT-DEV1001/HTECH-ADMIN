@@ -299,6 +299,19 @@ export class NewsService {
     if (!data) throw new ApiError('List of News category not found', HttpStatus.BAD_REQUEST)
     return data
   }
+
+  async getOutStandingNews () {
+    const data = await this.prisma.news.findMany({
+      where : {is_featured : true},
+      include : {
+        newsImages : true
+      },
+      orderBy : {
+        created_at : 'desc'
+      }
+    })
+    return data
+  }
 }
 
 function slugify(text: string): string {
@@ -312,3 +325,4 @@ function slugify(text: string): string {
     .replace(/\s+/g, '-') // spaces to hyphens
     .replace(/-+/g, '-'); // collapse multiple hyphens
 }
+

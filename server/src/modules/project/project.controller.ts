@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { ProjectService } from "./project.service";
-import { AuthUser, RequirePermissions } from "src/common/decorators";
+import { AuthUser, Public, RequirePermissions } from "src/common/decorators";
 import { RoleConstant } from "src/common/constants";
 import type { Project, ProjectCategory, User } from "@prisma/client";
 import { CreateProjectCategoryDto, CreateProjectDto, ProjectDto } from "./dto";
@@ -13,6 +13,17 @@ import { DeleteFileOnErrorFilter } from "src/common/interceptors";
 @Controller("project")
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) { }
+
+  @Public()
+  @Get('htech/outstanding')
+  async getOutStandingProjectController() {
+    const res = await this.projectService.getOutStandingProjectService();
+    return {
+      status: 'success',
+      message: 'Success getting list of outstanding projects',
+      data: res,
+    }
+  }
 
   @Get()
   @RequirePermissions(RoleConstant.VIEW)

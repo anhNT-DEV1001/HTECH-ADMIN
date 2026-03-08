@@ -323,4 +323,17 @@ export class ProjectService {
     }
 
   }
+
+  async getOutStandingProjectService() {
+    const data = await this.prisma.project.findMany({
+      where: { is_featured: true },
+      include: {
+        projectImages: true
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    })
+    return data
+  }
 }
