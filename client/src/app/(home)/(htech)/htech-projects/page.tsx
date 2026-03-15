@@ -13,6 +13,7 @@ import {
   Plus,
   Search,
   Star,
+  Tag,
   Trash2,
   X,
 } from "lucide-react";
@@ -51,7 +52,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { projectService } from "@/features/project/services/project.service";
+
 
 const STATUS_MAP: Record<ProjectStatus, { label: string; className: string }> =
 {
@@ -101,6 +111,32 @@ export default function HtechProject() {
     isDeleting,
     isUpdating,
   } = useProject(params);
+
+  // Category dialog state
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [catNameVn, setCatNameVn] = useState("");
+  const [catNameEn, setCatNameEn] = useState("");
+  const [catSubmitting, setCatSubmitting] = useState(false);
+
+  const handleCreateCategory = async () => {
+    if (!catNameVn.trim()) {
+      showToast("Vui lòng nhập tên danh mục (Tiếng Việt)", "error");
+      return;
+    }
+    setCatSubmitting(true);
+    try {
+      await projectService.createProjectCategory({ name_vn: catNameVn.trim(), name_en: catNameEn.trim() || undefined });
+      showToast("Tạo danh mục thành công!", "success");
+      setCatDialogOpen(false);
+      setCatNameVn("");
+      setCatNameEn("");
+    } catch {
+      showToast("Tạo danh mục thất bại. Vui lòng thử lại.", "error");
+    } finally {
+      setCatSubmitting(false);
+    }
+  };
+
   const [searchInput, setSearchInput] = useState(params.search || "");
   const debouncedSearch = useDebouncedValue(searchInput, 500);
   const meta = projectData?.data?.meta;
@@ -332,10 +368,16 @@ export default function HtechProject() {
             </PopoverContent>
           </Popover>
         </div>
-        <Button onClick={handleAddNew}>
-          <Plus size={16} />
-          <span className="whitespace-nowrap">Thêm dự án</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setCatDialogOpen(true)}>
+            <Tag size={16} />
+            <span className="whitespace-nowrap">Thêm danh mục</span>
+          </Button>
+          <Button onClick={handleAddNew}>
+            <Plus size={16} />
+            <span className="whitespace-nowrap">Thêm dự án</span>
+          </Button>
+        </div>
       </div>
 
       <Table>
@@ -616,6 +658,55 @@ export default function HtechProject() {
           </TableFooter>
         )}
       </Table>
+
+      {/* ── Create Category Dialog ─── */}
+      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Tag size={18} className="text-orange-500" />
+              Thêm danh mục dự án
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name-vn">
+                Tên danh mục (Tiếng Việt) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="cat-name-vn"
+                placeholder="VD: Công nghệ thông tin"
+                value={catNameVn}
+                onChange={(e) => setCatNameVn(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name-en">
+                Tên danh mục (Tiếng Anh)
+              </Label>
+              <Input
+                id="cat-name-en"
+                placeholder="VD: Information Technology"
+                value={catNameEn}
+                onChange={(e) => setCatNameEn(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCatDialogOpen(false)} disabled={catSubmitting}>
+              Hủy
+            </Button>
+            <Button onClick={handleCreateCategory} disabled={catSubmitting}>
+              {catSubmitting ? <Loader2 size={16} className="animate-spin mr-1" /> : <Tag size={16} className="mr-1" />}
+              Tạo danh mục
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
