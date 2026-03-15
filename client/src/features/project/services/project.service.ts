@@ -38,6 +38,10 @@ export const projectService = {
     const response = await axiosClient.get<BaseResponse<IProjectCategory[]>>('/project/category');
     return response.data;
   },
+  async createProjectCategory(data: { name_vn: string; name_en?: string }): Promise<BaseResponse<IProjectCategory>> {
+    const response = await axiosClient.post<BaseResponse<IProjectCategory>>('/project/category', data);
+    return response.data;
+  },
   uploadImage: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
