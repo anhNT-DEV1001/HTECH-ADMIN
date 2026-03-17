@@ -25,6 +25,44 @@ export class ProjectController {
     }
   }
 
+  @Public()
+  @Get('htech/all')
+  async getPublicProjectsController(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('category_id') category_id?: number,
+  ) {
+    const res = await this.projectService.getPublicProjectsService({ page, limit, search, category_id });
+    return {
+      status: 'success',
+      message: 'Success getting all public projects',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('htech/categories')
+  async getPublicCategoriesController() {
+    const res = await this.projectService.getPublicCategoriesService();
+    return {
+      status: 'success',
+      message: 'Success getting project categories',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('htech/:id')
+  async getPublicProjectByIdController(@Param('id') id: number) {
+    const res = await this.projectService.getProjectByIdService(id);
+    return {
+      status: 'success',
+      message: 'Success getting project detail',
+      data: res,
+    };
+  }
+
   @Get()
   @RequirePermissions(RoleConstant.VIEW)
   async getAllProjectController(

@@ -25,6 +25,19 @@ export class NewsController {
     }
   }
 
+  @Public()
+  @Get('htech/all')
+  async getPublicListNewsController(
+    @Query() query: IPaginationRequest & { category_id?: number; startDate?: string; endDate?: string }
+  ): Promise<BaseResponse<IPaginationResponse<News>>> {
+    const res = await this.service.getAllNewsService(query);
+    return {
+      status: 'success',
+      message: 'Success getting all public news',
+      data: res,
+    }
+  }
+
   @Get()
   @RequirePermissions(RoleConstant.VIEW)
   async getListNewsController(
@@ -48,8 +61,19 @@ export class NewsController {
     }
   }
 
+  @Public()
+  @Get('htech/category')
+  async getPublicListNewsCategoryController() {
+    const res = await this.service.getAllNewsCategoryService();
+    return {
+      status: 'success',
+      message: 'Success getting list of public categories',
+      data: res,
+    }
+  }
+
+  @Public()
   @Get(':id')
-  @RequirePermissions(RoleConstant.VIEW)
   async getNewsByIdController(@Param('id') id: number) {
     const res = await this.service.getNewsById(id);
     return {

@@ -336,4 +336,57 @@ export class ProjectService {
     })
     return data
   }
+
+  async getPublicProjectsService(query: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category_id?: number;
+  }) {
+    const {
+      page = 1,
+      limit = 12,
+      search,
+      category_id,
+    } = query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+    const where: Prisma.ProjectWhereInput = {};
+
+    if (search) {
+      where.title_vn = { contains: String(search), mode: 'insensitive' };
+    }
+
+    if (category_id) {
+      where.category_id = Number(category_id);
+    }
+
+    const [records, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { sort_order: 'asc' },
+        include: { category: true },
+      }),
+      this.prisma.project.count({ where }),
+    ]);
+
+    return {
+      records,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    };
+  }
+
+  async getPublicCategoriesService() {
+    return this.prisma.projectCategory.findMany({
+      orderBy: { name_vn: 'asc' },
+    });
+  }
 }
