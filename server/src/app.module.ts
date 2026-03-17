@@ -11,9 +11,10 @@ import { NewsModule } from './modules/news/news.module';
 import { ProjectModule } from './modules/project/project.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
+import { MasterdataModule } from './modules/masterdata/masterdata.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule],
   controllers: [],
   providers: [
     {
