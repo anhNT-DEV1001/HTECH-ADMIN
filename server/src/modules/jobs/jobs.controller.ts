@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { JobsService } from './jobs.service';
-import { AuthUser, RequirePermissions } from 'src/common/decorators';
+import { AuthUser, Public, RequirePermissions } from 'src/common/decorators';
 import { RoleConstant } from 'src/common/constants';
 import type { Job, FieldOfWork, User } from '@prisma/client';
 import { CreateJobDto, CreateFieldOfWorkDto, JobDto } from './dto';
@@ -12,6 +12,33 @@ export class JobsController {
     constructor(private readonly jobsService: JobsService) { }
 
     // FIELD OF WORK ENDPOINTS
+    @Public()
+    @Get('htech/field-of-works')
+    async getPiblicFieldOfWorkController() : Promise<BaseResponse<FieldOfWork[]>>{
+      const res = await this.jobsService.findAllFieldsOfWork();
+        return {
+            status: 'success',
+            message: 'Successfully get all fields of work',
+            data: res,
+        }
+    }
+
+
+    @Public()
+    @Get('htech/all')
+    async getPublicAllJobController(
+        @Query() query: IPaginationRequest & { job_type?: string; experience?: string; field_of_work_id?: string },
+    ): Promise<BaseResponse<IPaginationResponse<Job>>> {
+        const res = await this.jobsService.getAllJobService(query);
+        return {
+            status: 'success',
+            message: 'Successfully get all jobs',
+            data: res,
+        }
+    }
+
+
+
     @Get('field-of-works')
     async getAllFieldOfWorkController(): Promise<BaseResponse<FieldOfWork[]>> {
         const res = await this.jobsService.findAllFieldsOfWork();
@@ -21,7 +48,7 @@ export class JobsController {
             data: res,
         }
     }
-
+    // @Public()
     @Post('field-of-works')
     @RequirePermissions(RoleConstant.CREATE)
     async createFieldOfWorkController(
@@ -50,6 +77,7 @@ export class JobsController {
     }
 
     // JOB ENDPOINTS
+    // @Public()
     @Get()
     @RequirePermissions(RoleConstant.VIEW)
     async getAllJobController(
