@@ -35,6 +35,14 @@ export const newsService = {
     const response = await axiosClient.get<BaseResponse<INewsCategory[]>>('/news/category');
     return response.data;
   },
+  async createNewsCategory(data: { name_vn: string; name_en?: string }): Promise<BaseResponse<INewsCategory>> {
+    const response = await axiosClient.post<BaseResponse<INewsCategory>>('/news/category', data);
+    return response.data;
+  },
+  async deleteNewsCategory(id: number): Promise<BaseResponse<any>> {
+    const response = await axiosClient.delete<BaseResponse<any>>(`/news/category/${id}`);
+    return response.data;
+  },
   uploadImage: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);

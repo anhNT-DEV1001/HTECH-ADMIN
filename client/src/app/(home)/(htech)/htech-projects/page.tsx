@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
   CalendarIcon,
@@ -75,6 +76,7 @@ const STATUS_MAP: Record<ProjectStatus, { label: string; className: string }> =
 };
 
 export default function HtechProject() {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
   const [params, setParams] = useState<IProjectFilterParams>({
@@ -118,6 +120,10 @@ export default function HtechProject() {
   const [catNameEn, setCatNameEn] = useState("");
   const [catSubmitting, setCatSubmitting] = useState(false);
 
+  // Delete category dialog state
+  const [deleteCatDialogOpen, setDeleteCatDialogOpen] = useState(false);
+  const [deletingCatId, setDeletingCatId] = useState<number | null>(null);
+
   const handleCreateCategory = async () => {
     if (!catNameVn.trim()) {
       showToast("Vui lòng nhập tên danh mục (Tiếng Việt)", "error");
@@ -126,6 +132,7 @@ export default function HtechProject() {
     setCatSubmitting(true);
     try {
       await projectService.createProjectCategory({ name_vn: catNameVn.trim(), name_en: catNameEn.trim() || undefined });
+      await queryClient.invalidateQueries({ queryKey: ["project", "getProjectCategories"] });
       showToast("Tạo danh mục thành công!", "success");
       setCatDialogOpen(false);
       setCatNameVn("");
@@ -134,6 +141,20 @@ export default function HtechProject() {
       showToast("Tạo danh mục thất bại. Vui lòng thử lại.", "error");
     } finally {
       setCatSubmitting(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!(await confirm({ title: "Xóa danh mục", message: "Bạn có chắc chắn muốn xóa danh mục này?", variant: "danger" }))) return;
+    setDeletingCatId(id);
+    try {
+      await projectService.deleteProjectCategory(id);
+      await queryClient.invalidateQueries({ queryKey: ["project", "getProjectCategories"] });
+      showToast("Xóa danh mục thành công!", "success");
+    } catch {
+      showToast("Xóa danh mục thất bại. Vui lòng thử lại.", "error");
+    } finally {
+      setDeletingCatId(null);
     }
   };
 
@@ -369,6 +390,10 @@ export default function HtechProject() {
           </Popover>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => setDeleteCatDialogOpen(true)}>
+            <Trash2 size={16} />
+            <span className="whitespace-nowrap">Xóa danh mục</span>
+          </Button>
           <Button variant="outline" onClick={() => setCatDialogOpen(true)}>
             <Tag size={16} />
             <span className="whitespace-nowrap">Thêm danh mục</span>
@@ -703,6 +728,48 @@ export default function HtechProject() {
             <Button onClick={handleCreateCategory} disabled={catSubmitting}>
               {catSubmitting ? <Loader2 size={16} className="animate-spin mr-1" /> : <Tag size={16} className="mr-1" />}
               Tạo danh mục
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Category Dialog ─── */}
+      <Dialog open={deleteCatDialogOpen} onOpenChange={setDeleteCatDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 size={18} className="text-red-500" />
+              Xóa danh mục dự án
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-2 py-2 max-h-[300px] overflow-y-auto">
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Chưa có danh mục nào</p>
+            ) : (
+              categories.map((cat) => (
+                <div key={cat.id} className="flex items-center justify-between p-2 rounded-md border hover:bg-muted/50">
+                  <div>
+                    <p className="text-sm font-medium">{cat.name_vn}</p>
+                    {cat.name_en && <p className="text-xs text-muted-foreground">{cat.name_en}</p>}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="text-red-600 hover:bg-red-100"
+                    disabled={deletingCatId === cat.id}
+                    onClick={() => handleDeleteCategory(cat.id)}
+                  >
+                    {deletingCatId === cat.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteCatDialogOpen(false)}>
+              Đóng
             </Button>
           </DialogFooter>
         </DialogContent>

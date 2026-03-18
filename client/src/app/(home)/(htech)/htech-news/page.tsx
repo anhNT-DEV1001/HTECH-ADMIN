@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
   CalendarIcon,
@@ -13,11 +14,13 @@ import {
   Plus,
   Search,
   Star,
+  Tag,
   Trash2,
   X,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNews, useNewsCategories } from "@/features/news/hooks";
+import { newsService } from "@/features/news/services/news.service";
 import { INewsFilterParams } from "@/features/news/interfaces";
 import { useDebouncedValue } from "@/common/hooks";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
@@ -48,9 +51,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 export default function HtechNew() {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
   const [params, setParams] = useState<INewsFilterParams>({
@@ -75,6 +80,50 @@ export default function HtechNew() {
   const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
 
   const { categories } = useNewsCategories();
+
+  // Category dialog state
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [catNameVn, setCatNameVn] = useState("");
+  const [catNameEn, setCatNameEn] = useState("");
+  const [catSubmitting, setCatSubmitting] = useState(false);
+
+  // Delete category dialog state
+  const [deleteCatDialogOpen, setDeleteCatDialogOpen] = useState(false);
+  const [deletingCatId, setDeletingCatId] = useState<number | null>(null);
+
+  const handleCreateCategory = async () => {
+    if (!catNameVn.trim()) {
+      showToast("Vui lòng nhập tên thể loại (Tiếng Việt)", "error");
+      return;
+    }
+    setCatSubmitting(true);
+    try {
+      await newsService.createNewsCategory({ name_vn: catNameVn.trim(), name_en: catNameEn.trim() || undefined });
+      await queryClient.invalidateQueries({ queryKey: ["news", "getNewsCategories"] });
+      showToast("Tạo thể loại thành công!", "success");
+      setCatDialogOpen(false);
+      setCatNameVn("");
+      setCatNameEn("");
+    } catch {
+      showToast("Tạo thể loại thất bại. Vui lòng thử lại.", "error");
+    } finally {
+      setCatSubmitting(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!(await confirm({ title: "Xóa thể loại", message: "Bạn có chắc chắn muốn xóa thể loại này?", variant: "danger" }))) return;
+    setDeletingCatId(id);
+    try {
+      await newsService.deleteNewsCategory(id);
+      await queryClient.invalidateQueries({ queryKey: ["news", "getNewsCategories"] });
+      showToast("Xóa thể loại thành công!", "success");
+    } catch {
+      showToast("Xóa thể loại thất bại. Vui lòng thử lại.", "error");
+    } finally {
+      setDeletingCatId(null);
+    }
+  };
 
   const {
     newsData,
@@ -318,10 +367,20 @@ export default function HtechNew() {
             </PopoverContent>
           </Popover>
         </div>
-        <Button onClick={handleAddNew}>
-          <Plus size={16} />
-          <span className="whitespace-nowrap">Thêm tin tức</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => setDeleteCatDialogOpen(true)}>
+            <Trash2 size={16} />
+            <span className="whitespace-nowrap">Xóa thể loại</span>
+          </Button>
+          <Button variant="outline" onClick={() => setCatDialogOpen(true)}>
+            <Tag size={16} />
+            <span className="whitespace-nowrap">Thêm thể loại</span>
+          </Button>
+          <Button onClick={handleAddNew}>
+            <Plus size={16} />
+            <span className="whitespace-nowrap">Thêm tin tức</span>
+          </Button>
+        </div>
       </div>
 
       <Table>
@@ -563,6 +622,97 @@ export default function HtechNew() {
           </TableFooter>
         )}
       </Table>
+
+      {/* ── Create Category Dialog ─── */}
+      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Tag size={18} className="text-orange-500" />
+              Thêm thể loại tin tức
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name-vn">
+                Tên thể loại (Tiếng Việt) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="cat-name-vn"
+                placeholder="VD: Công nghệ"
+                value={catNameVn}
+                onChange={(e) => setCatNameVn(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name-en">
+                Tên thể loại (Tiếng Anh)
+              </Label>
+              <Input
+                id="cat-name-en"
+                placeholder="VD: Technology"
+                value={catNameEn}
+                onChange={(e) => setCatNameEn(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCatDialogOpen(false)} disabled={catSubmitting}>
+              Hủy
+            </Button>
+            <Button onClick={handleCreateCategory} disabled={catSubmitting}>
+              {catSubmitting ? <Loader2 size={16} className="animate-spin mr-1" /> : <Tag size={16} className="mr-1" />}
+              Tạo thể loại
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Category Dialog ─── */}
+      <Dialog open={deleteCatDialogOpen} onOpenChange={setDeleteCatDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 size={18} className="text-red-500" />
+              Xóa thể loại tin tức
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-2 py-2 max-h-[300px] overflow-y-auto">
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Chưa có thể loại nào</p>
+            ) : (
+              categories.map((cat) => (
+                <div key={cat.id} className="flex items-center justify-between p-2 rounded-md border hover:bg-muted/50">
+                  <div>
+                    <p className="text-sm font-medium">{cat.name_vn}</p>
+                    {cat.name_en && <p className="text-xs text-muted-foreground">{cat.name_en}</p>}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="text-red-600 hover:bg-red-100"
+                    disabled={deletingCatId === cat.id}
+                    onClick={() => handleDeleteCategory(cat.id)}
+                  >
+                    {deletingCatId === cat.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteCatDialogOpen(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

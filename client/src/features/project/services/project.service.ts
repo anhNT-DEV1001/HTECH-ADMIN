@@ -42,6 +42,10 @@ export const projectService = {
     const response = await axiosClient.post<BaseResponse<IProjectCategory>>('/project/category', data);
     return response.data;
   },
+  async deleteProjectCategory(id: number): Promise<BaseResponse<any>> {
+    const response = await axiosClient.delete<BaseResponse<any>>(`/project/category/${id}`);
+    return response.data;
+  },
   uploadImage: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
