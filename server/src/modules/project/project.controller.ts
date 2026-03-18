@@ -129,6 +129,14 @@ export class ProjectController {
       dto.thumbnail_url = thumbPath;
     }
 
+    if (files?.images && files.images.length > 0) {
+      dto.projectImages = files.images.map((img, idx) => ({
+        image_url: img.path.replace(/\\/g, '/').split('public')[1],
+        alt_text: '',
+        sort_order: idx + 1,
+      })) as any;
+    }
+
     const res = await this.projectService.createProjectService(dto, user);
     return {
       status: 'success',
@@ -153,6 +161,26 @@ export class ProjectController {
   ): Promise<BaseResponse<Project>> {
     if (files?.thumbnail && files.thumbnail[0]) {
       dto.thumbnail_url = files.thumbnail[0].path.replace(/\\/g, '/').split('public')[1];
+    }
+
+    // Parse ảnh cũ muốn giữ lại
+    let keepImages: { image_url: string; alt_text: string; sort_order: number }[] = [];
+    if ((dto as any).keepImageUrls) {
+      try {
+        const urls = JSON.parse((dto as any).keepImageUrls as string) as string[];
+        keepImages = urls.map((url, idx) => ({ image_url: url, alt_text: '', sort_order: idx + 1 }));
+      } catch { /* ignore parse error */ }
+    }
+
+    // Merge ảnh cũ giữ lại + ảnh mới upload
+    const newImages = (files?.images ?? []).map((img, idx) => ({
+      image_url: img.path.replace(/\\/g, '/').split('public')[1],
+      alt_text: '',
+      sort_order: keepImages.length + idx + 1,
+    }));
+
+    if (keepImages.length > 0 || newImages.length > 0) {
+      dto.projectImages = [...keepImages, ...newImages] as any;
     }
 
     const res = await this.projectService.updateProjectService(dto, id, user);

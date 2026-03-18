@@ -8,7 +8,7 @@ import { useProjectCategories } from '@/features/project/hooks';
 import { ProjectStatus } from '@/features/project/interfaces';
 import TiptapEditor from '@/common/components/ui/TextEditor';
 import { useToast } from '@/common/providers/ToastProvider';
-import { ArrowLeft, CalendarIcon, CircleX, Image as ImageIcon, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, CircleX, Image as ImageIcon, Images, Loader2, Plus, Save, X } from 'lucide-react';
 import dayjs from 'dayjs';
 
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,12 @@ export default function CreateProjectPage() {
   const { categories } = useProjectCategories();
   const [categoryId, setCategoryId] = useState<string>('');
 
+  // States quản lý ảnh gallery dự án
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // URL ảnh cũ từ server (relative)
+  const [existingImagePreviews, setExistingImagePreviews] = useState<string[]>([]); // URL đầy đủ để hiển thị
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]); // File ảnh mới
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]); // Preview ảnh mới
+
   // States dùng cho luồng Crop ảnh
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
@@ -134,6 +140,13 @@ export default function CreateProjectPage() {
               const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api/v1').replace('/api/v1', '');
               const fullThumbnailUrl = `${baseUrl}${project.thumbnail_url}`;
               setThumbnailPreview(fullThumbnailUrl);
+            }
+
+            // Load ảnh gallery hiện có
+            if (project.projectImages && project.projectImages.length > 0) {
+              const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api/v1').replace('/api/v1', '');
+              setExistingImageUrls(project.projectImages.map(img => img.image_url));
+              setExistingImagePreviews(project.projectImages.map(img => `${baseUrl}${img.image_url}`));
             }
           }
         } catch (error) {
@@ -184,6 +197,29 @@ export default function CreateProjectPage() {
     }
   };
 
+  const handleGalleryImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const previews = files.map(f => URL.createObjectURL(f));
+    setNewImageFiles(prev => [...prev, ...files]);
+    setNewImagePreviews(prev => [...prev, ...previews]);
+    // Reset input để có thể chọn lại cùng file
+    e.target.value = '';
+  };
+
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+    setExistingImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveNewImage = (index: number) => {
+    setNewImageFiles(prev => prev.filter((_, i) => i !== index));
+    setNewImagePreviews(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title_vn || !description_vn) {
@@ -231,6 +267,14 @@ export default function CreateProjectPage() {
 
       if (categoryId) {
         formData.append('category_id', categoryId);
+      }
+
+      // Append ảnh gallery mới
+      newImageFiles.forEach(file => formData.append('images', file));
+
+      // Nếu là update, gửi danh sách URL ảnh cũ muốn giữ lại
+      if (!isCreateMode && existingImageUrls.length > 0) {
+        formData.append('keepImageUrls', JSON.stringify(existingImageUrls));
       }
 
       if (isCreateMode) {
@@ -297,27 +341,89 @@ export default function CreateProjectPage() {
             </TabsList>
           </div>
 
-          {/* Thumbnail */}
-          <div className="space-y-1 mb-4">
-            <Label>Ảnh đại diện (Thumbnail)</Label>
-            <div className="relative group w-40 h-40 border-2 border-dashed border-input rounded-lg overflow-hidden flex items-center justify-center hover:border-primary transition">
-              {thumbnailPreview ? (
-                <>
-                  <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
-                    <label className="text-white text-sm flex flex-col items-center cursor-pointer w-full h-full justify-center">
-                      <ImageIcon size={24} className="mb-1" />
-                      <span>Đổi ảnh</span>
-                      <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
-                    </label>
+          {/* Thumbnail + Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+            {/* Thumbnail */}
+            <div className="space-y-1">
+              <Label>Ảnh đại diện (Thumbnail)</Label>
+              <div className="relative group w-40 h-40 border-2 border-dashed border-input rounded-lg overflow-hidden flex items-center justify-center hover:border-primary transition">
+                {thumbnailPreview ? (
+                  <>
+                    <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
+                      <label className="text-white text-sm flex flex-col items-center cursor-pointer w-full h-full justify-center">
+                        <ImageIcon size={24} className="mb-1" />
+                        <span>Đổi ảnh</span>
+                        <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
+                      </label>
+                    </div>
+                  </>
+                ) : (
+                  <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-primary/5 hover:bg-primary/10 transition">
+                    <ImageIcon size={32} className="text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">Chọn ảnh</span>
+                    <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Gallery Images */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Images size={16} className="text-muted-foreground" />
+                <Label>Ảnh dự án (Gallery)</Label>
+                <span className="text-xs text-muted-foreground">
+                  ({existingImageUrls.length + newImageFiles.length} ảnh)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {/* Ảnh cũ từ server */}
+                {existingImagePreviews.map((src, i) => (
+                  <div key={`existing-${i}`} className="relative group aspect-square rounded-md overflow-hidden border border-input">
+                    <img src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExistingImage(i)}
+                      className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X size={12} />
+                    </button>
                   </div>
-                </>
-              ) : (
-                <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-primary/5 hover:bg-primary/10 transition">
-                  <ImageIcon size={32} className="text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">Chọn ảnh</span>
-                  <input type="file" accept="image/*" onChange={handleThumbnailChange} className="hidden" />
+                ))}
+
+                {/* Ảnh mới vừa chọn */}
+                {newImagePreviews.map((src, i) => (
+                  <div key={`new-${i}`} className="relative group aspect-square rounded-md overflow-hidden border border-blue-300 ring-1 ring-blue-400">
+                    <img src={src} alt={`New ${i + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute top-1 left-1 bg-blue-500 text-white text-[9px] px-1 rounded font-medium">MỚI</div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNewImage(i)}
+                      className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Nút thêm ảnh */}
+                <label className="aspect-square rounded-md border-2 border-dashed border-input flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition text-muted-foreground">
+                  <Plus size={20} />
+                  <span className="text-xs mt-1">Thêm ảnh</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryImagesChange}
+                    className="hidden"
+                  />
                 </label>
+              </div>
+
+              {(existingImageUrls.length + newImageFiles.length) === 0 && (
+                <p className="text-xs text-muted-foreground">Chưa có ảnh nào. Nhấn "Thêm ảnh" để upload ảnh bộ sưu tập dự án.</p>
               )}
             </div>
           </div>
