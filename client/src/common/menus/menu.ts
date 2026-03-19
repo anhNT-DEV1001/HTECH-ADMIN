@@ -18,7 +18,6 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Nhóm quyền", icon: ShieldCheck, href: "/roles" },
       { label: "Người dùng", icon: Users, href: "/users" },
       { label: "Tài nguyên", icon: ListTree, href: "/resources" },
-      {label : "Quản lý danh mục" , icon : ListCheck , href : "/categories" },
       {label : "Cấu hình chung" , icon : Settings , href : "/masterdata" },
     ],
   },
