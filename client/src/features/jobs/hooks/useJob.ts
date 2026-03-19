@@ -97,11 +97,26 @@ export const useFieldsOfWork = () => {
         }
     );
 
+    const deleteFieldMutation = useCommonMutate(
+        (id: number) => jobService.deleteFieldOfWork(id),
+        {
+            onSuccess: (data) => {
+                queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+                showToast("Xóa lĩnh vực thành công", 'success');
+            },
+            onError: (data) => {
+                showToast(data.message || "Lỗi khi xóa lĩnh vực", 'error');
+            }
+        }
+    );
+
     return {
         fieldsOfWork: fieldsQuery.data?.data || [],
         isLoading: fieldsQuery.isLoading,
         createFieldMutation,
-        isCreatingField: createFieldMutation.isPending
+        deleteFieldMutation,
+        isCreatingField: createFieldMutation.isPending,
+        isDeletingField: deleteFieldMutation.isPending
     };
 };
 
