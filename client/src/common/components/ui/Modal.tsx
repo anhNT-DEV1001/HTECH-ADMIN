@@ -37,13 +37,15 @@ export function DraggableModal({
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
-        className="border-none bg-transparent shadow-none p-0 max-w-none flex justify-center [&>button]:hidden"
+        // SỬA Ở ĐÂY: Loại bỏ hẳn ${width} và dùng max-w-none sm:max-w-none để vô hiệu hóa class mặc định của Shadcn
+        className="border-none bg-transparent shadow-none p-0 flex justify-center [&>button]:hidden w-full max-w-none sm:max-w-none md:max-w-none"
       >
         <Draggable handle=".drag-handle" nodeRef={nodeRef}>
           <div
             ref={nodeRef}
             className={cn(
-              "bg-background border rounded-lg shadow-lg flex flex-col pointer-events-auto",
+              "bg-background border rounded-lg shadow-lg flex flex-col pointer-events-auto w-full",
+              // SỬA Ở ĐÂY: Áp dụng width (max-w-3xl) trực tiếp vào div thực tế chứa nội dung
               width
             )}
           >

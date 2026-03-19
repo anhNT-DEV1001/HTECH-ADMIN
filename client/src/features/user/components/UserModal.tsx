@@ -75,7 +75,7 @@ export default function UserModal({
       open={isOpen}
       title={isUpdateMode ? "Cập nhật người dùng" : "Thêm người dùng mới"}
       onClose={onClose}
-      width="max-w-2xl"
+      width="max-w-3xl"
       footer={
         <>
           <Button
