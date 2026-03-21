@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { JwtMiddleware, JwtRefreshMiddleware } from 'src/common/middlewares';
 import { key } from 'src/configs';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from 'src/infrastructure/prisma/prisma.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PermissionModule } from '../permission/permission.module';

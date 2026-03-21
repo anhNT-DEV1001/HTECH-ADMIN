@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { CreateActionDto, CreateActionsDto } from './dto';
 import { ApiError } from 'src/common/apis';
 import { Action, Resource, ResourceDetail, RoleGroupPermission, User, UserPermission } from '@prisma/client';

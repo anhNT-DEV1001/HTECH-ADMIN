@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "src/infrastructure/prisma/prisma.service";
 import { CreateProjectCategoryDto, CreateProjectDto, CreateProjectImageDto, ProjectDto, ProjectImageDto } from "./dto";
 import { Prisma, Project, User } from "@prisma/client";
 import { ApiError } from "src/common/apis";

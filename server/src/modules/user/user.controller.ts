@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import type { IPaginationRequest, IPaginationResponse } from 'src/common/interfaces';
 import { UpdateUserDto, UserDto } from './dto';
 import { IAuthResponse } from '../auth/interfaces';
-import { BaseResponse } from 'src/common/apis';
+import { ApiError, BaseResponse } from 'src/common/apis';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User')

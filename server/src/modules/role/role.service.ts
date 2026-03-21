@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, Role, User } from '@prisma/client';
 import { ApiError } from 'src/common/apis';
 import { IPaginationRequest, IPaginationResponse } from 'src/common/interfaces';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { CreateRoleDto, UpdateRoleDto } from './dto';
 
 @Injectable()

@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { key } from 'src/configs';
 import { PayloadDto } from 'src/modules/auth/dto';
 import { IAuth } from 'src/modules/auth/interfaces';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { ApiError } from '../apis';
 import { PermissionService } from 'src/modules/permission/permission.service';
 

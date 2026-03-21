@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { CreateNewsCategoryDto, CreateNewsDto, CreateNewsImageDto, NewsDto, NewsImageDto } from "./dto";
 import { News, NewsImage, Prisma, User } from "@prisma/client";
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { ApiError } from "src/common/apis";
 import { IPaginationRequest, IPaginationResponse } from "src/common/interfaces";
 import { deleteFileFromPublic } from "src/common/utils";

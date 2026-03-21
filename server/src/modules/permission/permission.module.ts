@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PermissionService } from './permission.service';
 import { PermissionController } from './permission.controller';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from 'src/infrastructure/prisma/prisma.module';
 import { ResourceModule } from '../resource/resource.module';
 import { RoleModule } from '../role/role.module';
 

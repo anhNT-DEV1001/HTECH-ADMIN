@@ -9,6 +9,8 @@ import {DraggableModal} from "@/common/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DateTimePicker } from "@/common/components/DateTimePicker";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -36,7 +38,8 @@ export default function UserModal({
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const dobValue = watch("dob");
+  const roleIdValue = watch("role_id");
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
@@ -49,6 +52,10 @@ export default function UserModal({
           const formatted = date.toISOString().split("T")[0];
           setValue("dob", formatted as any);
         }
+
+        if (initialData.role?.role?.id) {
+          setValue("role_id", String(initialData.role.role.id));
+        }
         setValue("password", "");
       } else {
         reset({
@@ -58,10 +65,16 @@ export default function UserModal({
           phone: "",
           password: "",
           dob: undefined,
+          role_id: undefined,
         });
       }
     }
   }, [isOpen, initialData, reset, setValue]);
+
+  useEffect(() => {
+    register("dob", { required: "Ngày sinh là bắt buộc" });
+    register("role_id", { required: "Nhóm quyền là bắt buộc" });
+  }, [register]);
 
   const password = watch("password");
   const isUpdateMode = !!initialData;
@@ -278,14 +291,57 @@ export default function UserModal({
               <Label>
                 Ngày sinh <span className="text-red-500">*</span>
               </Label>
-              <Input
-                type="date"
-                {...register("dob", { required: "Ngày sinh là bắt buộc" })}
-                aria-invalid={errors.dob ? true : undefined}
+
+              <DateTimePicker
+                mode='date'
+                value={dobValue ? new Date(dobValue) : undefined}
+                onChange={(date) => {
+                  setValue("dob", date as any, {
+                    shouldValidate: true,
+                    shouldDirty: true
+                  });
+                }}
+                placeholder="Chọn ngày sinh"
+                className={errors.dob ? "border-red-500" : ""}
               />
+
               {errors.dob && (
                 <p className="text-red-500 text-xs">
-                  {errors.dob.message}
+                  {errors.dob.message as string}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                Nhóm quyền <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={roleIdValue}
+                onValueChange={(value) => {
+                  setValue("role_id", value, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                }}
+              >
+                <SelectTrigger
+                  className={`w-full max-w-full ${errors.role_id ? "border-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Chọn quyền" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Chọn quyền</SelectLabel>
+                    {/* Value ở đây phải khớp với id trong DB dạng string */}
+                    <SelectItem value="1">root</SelectItem>
+                    <SelectItem value="2">admin</SelectItem>
+                    <SelectItem value="3">user</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.role_id && (
+                <p className="text-red-500 text-xs">
+                  {errors.role_id.message as string}
                 </p>
               )}
             </div>
