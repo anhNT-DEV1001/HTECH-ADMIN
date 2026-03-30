@@ -5,6 +5,7 @@ export interface IUserForm {
   fullName: string;
   phone: string;
   dob: Date;
+  role_id: string;
 }
 
 export interface IUserResponse {
@@ -14,6 +15,13 @@ export interface IUserResponse {
   fullName: string;
   phone: string;
   dob: Date;
+  role : {
+    role: {
+      id: number,
+      name: string,
+      description: string;
+    }
+  }
   createdAt: Date;
   updatedAt: Date;
 }

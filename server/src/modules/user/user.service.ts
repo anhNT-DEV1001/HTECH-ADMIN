@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { UpdateUserDto, UserDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { ApiError } from 'src/common/apis';
@@ -50,6 +50,11 @@ export class UserService {
           dob : true,
           created_at : true,
           updated_at : true,
+          role: {
+            select: {
+              role: true
+            }
+          }
         }
       }),
       this.prisna.user.count({where}),
@@ -91,11 +96,13 @@ export class UserService {
           }
         });
         if(!newUser) throw new ApiError('Tạo người dùng thất bại !', HttpStatus.BAD_REQUEST);
-        const initUserRole = {
-          role_id: 1,
-          user_id: newUser.id,
-        } as UserRole;
-        await tx.userRole.create({ data: initUserRole });
+        if(dto.role_id){
+          const userRoleData = {
+            role_id: dto.role_id,
+            user_id: newUser.id,
+          } as UserRole;
+          await tx.userRole.create({ data: userRoleData });
+        }
         return newUser as IAuthResponse;
       })
     } catch (error) {
@@ -103,26 +110,52 @@ export class UserService {
     }
   }
 
-  async updateUser(id : number , dto : UpdateUserDto) : Promise<IAuthResponse> {
+  async updateUser(id: number, dto: UpdateUserDto): Promise<IAuthResponse> {
     try {
       const user = await this.prisna.user.findUnique({ where: { id } });
-      if(!user) throw new ApiError('Người dùng không tồn tại !', HttpStatus.BAD_REQUEST);
+      if (!user) throw new ApiError('Người dùng không tồn tại!', HttpStatus.BAD_REQUEST);
+
       let hashedPassword = '';
-      if(dto.password && dto.password !== ''){
+      if (dto.password && dto.password !== '') {
         hashedPassword = await bcrypt.hash(dto.password, 10);
       }
-      const toUpdate = {
+
+      // Khai báo kiểu dữ liệu any hoặc Prisma.UserUpdateInput để TypeScript không báo lỗi khi thêm relation
+      const toUpdate: any = {
         username: dto.username,
         password: hashedPassword !== '' ? hashedPassword : user.password,
         email: dto.email,
         fullName: dto.fullName,
         phone: dto.phone,
         dob: dto.dob,
+      };
+
+      // Thêm logic cập nhật role_id nếu có truyền lên từ DTO
+      if (dto.role_id) {
+        toUpdate.role = {
+          upsert: {
+            create: {
+              role_id: dto.role_id,
+            },
+            update: {
+              role_id: dto.role_id,
+            },
+          },
+        };
       }
-      const updatedUser = await this.prisna.user.update({ where: { id }, data: toUpdate });
-      return updatedUser as IAuthResponse;
+
+      const updatedUser = await this.prisna.user.update({
+        where: { id },
+        data: toUpdate,
+        // (Tuỳ chọn) Bạn có thể include role để kết quả trả về bao gồm luôn role mới cập nhật
+        include: {
+          role: true, 
+        }
+      });
+
+      return updatedUser as unknown as IAuthResponse;
     } catch (error) {
-      throw new ApiError('Cập nhật người dùng thất bại !', HttpStatus.BAD_REQUEST);
+      throw new ApiError('Cập nhật người dùng thất bại!', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -131,7 +164,10 @@ export class UserService {
       const user = await this.prisna.user.findUnique({ where: { id } });
       if(!user) throw new ApiError('Người dùng không tồn tại !', HttpStatus.BAD_REQUEST);
       await this.prisna.userRole.delete({ where: { user_id: id } });
-      await this.prisna.token.delete({ where: { user_id: id } });
+      const token = await this.prisna.token.findUnique({ where: { user_id: id } });
+      if(token) {
+        await this.prisna.token.delete({ where: { user_id: id } });
+      }
       const deletedUser = await this.prisna.user.delete({ 
         where: { id },
         select : {
@@ -163,6 +199,11 @@ export class UserService {
           dob : true,
           created_at : true,
           updated_at : true,
+          role: {
+            select: {
+              role: true
+            }
+          }
         }
       });
       if(!user) throw new ApiError('Người dùng không tồn tại !', HttpStatus.BAD_REQUEST);

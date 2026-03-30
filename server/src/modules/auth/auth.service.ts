@@ -4,7 +4,7 @@ import { Token, User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { ApiError } from 'src/common/apis';
 import { key } from 'src/configs';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { LoginDto, PayloadDto, RegisterDto } from './dto';
 import { IAuthResponse, ILoginResponse, ITokenResponse } from './interfaces';
 import { AuthResponse } from './response';

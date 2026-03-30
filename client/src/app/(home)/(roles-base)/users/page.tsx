@@ -134,15 +134,16 @@ export default function UserManagement() {
   };
 
   const handleSave = (data: IUserForm) => {
-      const { username, password, email, fullName, phone, dob } = data;
-      
+      const { username, password, email, fullName, phone, dob, role_id } = data;
+
       const payload: IUserForm = {
           username,
           password: password || "",
           email,
           fullName,
           phone,
-          dob
+          dob,
+          role_id
       };
 
       if (selectedUser) {
@@ -248,7 +249,10 @@ export default function UserManagement() {
               return (
                 <TableRow key={user.id}>
                   <TableCell className="text-muted-foreground font-mono text-xs text-center">{stt}</TableCell>
-                  <TableCell className="font-medium">{user.username}</TableCell>
+                  <TableCell className="font-medium">
+                    {user.username} <br />
+                    <span className="text-xs text-gray-600">{user.role && user.role.role && user.role.role.description ? user.role.role.description : "Người dùng chưa cập nhật quyền"}</span>
+                  </TableCell>
                   <TableCell>{user.fullName}</TableCell>
                   <TableCell className="text-muted-foreground">{user.email}</TableCell>
                   <TableCell className="text-muted-foreground">{user.phone}</TableCell>

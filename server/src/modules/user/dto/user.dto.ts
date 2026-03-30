@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsDate, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 export class UserDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -25,9 +25,21 @@ export class UserDto {
 
   @ApiProperty()
   @IsOptional()
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    return typeof value === 'string' ? new Date(value) : value;
+  })
   @IsDate()
   dob: Date;
+
+  @ApiProperty()
+  @Transform(({ value }) => {
+    if (value === null || value === undefined) return undefined;
+    return Number(value);
+  })
+  @IsNumber()
+  role_id: number;
+
 }
 
 export class UpdateUserDto {
@@ -54,7 +66,20 @@ export class UpdateUserDto {
 
   @ApiProperty()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    return typeof value === 'string' ? new Date(value) : value;
+  })
   @IsDate()
   dob: Date;
+
+  @ApiProperty()
+  @Transform(({ value }) => {
+    if (value === null || value === undefined) return undefined;
+    return Number(value);
+  })
+  @IsOptional()
+  @IsNumber()
+  role_id: number;
 }
 

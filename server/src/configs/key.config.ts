@@ -18,6 +18,14 @@ export const key = {
     refresh_secret: String(process.env.REFRESH_SECRET),
     refresh_exprise: String(process.env.REFRESH_EXPRISEIN),
   },
+
+  mail: {
+    host: String(process.env.MAIL_HOST),
+    port: Number(process.env.MAIL_PORT),
+    user: String(process.env.MAIL_USER),
+    pass: String(process.env.MAIL_PASS),
+    secure:Number(process.env.MAIL_PORT) === 465,
+  }
 };
 
 export const isPord = key.app.env === 'production' ? true : false;
