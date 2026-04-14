@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { API_PRIFIX } from './common/apis';
 import { AllExceptionsFilter } from './common/filters';
-import { corsConfig, key, swaggerConfig, validationConfig } from './configs';
+import { corsConfig, isVps, key, swaggerConfig, validationConfig } from './configs';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
@@ -26,5 +26,6 @@ async function bootstrap() {
   console.log(
     `${key.app.env} api docs: http://${key.app.host}:${key.app.port + API_PRIFIX}`,
   );
+  console.log('is_vps' , isVps);
 }
 bootstrap();
