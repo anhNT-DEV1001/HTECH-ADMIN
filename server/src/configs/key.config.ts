@@ -6,6 +6,8 @@ export const key = {
     port: Number(process.env.PORT ?? 5000),
     name: String(process.env.APP_NAME),
     env: String(process.env.NODE_ENV),
+    is_vps: String(process.env.IS_VPS),
+    domain_fe: String(process.env.DOMAIN_FE),
   },
   web: {
     url: String(process.env.FRONTEND_URL),
@@ -29,3 +31,4 @@ export const key = {
 };
 
 export const isPord = key.app.env === 'production' ? true : false;
+export const isVps = key.app.is_vps === 'true' ? true : false;  
