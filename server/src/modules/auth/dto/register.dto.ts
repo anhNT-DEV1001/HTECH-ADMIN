@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsDate, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 export class RegisterDto {
   @ApiProperty()
@@ -23,7 +24,11 @@ export class RegisterDto {
   phone: string;
 
   @ApiProperty()
-  @IsOptional()
-  @IsDate()
-  dob: Date;
+    @IsOptional()
+    @Transform(({ value }) => {
+      if (!value) return undefined;
+      return typeof value === 'string' ? new Date(value) : value;
+    })
+    @IsDate()
+    dob: Date;
 }

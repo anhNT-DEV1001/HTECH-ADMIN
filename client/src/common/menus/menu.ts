@@ -18,7 +18,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Nhóm quyền", icon: ShieldCheck, href: "/roles" },
       { label: "Người dùng", icon: Users, href: "/users" },
       { label: "Tài nguyên", icon: ListTree, href: "/resources" },
-      {label : "Cấu hình chung" , icon : Settings , href : "/masterdata" },
+      // {label : "Cấu hình chung" , icon : Settings , href : "/masterdata" },
     ],
   },
   {
@@ -28,6 +28,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Tin tức", icon: Newspaper, href: "/htech-news" },
       { label: "Dự án", icon: ProjectorIcon, href: "/htech-projects" },
       { label: "Tuyển dụng", icon: UserCheck, href: "/htech-careers" },
+      { label: "Thông tin chung" , icon: ListCheck, href: "/htech-info" },
     ]
   }
 ];

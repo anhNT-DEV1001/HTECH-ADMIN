@@ -1,0 +1,18 @@
+model CompanyInfo {
+  id         Int      @id @default(autoincrement())
+  name       String
+  name_en    String? // Đã bỏ @default(""), mặc định sẽ là null
+  banner     String
+  email      String
+  phone      String
+  address    String
+  email_en   String? // Đã bỏ @default(""), mặc định sẽ là null
+  phone_en   String? // Đã bỏ @default(""), mặc định sẽ là null
+  address_en String? // Đã thêm ? để thành nullable, mặc định sẽ là null
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@map("company_info")
+}

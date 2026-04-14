@@ -46,7 +46,7 @@ export class AuthService {
           user_id: newUser.id,
         } as UserRole;
         // Thêm role mặc định
-        await db.userRole.create({ data: initUserRole });
+        // await db.userRole.create({ data: initUserRole });
         const authResponse = new AuthResponse(newUser).mapToAuthResponse();
         return authResponse;
       });

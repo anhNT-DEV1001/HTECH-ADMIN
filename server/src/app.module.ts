@@ -13,9 +13,10 @@ import { JobsModule } from './modules/jobs/jobs.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { MasterdataModule } from './modules/masterdata/masterdata.module';
 import { MailsModule } from './infrastructure/mails/mails.module';
+import { CompanyModule } from './modules/company/company.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule, CompanyModule],
   controllers: [],
   providers: [
     {

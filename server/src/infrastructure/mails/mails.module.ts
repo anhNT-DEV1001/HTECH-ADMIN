@@ -16,9 +16,12 @@ import { key } from 'src/configs';
           user: key.mail.user, 
           pass: key.mail.pass,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       },
       defaults: {
-        from: "HTECH EVENT - Xác nhận thông tin liên hệ", 
+        from: `"HTECH EVENT" <${key.mail.user}>`, 
       },
       template: {
         dir: join(__dirname, 'templates'),

@@ -4,18 +4,18 @@ import type { IPaginationRequest, IPaginationResponse } from 'src/common/interfa
 import { BaseResponse } from 'src/common/apis';
 import { Role } from '@prisma/client';
 import { CreateRoleDto } from './dto';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { UseGuards } from '@nestjs/common';
-import { RequirePermissions } from 'src/common/decorators';
+// import { RoleGuard } from 'src/common/guards/role.guard';
+// import { UseGuards } from '@nestjs/common';
+// import { RequirePermissions } from 'src/common/decorators';
 import { RoleConstant } from 'src/common/constants';
 
 @Controller('role')
-@UseGuards(RoleGuard)
+// @UseGuards(RoleGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Get()
-  @RequirePermissions(RoleConstant.VIEW)
+  // @RequirePermissions(RoleConstant.VIEW)
   async getRoleController(
     @Query() query : IPaginationRequest,
   ) : Promise<BaseResponse<IPaginationResponse<Role>>> {
@@ -28,7 +28,7 @@ export class RoleController {
   }
 
   @Get(':id')
-  @RequirePermissions(RoleConstant.VIEW)
+  // @RequirePermissions(RoleConstant.VIEW)
   async getRoleByIdController(
     @Param('id') id : number,
   ) : Promise<BaseResponse<Role>> {

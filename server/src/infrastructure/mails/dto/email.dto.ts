@@ -2,13 +2,13 @@ import { IsOptional } from "class-validator";
 
 export class ContactDto {
   @IsOptional()
-  fullName: string;
+  fullName!: string;
   @IsOptional()
-  email: string;
+  email!: string;
   @IsOptional()
-  phone: string;
+  phone!: string;
   @IsOptional()
   company?: string;
   @IsOptional() 
-  message: string;
+  message!: string;
 }
