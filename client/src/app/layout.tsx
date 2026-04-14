@@ -1,9 +1,14 @@
 import AuthProvider from "@/common/providers/AuthProvider";
 import ReactQueryProvider from "@/common/providers/QueryProvider";
 import { ToastProvider } from "@/common/providers/ToastProvider";
+import type { Metadata } from "next";
 import "./globals.css";
 import { ConfirmProvider } from "@/common/providers/ConfirmProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
+export const metadata: Metadata = {
+  title: "HTECH-Quản trị",
+};
 
 export default function RootLayout({
   children,
