@@ -72,9 +72,21 @@ export class AuthController {
     @AuthUser('user') user: User,
     @Res({ passthrough: true }) response: Response,
   ): Promise<BaseResponse<IAuthResponse>> {
+    const { accessToken, refreshToken } = getCookieConfig;
     const res = await this.authService.logout(user);
-    response.clearCookie('accessToken', { path: '/' });
-    response.clearCookie('refreshToken', { path: '/api/v1/auth/refresh' });
+      response.clearCookie('accessToken', { 
+      path: accessToken.path,
+      domain: accessToken.domain,
+      secure: accessToken.secure,
+      sameSite: accessToken.sameSite,
+    });
+
+    response.clearCookie('refreshToken', { 
+      path: refreshToken.path,
+      domain: refreshToken.domain,
+      secure: refreshToken.secure,
+      sameSite: refreshToken.sameSite,
+    });
     return {
       status: 'success',
       message: 'Đăng xuất thành công !',
