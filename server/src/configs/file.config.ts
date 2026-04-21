@@ -5,6 +5,9 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiError } from 'src/common/apis';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 
+const IMAGE_FILE_SIZE_LIMIT = 5 * 1024 * 1024;
+const MEDIA_FILE_SIZE_LIMIT = 500 * 1024 * 1024;
+
 export const multerOptions = (mainFolder: string, category: string) => {
   return {
     storage: diskStorage({
@@ -31,7 +34,7 @@ export const multerOptions = (mainFolder: string, category: string) => {
       }
     },
     limits: {
-      fileSize: 5 * 1024 * 1024,
+      fileSize: IMAGE_FILE_SIZE_LIMIT,
     },
   } as MulterOptions;
 };
@@ -62,7 +65,7 @@ export const multerMediaOptions = (mainFolder: string, category: string) => {
       }
     },
     limits: {
-      fileSize: 50 * 1024 * 1024,
+      fileSize: MEDIA_FILE_SIZE_LIMIT,
     },
   } as MulterOptions;
 };
