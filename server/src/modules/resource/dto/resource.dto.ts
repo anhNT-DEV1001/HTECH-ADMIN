@@ -88,7 +88,7 @@ export class CreateResourceDto {
   @IsOptional()
   icon?: string;
 
-  @IsBoolean()
+  // @IsBoolean()
   @IsOptional()
   is_active?: boolean;
 
