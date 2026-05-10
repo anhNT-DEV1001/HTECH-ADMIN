@@ -22,7 +22,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import MenuLoading from "./loading";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import ResourceModal from "@/features/resource/components/ResourceModal";
@@ -47,7 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function ListMenu() {
+function ListMenuContent() {
   const router = useRouter();
   const pathName = usePathname();
   const searchParams = useSearchParams();
@@ -519,5 +519,13 @@ export default function ListMenu() {
       />
 
     </section>
+  );
+}
+
+export default function ListMenu() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải tài nguyên...</div>}>
+      <ListMenuContent />
+    </Suspense>
   );
 }

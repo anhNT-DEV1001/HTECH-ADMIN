@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
@@ -54,7 +54,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-export default function HtechNew() {
+function HtechNewContent() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -714,5 +714,13 @@ export default function HtechNew() {
         </DialogContent>
       </Dialog>
     </section>
+  );
+}
+
+export default function HtechNew() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải tin tức...</div>}>
+      <HtechNewContent />
+    </Suspense>
   );
 }

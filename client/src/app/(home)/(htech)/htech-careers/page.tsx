@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
@@ -60,7 +60,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-export default function HtechCareers() {
+function HtechCareersContent() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [params, setParams] = useState<IJobFilterParams>({
@@ -672,5 +672,13 @@ export default function HtechCareers() {
         </DialogContent>
       </Dialog>
     </section>
+  );
+}
+
+export default function HtechCareers() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải tuyển dụng...</div>}>
+      <HtechCareersContent />
+    </Suspense>
   );
 }

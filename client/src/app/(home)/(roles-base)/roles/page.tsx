@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useRole } from "@/features/role/hooks";
 import { IPaginationRequest } from "@/common/interfaces";
 import {
@@ -43,7 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function RoleManagement() {
+function RoleManagementContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -410,5 +410,13 @@ export default function RoleManagement() {
         loading={isCreating || isUpdating}
       />
     </div>
+  );
+}
+
+export default function RoleManagement() {
+  return (
+    <Suspense fallback={<RoleLoading />}>
+      <RoleManagementContent />
+    </Suspense>
   );
 }

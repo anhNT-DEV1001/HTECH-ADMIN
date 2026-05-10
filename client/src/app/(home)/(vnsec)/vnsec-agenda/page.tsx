@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -49,7 +49,7 @@ const getPublicFileUrl = (fileUrl: string) => {
   return `${baseUrl}${fileUrl}`;
 };
 
-export default function VnsecAgendaPage() {
+function VnsecAgendaContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -475,5 +475,13 @@ export default function VnsecAgendaPage() {
       </Table>
 
     </section>
+  );
+}
+
+export default function VnsecAgendaPage() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải agenda...</div>}>
+      <VnsecAgendaContent />
+    </Suspense>
   );
 }

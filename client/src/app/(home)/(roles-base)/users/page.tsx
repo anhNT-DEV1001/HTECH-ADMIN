@@ -1,7 +1,7 @@
 'use client';
 import { useUser } from "@/features/user/hooks/useUser";
 import { Plus, Search, Pencil, Trash2, ArrowDownWideNarrow, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Loader2, Shield } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { IPaginationRequest } from "@/common/interfaces";
 import { useDebouncedValue } from "@/common/hooks";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function UserManagement() {
+function UserManagementContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -383,5 +383,13 @@ export default function UserManagement() {
       />
 
     </section>
+  );
+}
+
+export default function UserManagement() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải người dùng...</div>}>
+      <UserManagementContent />
+    </Suspense>
   );
 }

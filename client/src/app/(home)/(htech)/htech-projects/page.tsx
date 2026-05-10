@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
@@ -75,7 +75,7 @@ const STATUS_MAP: Record<ProjectStatus, { label: string; className: string }> =
   CANCELLED: { label: "Đã huỷ", className: "bg-red-100 text-red-700" },
 };
 
-export default function HtechProject() {
+function HtechProjectContent() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -775,5 +775,13 @@ export default function HtechProject() {
         </DialogContent>
       </Dialog>
     </section>
+  );
+}
+
+export default function HtechProject() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Đang tải dự án...</div>}>
+      <HtechProjectContent />
+    </Suspense>
   );
 }
