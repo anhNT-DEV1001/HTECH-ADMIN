@@ -49,7 +49,7 @@ export function AppSidebar() {
   const { logout } = useAuth();
   const router = useRouter();
   const { user: auth } = useAuthStore();
-  const displayUser = auth?.user as any;
+  const displayUser = auth?.user;
   const avatarUrl = DEFAULT_AVATAR;
   const { confirm } = useConfirm();
   const { showToast } = useToast();

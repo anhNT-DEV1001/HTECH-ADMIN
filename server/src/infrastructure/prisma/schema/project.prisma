@@ -21,6 +21,7 @@ model ProjectCategory {
 
 model Project {
   id             Int             @id @default(autoincrement())
+  web_id         Int             @default(1)
   title_vn       String
   title_en       String?
   slug           String          @unique
@@ -46,9 +47,11 @@ model Project {
   created_by     Int?
   updated_by     Int?
   category_id    Int
+  web            Web             @relation(fields: [web_id], references: [id])
   category       ProjectCategory @relation(fields: [category_id], references: [id])
   projectImages  ProjectImage[]
 
+  @@index([web_id])
   @@map("projects")
 }
 

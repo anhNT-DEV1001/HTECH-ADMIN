@@ -1,0 +1,55 @@
+model Agenda {
+  id          Int          @id() @default(autoincrement())
+  name_vn     String
+  name_en     String?
+  file_url    String
+  web_id      Int
+  SDate       DateTime     @db.Date
+  EDate       DateTime     @db.Date
+  web         Web          @relation(fields: [web_id], references: [id])
+  agendaDates AgendaDate[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@map("agenda")
+}
+
+model AgendaDate {
+  id          Int              @id() @default(autoincrement())
+  agenda_id   Int
+  date        DateTime         @db.Date
+  description String?
+  agenda      Agenda           @relation(fields: [agenda_id], references: [id])
+  timelines   AgendaTimeline[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+  @@index([agenda_id])
+  @@map("agenda_date")
+}
+
+
+model AgendaTimeline {
+  id            Int        @id() @default(autoincrement())
+  agenda_date_id Int
+  STime         DateTime   @db.Time()
+  ETime         DateTime   @db.Time()
+  name_vn       String
+  name_en       String?
+  short_name_vn String
+  short_name_en String?
+  locate_vn     String
+  locate_en     String
+  agendaDate    AgendaDate @relation(fields: [agenda_date_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([agenda_date_id])
+  @@map("agenda_timeline")
+}

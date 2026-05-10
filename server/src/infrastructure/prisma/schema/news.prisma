@@ -1,5 +1,6 @@
 model News {
   id            Int           @id @default(autoincrement())
+  web_id        Int           @default(1)
   title_vn      String
   title_en      String?
   summary_vn    String
@@ -12,10 +13,12 @@ model News {
   updated_by    Int?
   category_id   Int?
   thumbnail_url String?
+  web           Web           @relation(fields: [web_id], references: [id])
   category      NewsCategory? @relation(fields: [category_id], references: [id])
   is_featured    Boolean         @default(false)
   newsImages    NewsImage[]
 
+  @@index([web_id])
   @@map("news")
 }
 

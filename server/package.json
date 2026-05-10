@@ -20,6 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:repair:checksums": "node scripts/repair-prisma-migration-checksums.js",
+    "prisma:refresh": "prisma db push && prisma generate",
+    "prisma:refresh:exhibition-zone": "prisma db execute --file src/infrastructure/prisma/sql/exhibition-zone-many-to-many-refresh.sql && prisma db push && prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:deploy": "prisma migrate deploy"
   },

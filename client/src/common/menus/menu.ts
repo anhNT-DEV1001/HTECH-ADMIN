@@ -1,4 +1,4 @@
-import { ListCheck, LucideIcon, Newspaper, PanelsTopLeft, ProjectorIcon, UserCheck } from 'lucide-react';
+import { CalendarDays, Globe, ListCheck, LucideIcon, Newspaper, PanelsTopLeft, ProjectorIcon, Store, UserCheck, UsersRound } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -18,6 +18,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Nhóm quyền", icon: ShieldCheck, href: "/roles" },
       { label: "Người dùng", icon: Users, href: "/users" },
       { label: "Tài nguyên", icon: ListTree, href: "/resources" },
+      { label: "Danh sách web-site", icon: Globe, href: "/web-sites" },
       // {label : "Cấu hình chung" , icon : Settings , href : "/masterdata" },
     ],
   },
@@ -30,5 +31,14 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Tuyển dụng", icon: UserCheck, href: "/htech-careers" },
       { label: "Thông tin chung" , icon: ListCheck, href: "/htech-info" },
     ]
+  },
+  {
+    label: "VNSEC",
+    icon: Store,
+    children: [
+      { label: "Agenda", icon: CalendarDays, href: "/vnsec-agenda" },
+      { label: "Exhibition", icon: PanelsTopLeft, href: "/vnsec-exhibitions" },
+      { label: "Exhibitor", icon: UsersRound, href: "/vnsec-exhibitors" },
+    ],
   }
 ];

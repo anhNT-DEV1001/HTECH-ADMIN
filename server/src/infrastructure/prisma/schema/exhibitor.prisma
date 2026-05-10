@@ -1,0 +1,106 @@
+model ExhibitorRank { // Hạng Exhiitor
+  id            Int        @id @default(autoincrement())
+  name_vn       String
+  name_en       String?
+  display_order Int        @default(0)
+  web_id        Int
+
+  web        Web         @relation(fields: [web_id], references: [id])
+  exhibitors Exhibitor[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@map("exhibitor_ranks")
+}
+
+model Booth { // Gian hàng
+  id     Int     @id @default(autoincrement())
+  name   String?
+  web_id Int
+
+  web        Web         @relation(fields: [web_id], references: [id])
+  exhibitors Exhibitor[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@unique([web_id, name])
+  @@map("booths")
+}
+
+model Exhibitor { 
+  id         Int    @id @default(autoincrement())
+  name       String
+
+  sumary_vn  String
+  sumary_en  String?
+  content_vn String
+  content_en String?
+
+  rankId  Int
+  boothId Int
+  web_id  Int
+
+  rank ExhibitorRank @relation(fields: [rankId], references: [id])
+  booth Booth        @relation(fields: [boothId], references: [id])
+  web   Web          @relation(fields: [web_id], references: [id])
+
+  exhibitions Exhibition[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@index([rankId])
+  @@index([boothId])
+  @@map("exhibitors")
+}
+
+model Exhibition { // lĩnh vực
+  id            Int         @id @default(autoincrement())
+  logo          String?
+  name_vn       String
+  name_en       String?
+  title_vn      String
+  title_en      String?
+  sumary_vn     String?
+  sumary_en     String?
+  content_vn    String?
+  content_en    String?
+  display_order Int         @default(0)
+  web_id        Int
+
+  web        Web         @relation(fields: [web_id], references: [id])
+  zones      Zone[]
+  exhibitors Exhibitor[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@map("exhibitions")
+}
+
+model Zone {
+  id          Int    @id() @default(autoincrement())
+  name_vn     String
+  name_en     String?
+  web_id      Int
+
+  web         Web          @relation(fields: [web_id], references: [id])
+  exhibitions Exhibition[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+
+  @@index([web_id])
+  @@map("zones")
+}

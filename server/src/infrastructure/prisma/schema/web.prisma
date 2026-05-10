@@ -1,0 +1,16 @@
+model Web {
+  id             Int             @id() @default(autoincrement())
+  name           String
+  alias          String          @unique
+  url            String
+  agendas        Agenda[]
+  projects       Project[]
+  news           News[]
+  zones          Zone[]
+  exhibitions    Exhibition[]
+  exhibitors     Exhibitor[]
+  exhibitorRanks ExhibitorRank[]
+  booths         Booth[]
+
+  @@map("webs")
+}

@@ -1,0 +1,138 @@
+import type { BaseResponse } from "@/common/types";
+import axiosClient from "@/lib/axios";
+import type {
+  IBooth,
+  ICreateBooth,
+  ICreateExhibition,
+  ICreateExhibitor,
+  ICreateExhibitorRank,
+  ICreateZone,
+  IExhibition,
+  IExhibitor,
+  IExhibitorRank,
+  IUpdateBooth,
+  IUpdateExhibition,
+  IUpdateExhibitor,
+  IUpdateExhibitorRank,
+  IUpdateZone,
+  IZone,
+} from "../interfaces";
+
+export const exhibitionService = {
+  async getExhibitions(): Promise<BaseResponse<IExhibition[]>> {
+    const response = await axiosClient.get<BaseResponse<IExhibition[]>>("/exhibition");
+    return response.data;
+  },
+
+  async createExhibition(body: ICreateExhibition): Promise<BaseResponse<IExhibition>> {
+    const { zone_id, ...payload } = body;
+    const response = await axiosClient.post<BaseResponse<IExhibition>>("/exhibition", {
+      ...payload,
+      zone_ids: [zone_id],
+    });
+    return response.data;
+  },
+
+  async updateExhibition({ id, ...body }: IUpdateExhibition): Promise<BaseResponse<IExhibition>> {
+    const { zone_id, ...payload } = body;
+    const response = await axiosClient.patch<BaseResponse<IExhibition>>(`/exhibition/${id}`, {
+      ...payload,
+      zone_ids: zone_id !== undefined ? [zone_id] : undefined,
+    });
+    return response.data;
+  },
+
+  async deleteExhibition(id: number): Promise<BaseResponse<IExhibition>> {
+    const response = await axiosClient.delete<BaseResponse<IExhibition>>(`/exhibition/${id}`);
+    return response.data;
+  },
+
+  async getZones(): Promise<BaseResponse<IZone[]>> {
+    const response = await axiosClient.get<BaseResponse<IZone[]>>("/exhibition/zones");
+    return response.data;
+  },
+
+  async createZone(body: ICreateZone): Promise<BaseResponse<IZone>> {
+    const response = await axiosClient.post<BaseResponse<IZone>>("/exhibition/zones", body);
+    return response.data;
+  },
+
+  async updateZone({ id, ...body }: IUpdateZone): Promise<BaseResponse<IZone>> {
+    const response = await axiosClient.patch<BaseResponse<IZone>>(`/exhibition/zones/${id}`, body);
+    return response.data;
+  },
+
+  async deleteZone(id: number): Promise<BaseResponse<IZone>> {
+    const response = await axiosClient.delete<BaseResponse<IZone>>(`/exhibition/zones/${id}`);
+    return response.data;
+  },
+
+  async getExhibitorRanks(): Promise<BaseResponse<IExhibitorRank[]>> {
+    const response = await axiosClient.get<BaseResponse<IExhibitorRank[]>>("/exhibition/ranks");
+    return response.data;
+  },
+
+  async createExhibitorRank(body: ICreateExhibitorRank): Promise<BaseResponse<IExhibitorRank>> {
+    const response = await axiosClient.post<BaseResponse<IExhibitorRank>>("/exhibition/ranks", body);
+    return response.data;
+  },
+
+  async updateExhibitorRank({
+    id,
+    ...body
+  }: IUpdateExhibitorRank): Promise<BaseResponse<IExhibitorRank>> {
+    const response = await axiosClient.patch<BaseResponse<IExhibitorRank>>(
+      `/exhibition/ranks/${id}`,
+      body,
+    );
+    return response.data;
+  },
+
+  async deleteExhibitorRank(id: number): Promise<BaseResponse<IExhibitorRank>> {
+    const response = await axiosClient.delete<BaseResponse<IExhibitorRank>>(`/exhibition/ranks/${id}`);
+    return response.data;
+  },
+
+  async getBooths(): Promise<BaseResponse<IBooth[]>> {
+    const response = await axiosClient.get<BaseResponse<IBooth[]>>("/exhibition/booths");
+    return response.data;
+  },
+
+  async createBooth(body: ICreateBooth): Promise<BaseResponse<IBooth>> {
+    const response = await axiosClient.post<BaseResponse<IBooth>>("/exhibition/booths", body);
+    return response.data;
+  },
+
+  async updateBooth({ id, ...body }: IUpdateBooth): Promise<BaseResponse<IBooth>> {
+    const response = await axiosClient.patch<BaseResponse<IBooth>>(`/exhibition/booths/${id}`, body);
+    return response.data;
+  },
+
+  async deleteBooth(id: number): Promise<BaseResponse<IBooth>> {
+    const response = await axiosClient.delete<BaseResponse<IBooth>>(`/exhibition/booths/${id}`);
+    return response.data;
+  },
+
+  async getExhibitors(): Promise<BaseResponse<IExhibitor[]>> {
+    const response = await axiosClient.get<BaseResponse<IExhibitor[]>>("/exhibition/exhibitors");
+    return response.data;
+  },
+
+  async createExhibitor(body: ICreateExhibitor): Promise<BaseResponse<IExhibitor>> {
+    const response = await axiosClient.post<BaseResponse<IExhibitor>>("/exhibition/exhibitors", body);
+    return response.data;
+  },
+
+  async updateExhibitor({ id, ...body }: IUpdateExhibitor): Promise<BaseResponse<IExhibitor>> {
+    const response = await axiosClient.patch<BaseResponse<IExhibitor>>(
+      `/exhibition/exhibitors/${id}`,
+      body,
+    );
+    return response.data;
+  },
+
+  async deleteExhibitor(id: number): Promise<BaseResponse<IExhibitor>> {
+    const response = await axiosClient.delete<BaseResponse<IExhibitor>>(`/exhibition/exhibitors/${id}`);
+    return response.data;
+  },
+};

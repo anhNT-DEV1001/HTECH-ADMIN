@@ -14,9 +14,12 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
 import { MasterdataModule } from './modules/masterdata/masterdata.module';
 import { MailsModule } from './infrastructure/mails/mails.module';
 import { CompanyModule } from './modules/company/company.module';
+import { AgendaModule } from './modules/agenda/agenda.module';
+import { WebModule } from './modules/web/web.module';
+import { ExhibitionModule } from './modules/exhibition/exhibition.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule, CompanyModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule, CompanyModule, AgendaModule, WebModule, ExhibitionModule],
   controllers: [],
   providers: [
     {
