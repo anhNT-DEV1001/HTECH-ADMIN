@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import type { Booth, Exhibition, Exhibitor, ExhibitorRank, Zone } from '@prisma/client';
 import { BaseResponse } from 'src/common/apis';
 import { RoleConstant } from 'src/common/constants';
-import { RequirePermissions } from 'src/common/decorators';
+import { Public, RequirePermissions } from 'src/common/decorators';
 import {
   CreateBoothDto,
   CreateExhibitionDto,
@@ -20,6 +20,112 @@ import { ExhibitionService } from './exhibition.service';
 @Controller('exhibition')
 export class ExhibitionController {
   constructor(private readonly exhibitionService: ExhibitionService) {}
+
+  @Public()
+  @Get('public')
+  async getPublicExhibitionDataController() {
+    const res = await this.exhibitionService.getPublicExhibitionDataService();
+    return {
+      status: 'success',
+      message: 'Lấy dữ liệu exhibition public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/zones')
+  async getPublicZonesController(): Promise<BaseResponse<Zone[]>> {
+    const res = await this.exhibitionService.getAllZonesService();
+    return { status: 'success', message: 'Lấy danh sách zone public thành công', data: res };
+  }
+
+  @Public()
+  @Get('public/ranks')
+  async getPublicExhibitorRanksController(): Promise<BaseResponse<ExhibitorRank[]>> {
+    const res = await this.exhibitionService.getAllExhibitorRanksService();
+    return {
+      status: 'success',
+      message: 'Lấy danh sách hạng exhibitor public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/booths')
+  async getPublicBoothsController(): Promise<BaseResponse<Booth[]>> {
+    const res = await this.exhibitionService.getAllBoothsService();
+    return { status: 'success', message: 'Lấy danh sách booth public thành công', data: res };
+  }
+
+  @Public()
+  @Get('public/exhibitors')
+  async getPublicExhibitorsController(): Promise<BaseResponse<Exhibitor[]>> {
+    const res = await this.exhibitionService.getAllExhibitorsService();
+    return {
+      status: 'success',
+      message: 'Lấy danh sách exhibitor public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/exhibitors/:id')
+  async getPublicExhibitorByIdController(
+    @Param('id') id: string,
+  ): Promise<BaseResponse<Exhibitor>> {
+    const res = await this.exhibitionService.getExhibitorByIdService(+id);
+    return { status: 'success', message: 'Lấy chi tiết exhibitor public thành công', data: res };
+  }
+
+  @Public()
+  @Get('public/exhibitions/:exhibitionId/exhibitors/:exhibitorId')
+  async getPublicExhibitorByExhibitionIdController(
+    @Param('exhibitionId') exhibitionId: string,
+    @Param('exhibitorId') exhibitorId: string,
+  ): Promise<BaseResponse<Exhibitor>> {
+    const res = await this.exhibitionService.getPublicExhibitorByExhibitionIdService(
+      +exhibitionId,
+      +exhibitorId,
+    );
+    return {
+      status: 'success',
+      message: 'Lấy chi tiết exhibitor theo exhibition public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/exhibitions/:id/exhibitors')
+  async getPublicExhibitorsByExhibitionIdController(
+    @Param('id') id: string,
+  ): Promise<BaseResponse<Exhibitor[]>> {
+    const res = await this.exhibitionService.getPublicExhibitorsByExhibitionIdService(+id);
+    return {
+      status: 'success',
+      message: 'Lấy danh sách exhibitor theo exhibition public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/exhibitions')
+  async getPublicExhibitionsController(): Promise<BaseResponse<Exhibition[]>> {
+    const res = await this.exhibitionService.getAllExhibitionsService();
+    return {
+      status: 'success',
+      message: 'Lấy danh sách exhibition public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/exhibitions/:id')
+  async getPublicExhibitionByIdController(
+    @Param('id') id: string,
+  ): Promise<BaseResponse<Exhibition>> {
+    const res = await this.exhibitionService.getExhibitionByIdService(+id);
+    return { status: 'success', message: 'Lấy chi tiết exhibition public thành công', data: res };
+  }
 
   @Get('zones')
   @RequirePermissions(RoleConstant.VIEW)

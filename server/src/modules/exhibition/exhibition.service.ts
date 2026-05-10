@@ -65,6 +65,24 @@ export class ExhibitionService {
     });
   }
 
+  async getPublicExhibitionDataService() {
+    const [zones, ranks, booths, exhibitors, exhibitions] = await Promise.all([
+      this.getAllZonesService(),
+      this.getAllExhibitorRanksService(),
+      this.getAllBoothsService(),
+      this.getAllExhibitorsService(),
+      this.getAllExhibitionsService(),
+    ]);
+
+    return {
+      zones,
+      ranks,
+      booths,
+      exhibitors,
+      exhibitions,
+    };
+  }
+
   async getZonesByWebIdService(webId: number) {
     return await this.prisma.zone.findMany({
       where: { web_id: webId },
@@ -357,6 +375,38 @@ export class ExhibitionService {
     });
     if (!exhibitor) throw new ApiError('Exhibitor không tồn tại', HttpStatus.NOT_FOUND);
     return exhibitor;
+  }
+
+  async getPublicExhibitorByExhibitionIdService(exhibitionId: number, exhibitorId: number) {
+    const exhibitor = await this.prisma.exhibitor.findFirst({
+      where: {
+        id: exhibitorId,
+        exhibitions: {
+          some: { id: exhibitionId },
+        },
+      },
+      include: this.exhibitorInclude,
+    });
+
+    if (!exhibitor) {
+      throw new ApiError('Exhibitor không tồn tại trong exhibition này', HttpStatus.NOT_FOUND);
+    }
+
+    return exhibitor;
+  }
+
+  async getPublicExhibitorsByExhibitionIdService(exhibitionId: number) {
+    await this.ensureExists('exhibition', exhibitionId, 'Exhibition không tồn tại');
+
+    return await this.prisma.exhibitor.findMany({
+      where: {
+        exhibitions: {
+          some: { id: exhibitionId },
+        },
+      },
+      include: this.exhibitorInclude,
+      orderBy: { id: 'asc' },
+    });
   }
 
   async createExhibitorService(dto: CreateExhibitorDto) {

@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Prisma } from '@prisma/client';
 import { BaseResponse } from 'src/common/apis';
 import { RoleConstant } from 'src/common/constants';
-import { RequirePermissions  } from 'src/common/decorators';
+import { Public, RequirePermissions  } from 'src/common/decorators';
 import { DeleteFileOnErrorFilter } from 'src/common/interceptors';
 import type { IPaginationRequest, IPaginationResponse } from 'src/common/interfaces';
 import { multerPdfOptions } from 'src/configs';
@@ -127,6 +127,18 @@ const normalizeUpdateAgendaBody = (body: AgendaFormDataBody): UpdateAgendaDto =>
 @Controller('agenda')
 export class AgendaController {
   constructor(private readonly agendaService: AgendaService) {}
+  @Public()
+  @Get('public')
+  async getAllAgendaPublicController(
+    @Query() query: AgendaQuery,
+  ): Promise<BaseResponse<IPaginationResponse<AgendaPayload>>> {
+    const res = await this.agendaService.getAllAgendaService(query);
+    return {
+      status: 'success',
+      message: 'Lấy danh sách agenda thành công',
+      data: res,
+    };
+  }
 
   @Get()
   // @RequirePermissions(RoleConstant.VIEW)
