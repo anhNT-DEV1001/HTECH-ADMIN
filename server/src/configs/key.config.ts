@@ -13,6 +13,8 @@ export const key = {
     url: String(process.env.FRONTEND_URL),
     htech_url_local: String(process.env.HTECH_URL_LOCAL) || 'http://localhost:3000',
     htech_url: String(process.env.HTECH_URL) || 'http://htechevent.com',
+    vnsec_url: String(process.env.VNSEC_URL) || 'http://localhost:3030',
+    vnsec_url_local: String(process.env.VNSEC_URL_LOCAL) || 'http://localhost:3030',
   },
   jwt: {
     access_secret: String(process.env.ACCESS_SECRET),
