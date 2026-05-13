@@ -423,6 +423,7 @@ export class ExhibitionService {
     try {
       const data: Prisma.ExhibitorUncheckedCreateInput = {
         name: dto.name,
+        img: dto.img || null,
         sumary_vn: dto.sumary_vn,
         sumary_en: dto.sumary_en || '',
         content_vn: dto.content_vn,
@@ -451,6 +452,7 @@ export class ExhibitionService {
 
       const data: Prisma.ExhibitorUncheckedUpdateInput = {
         name: dto.name ?? exhibitor.name,
+        img: dto.remove_img ? null : (dto.img ?? exhibitor.img),
         sumary_vn: dto.sumary_vn ?? exhibitor.sumary_vn,
         sumary_en: dto.sumary_en ?? exhibitor.sumary_en,
         content_vn: dto.content_vn ?? exhibitor.content_vn,

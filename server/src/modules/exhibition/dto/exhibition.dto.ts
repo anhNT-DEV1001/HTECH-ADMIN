@@ -6,6 +6,17 @@ function toNumber(value: any) {
   return typeof value === 'string' ? Number(value) : value;
 }
 
+function toBoolean(value: any) {
+  if (value === '' || value === null || value === undefined) return undefined;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true' || normalized === '1') return true;
+    if (normalized === 'false' || normalized === '0') return false;
+  }
+  return Boolean(value);
+}
+
 function toNumberArray(value: any) {
   if (value === '' || value === null || value === undefined) return undefined;
   if (Array.isArray(value)) return value.map(Number);
@@ -242,7 +253,7 @@ export class CreateExhibitorDto {
 
   @IsString()
   @IsOptional()
-  logo_url?: string;
+  img?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -286,7 +297,7 @@ export class UpdateExhibitorDto {
 
   @IsString()
   @IsOptional()
-  logo_url?: string;
+  img?: string;
 
   @IsString()
   @IsOptional()
@@ -324,4 +335,8 @@ export class UpdateExhibitorDto {
   @IsNumber({}, { each: true })
   @IsOptional()
   exhibition_ids?: number[];
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsOptional()
+  remove_img?: boolean;
 }

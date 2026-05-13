@@ -36,7 +36,7 @@ export interface IBooth {
 export interface IExhibitor {
   id: number;
   name: string;
-  logo_url?: string | null;
+  img?: string | null;
   sumary_vn: string;
   sumary_en?: string | null;
   content_vn: string;
@@ -125,7 +125,8 @@ export interface IUpdateBooth extends Partial<ICreateBooth> {
 
 export interface ICreateExhibitor {
   name: string;
-  logo_url?: string;
+  img?: string | null;
+  imgFile?: File | null;
   sumary_vn: string;
   sumary_en?: string;
   content_vn: string;
@@ -134,6 +135,7 @@ export interface ICreateExhibitor {
   boothId: number;
   web_id: number;
   exhibition_ids?: number[];
+  remove_img?: boolean;
 }
 
 export interface IUpdateExhibitor extends Partial<ICreateExhibitor> {

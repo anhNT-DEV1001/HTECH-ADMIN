@@ -50,6 +50,8 @@ model Exhibitor {
   booth Booth        @relation(fields: [boothId], references: [id])
   web   Web          @relation(fields: [web_id], references: [id])
 
+  img String? 
+
   exhibitions Exhibition[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

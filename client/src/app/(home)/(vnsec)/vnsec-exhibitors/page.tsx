@@ -1,7 +1,6 @@
 "use client";
 
 import { useDebouncedValue } from "@/common/hooks";
-import { LucideIconByName } from "@/common/components/ui/lucide-icon";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,6 +57,17 @@ type ExhibitorSortKey = "name" | "rank" | "booth" | "web_id" | "updated_at";
 const PAGE_LIMIT_OPTIONS = [10, 20, 50];
 
 const normalizeText = (value?: string | null) => value?.toLowerCase().trim() || "";
+const getImageUrl = (path?: string | null) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) {
+    return path;
+  }
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api/v1").replace(
+    "/api/v1",
+    "",
+  );
+  return `${baseUrl}${path}`;
+};
 
 const sortByValue = <T,>(
   items: T[],
@@ -670,9 +680,17 @@ export default function VnsecExhibitorsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-blue-50 text-blue-700">
-                            <LucideIconByName name={exhibitor.logo_url} size={16} />
-                          </div>
+                          {exhibitor.img ? (
+                            <img
+                              src={getImageUrl(exhibitor.img)}
+                              alt={exhibitor.name}
+                              className="h-9 w-9 shrink-0 rounded-md border object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted text-xs text-muted-foreground">
+                              N/A
+                            </div>
+                          )}
                           <div className="font-medium">{exhibitor.name}</div>
                         </div>
                         <div className="line-clamp-2 text-xs text-muted-foreground">{exhibitor.sumary_vn}</div>

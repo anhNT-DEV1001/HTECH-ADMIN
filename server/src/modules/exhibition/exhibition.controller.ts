@@ -1,8 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Booth, Exhibition, Exhibitor, ExhibitorRank, Zone } from '@prisma/client';
 import { BaseResponse } from 'src/common/apis';
 import { RoleConstant } from 'src/common/constants';
 import { Public, RequirePermissions } from 'src/common/decorators';
+import { DeleteFileOnErrorFilter } from 'src/common/interceptors';
+import { multerOptions } from 'src/configs';
 import {
   CreateBoothDto,
   CreateExhibitionDto,
@@ -16,6 +29,75 @@ import {
   UpdateZoneDto,
 } from './dto';
 import { ExhibitionService } from './exhibition.service';
+
+type ExhibitorFormDataBody = {
+  name?: string;
+  sumary_vn?: string;
+  sumary_en?: string;
+  content_vn?: string;
+  content_en?: string;
+  rankId?: string;
+  boothId?: string;
+  web_id?: string;
+  exhibition_ids?: string;
+  remove_img?: string;
+};
+
+const getPublicFilePath = (file: Express.Multer.File) =>
+  file.path.replace(/\\/g, '/').split('/public')[1] || '';
+
+const toText = (value: string | undefined) => value?.trim() || '';
+const toOptionalText = (value: string | undefined) => {
+  const text = value?.trim();
+  return text || undefined;
+};
+const toNumberValue = (value: string | undefined) =>
+  value === undefined || value === '' ? undefined : Number(value);
+const toBooleanValue = (value: string | undefined) => {
+  if (value === undefined || value === '') return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true' || normalized === '1') return true;
+  if (normalized === 'false' || normalized === '0') return false;
+  return Boolean(value);
+};
+const toNumberArray = (value: string | undefined) => {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map(Number) : [];
+  } catch {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map(Number);
+  }
+};
+
+const normalizeCreateExhibitorBody = (body: ExhibitorFormDataBody): CreateExhibitorDto => ({
+  name: toText(body.name),
+  sumary_vn: toText(body.sumary_vn),
+  sumary_en: toOptionalText(body.sumary_en),
+  content_vn: toText(body.content_vn),
+  content_en: toOptionalText(body.content_en),
+  rankId: Number(body.rankId),
+  boothId: Number(body.boothId),
+  web_id: Number(body.web_id),
+  exhibition_ids: toNumberArray(body.exhibition_ids),
+});
+
+const normalizeUpdateExhibitorBody = (body: ExhibitorFormDataBody): UpdateExhibitorDto => ({
+  name: body.name !== undefined ? toText(body.name) : undefined,
+  sumary_vn: body.sumary_vn !== undefined ? toText(body.sumary_vn) : undefined,
+  sumary_en: body.sumary_en !== undefined ? toOptionalText(body.sumary_en) : undefined,
+  content_vn: body.content_vn !== undefined ? toText(body.content_vn) : undefined,
+  content_en: body.content_en !== undefined ? toOptionalText(body.content_en) : undefined,
+  rankId: toNumberValue(body.rankId),
+  boothId: toNumberValue(body.boothId),
+  web_id: toNumberValue(body.web_id),
+  exhibition_ids: body.exhibition_ids !== undefined ? toNumberArray(body.exhibition_ids) : undefined,
+  remove_img: toBooleanValue(body.remove_img),
+});
 
 @Controller('exhibition')
 export class ExhibitionController {
@@ -280,19 +362,37 @@ export class ExhibitionController {
 
   @Post('exhibitors')
   @RequirePermissions(RoleConstant.CREATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'exhibitor')),
+    DeleteFileOnErrorFilter,
+  )
   async createExhibitorController(
-    @Body() dto: CreateExhibitorDto,
+    @Body() body: ExhibitorFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<BaseResponse<Exhibitor>> {
+    const dto = normalizeCreateExhibitorBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
     const res = await this.exhibitionService.createExhibitorService(dto);
     return { status: 'success', message: 'Tạo exhibitor thành công', data: res };
   }
 
   @Patch('exhibitors/:id')
   @RequirePermissions(RoleConstant.UPDATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'exhibitor')),
+    DeleteFileOnErrorFilter,
+  )
   async updateExhibitorController(
     @Param('id') id: string,
-    @Body() dto: UpdateExhibitorDto,
+    @Body() body: ExhibitorFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<BaseResponse<Exhibitor>> {
+    const dto = normalizeUpdateExhibitorBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
     const res = await this.exhibitionService.updateExhibitorService(+id, dto);
     return { status: 'success', message: 'Cập nhật exhibitor thành công', data: res };
   }

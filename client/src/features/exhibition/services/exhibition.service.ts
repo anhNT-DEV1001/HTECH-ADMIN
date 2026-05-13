@@ -18,6 +18,29 @@ import type {
   IZone,
 } from "../interfaces";
 
+const appendExhibitorFormData = (
+  formData: FormData,
+  body: Partial<ICreateExhibitor>,
+) => {
+  if (body.name !== undefined) formData.append("name", body.name);
+  if (body.sumary_vn !== undefined) formData.append("sumary_vn", body.sumary_vn);
+  if (body.sumary_en !== undefined) formData.append("sumary_en", body.sumary_en);
+  if (body.content_vn !== undefined) formData.append("content_vn", body.content_vn);
+  if (body.content_en !== undefined) formData.append("content_en", body.content_en);
+  if (body.rankId !== undefined) formData.append("rankId", String(body.rankId));
+  if (body.boothId !== undefined) formData.append("boothId", String(body.boothId));
+  if (body.web_id !== undefined) formData.append("web_id", String(body.web_id));
+  if (body.exhibition_ids !== undefined) {
+    formData.append("exhibition_ids", JSON.stringify(body.exhibition_ids));
+  }
+  if (body.remove_img !== undefined) {
+    formData.append("remove_img", String(body.remove_img));
+  }
+  if (body.imgFile) {
+    formData.append("file", body.imgFile);
+  }
+};
+
 export const exhibitionService = {
   async getExhibitions(): Promise<BaseResponse<IExhibition[]>> {
     const response = await axiosClient.get<BaseResponse<IExhibition[]>>("/exhibition");
@@ -119,14 +142,23 @@ export const exhibitionService = {
   },
 
   async createExhibitor(body: ICreateExhibitor): Promise<BaseResponse<IExhibitor>> {
-    const response = await axiosClient.post<BaseResponse<IExhibitor>>("/exhibition/exhibitors", body);
+    const formData = new FormData();
+    appendExhibitorFormData(formData, body);
+    const response = await axiosClient.post<BaseResponse<IExhibitor>>("/exhibition/exhibitors", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   },
 
   async updateExhibitor({ id, ...body }: IUpdateExhibitor): Promise<BaseResponse<IExhibitor>> {
+    const formData = new FormData();
+    appendExhibitorFormData(formData, body);
     const response = await axiosClient.patch<BaseResponse<IExhibitor>>(
       `/exhibition/exhibitors/${id}`,
-      body,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
     );
     return response.data;
   },
