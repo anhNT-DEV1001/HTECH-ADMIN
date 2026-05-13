@@ -1,6 +1,7 @@
 "use client";
 
 import { useDebouncedValue } from "@/common/hooks";
+import { LucideIconByName } from "@/common/components/ui/lucide-icon";
 import { useConfirm } from "@/common/providers/ConfirmProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -668,7 +669,12 @@ export default function VnsecExhibitorsPage() {
                         {(exhibitorPage - 1) * exhibitorLimit + index + 1}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{exhibitor.name}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-blue-50 text-blue-700">
+                            <LucideIconByName name={exhibitor.logo_url} size={16} />
+                          </div>
+                          <div className="font-medium">{exhibitor.name}</div>
+                        </div>
                         <div className="line-clamp-2 text-xs text-muted-foreground">{exhibitor.sumary_vn}</div>
                       </TableCell>
                       <TableCell className="text-center">

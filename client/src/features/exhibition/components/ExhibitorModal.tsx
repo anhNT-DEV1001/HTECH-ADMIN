@@ -1,6 +1,7 @@
 "use client";
 
 import { DraggableModal } from "@/common/components/ui/Modal";
+import { LucideIconByName } from "@/common/components/ui/lucide-icon";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,7 @@ export default function ExhibitorModal({
   } = useForm<ICreateExhibitor>({
     defaultValues: {
       name: "",
+      logo_url: "",
       sumary_vn: "",
       sumary_en: "",
       content_vn: "",
@@ -72,6 +74,7 @@ export default function ExhibitorModal({
   const selectedWebId = useWatch({ control, name: "web_id" });
   const selectedRankId = useWatch({ control, name: "rankId" });
   const selectedBoothId = useWatch({ control, name: "boothId" });
+  const selectedLogoUrl = useWatch({ control, name: "logo_url" });
   const selectedExhibitionIds = useWatch({ control, name: "exhibition_ids" }) || [];
 
   const ranksByWeb = useMemo(
@@ -93,6 +96,7 @@ export default function ExhibitorModal({
     if (data) {
       reset({
         name: data.name,
+        logo_url: data.logo_url || "",
         sumary_vn: data.sumary_vn,
         sumary_en: data.sumary_en || "",
         content_vn: data.content_vn,
@@ -107,6 +111,7 @@ export default function ExhibitorModal({
 
     reset({
       name: "",
+      logo_url: "",
       sumary_vn: "",
       sumary_en: "",
       content_vn: "",
@@ -156,6 +161,7 @@ export default function ExhibitorModal({
   const onSubmit: SubmitHandler<ICreateExhibitor> = (formData) => {
     onSave({
       name: formData.name.trim(),
+      logo_url: formData.logo_url?.trim() || "",
       sumary_vn: formData.sumary_vn.trim(),
       sumary_en: formData.sumary_en?.trim() || "",
       content_vn: formData.content_vn.trim(),
@@ -231,6 +237,22 @@ export default function ExhibitorModal({
               placeholder="Tên nhà triển lãm"
             />
             {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-1">
+            <Label>Tên icon Lucide</Label>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted/30 text-primary">
+                <LucideIconByName name={selectedLogoUrl} size={18} />
+              </div>
+              <Input
+                {...register("logo_url")}
+                placeholder="Shield, Building2, Camera..."
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Giá trị này sẽ được dùng như tên icon từ `lucide-react`.
+            </p>
           </div>
 
           <div className="space-y-1">

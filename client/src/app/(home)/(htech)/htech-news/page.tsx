@@ -498,12 +498,14 @@ function HtechNewContent() {
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() =>
+                        onClick={() => {
+                          const formData = new FormData();
+                          formData.append('is_featured', !newItem.is_featured ? '1' : '0');
                           updateNewsMutation.mutate({
                             id: newItem.id,
-                            body: { is_featured: !newItem.is_featured } as any,
-                          })
-                        }
+                            body: formData as any,
+                          });
+                        }}
                         disabled={isUpdating}
                         className="hover:bg-yellow-50"
                         title={newItem.is_featured ? "Bỏ nổi bật" : "Đánh dấu nổi bật"}

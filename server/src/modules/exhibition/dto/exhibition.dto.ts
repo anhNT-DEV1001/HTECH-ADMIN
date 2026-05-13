@@ -115,6 +115,10 @@ export class CreateExhibitionDto {
   logo?: string;
 
   @IsString()
+  @IsOptional()
+  logo_url?: string;
+
+  @IsString()
   @IsNotEmpty()
   name_vn: string;
 
@@ -171,6 +175,10 @@ export class UpdateExhibitionDto {
   @IsString()
   @IsOptional()
   logo?: string;
+
+  @IsString()
+  @IsOptional()
+  logo_url?: string;
 
   @IsString()
   @IsOptional()
@@ -233,6 +241,10 @@ export class CreateExhibitorDto {
   name: string;
 
   @IsString()
+  @IsOptional()
+  logo_url?: string;
+
+  @IsString()
   @IsNotEmpty()
   sumary_vn: string;
 
@@ -271,6 +283,10 @@ export class UpdateExhibitorDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsString()
+  @IsOptional()
+  logo_url?: string;
 
   @IsString()
   @IsOptional()

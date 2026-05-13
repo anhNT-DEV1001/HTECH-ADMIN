@@ -1,6 +1,7 @@
 "use client";
 
 import { useConfirm } from "@/common/providers/ConfirmProvider";
+import { LucideIconByName } from "@/common/components/ui/lucide-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -426,11 +427,18 @@ export default function VnsecExhibitionsPage() {
                     <TableRow key={exhibition.id}>
                       <TableCell className="text-center font-mono text-xs text-muted-foreground">{stt}</TableCell>
                       <TableCell>
-                        <div className="font-medium">{exhibition.name_vn}</div>
-                        <div className="text-xs text-muted-foreground">{exhibition.title_vn}</div>
-                        {exhibition.name_en && (
-                          <div className="text-xs text-muted-foreground">{exhibition.name_en}</div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-blue-50 text-blue-700">
+                            <LucideIconByName name={exhibition.logo} size={16} />
+                          </div>
+                          <div>
+                            <div className="font-medium">{exhibition.name_vn}</div>
+                            <div className="text-xs text-muted-foreground">{exhibition.title_vn}</div>
+                            {exhibition.name_en && (
+                              <div className="text-xs text-muted-foreground">{exhibition.name_en}</div>
+                            )}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap justify-center gap-1">

@@ -36,6 +36,7 @@ export interface IBooth {
 export interface IExhibitor {
   id: number;
   name: string;
+  logo_url?: string | null;
   sumary_vn: string;
   sumary_en?: string | null;
   content_vn: string;
@@ -124,6 +125,7 @@ export interface IUpdateBooth extends Partial<ICreateBooth> {
 
 export interface ICreateExhibitor {
   name: string;
+  logo_url?: string;
   sumary_vn: string;
   sumary_en?: string;
   content_vn: string;

@@ -10,10 +10,12 @@ export const newsService = {
     });
     return responese.data;
   },
-  async updateNews(id: number, formData: FormData): Promise<BaseResponse<any>> {
-    const response = await axiosClient.patch<BaseResponse<any>>(`/news/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+  async updateNews(id: number, body: FormData | Partial<IUpdateNews>): Promise<BaseResponse<any>> {
+    const config = body instanceof FormData
+      ? { headers: { 'Content-Type': 'multipart/form-data' } }
+      : undefined;
+
+    const response = await axiosClient.patch<BaseResponse<any>>(`/news/${id}`, body, config);
     return response.data;
   },
   async deleteNews(id: number): Promise<BaseResponse<any>> {

@@ -89,7 +89,7 @@ export class NewsService {
 
         category: { connect: { id: dto.category_id ?? oldNews.category_id } },
 
-        is_featured: dto.is_featured,
+        is_featured: dto.is_featured ?? oldNews.is_featured,
 
         newsImages: dto.newsImage && Array.isArray(dto.newsImage)
           ? {
@@ -325,4 +325,3 @@ function slugify(text: string): string {
     .replace(/\s+/g, '-') // spaces to hyphens
     .replace(/-+/g, '-'); // collapse multiple hyphens
 }
-

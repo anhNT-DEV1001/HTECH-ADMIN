@@ -1,6 +1,7 @@
 "use client";
 
 import { DraggableModal } from "@/common/components/ui/Modal";
+import { LucideIconByName } from "@/common/components/ui/lucide-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,7 @@ export default function ExhibitionModal({
 
   const selectedWebId = useWatch({ control, name: "web_id" });
   const selectedZoneId = useWatch({ control, name: "zone_id" });
+  const selectedLogo = useWatch({ control, name: "logo" });
 
   const zonesByWeb = useMemo(
     () => zones.filter((zone) => zone.web_id === Number(selectedWebId)),
@@ -251,8 +253,16 @@ export default function ExhibitionModal({
           </div>
 
           <div className="space-y-1">
-            <Label>Logo URL</Label>
-            <Input {...register("logo")} placeholder="https://..." />
+            <Label>Tên icon Lucide</Label>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted/30 text-primary">
+                <LucideIconByName name={selectedLogo} size={18} />
+              </div>
+              <Input {...register("logo")} placeholder="User, Shield, Camera..." />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Giá trị này sẽ được dùng như tên icon từ `lucide-react`.
+            </p>
           </div>
 
           <div className="space-y-1">

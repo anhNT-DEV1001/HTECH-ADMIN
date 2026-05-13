@@ -19,6 +19,10 @@ import {
 export class ExhibitionService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private getExhibitionLogoValue(dto: { logo?: string; logo_url?: string }) {
+    return dto.logo_url?.trim() || dto.logo?.trim() || '';
+  }
+
   private readonly zoneInclude = {
     web: true,
     exhibitions: true,
@@ -276,8 +280,9 @@ export class ExhibitionService {
 
   async createExhibitionService(dto: CreateExhibitionDto) {
     try {
+      const logoValue = this.getExhibitionLogoValue(dto);
       const data: Prisma.ExhibitionCreateInput = {
-        logo: dto.logo || '',
+        logo: logoValue,
         name_vn: dto.name_vn,
         name_en: dto.name_en || '',
         title_vn: dto.title_vn,
@@ -308,8 +313,13 @@ export class ExhibitionService {
       const exhibition = await this.prisma.exhibition.findUnique({ where: { id } });
       if (!exhibition) throw new ApiError('Exhibition không tồn tại', HttpStatus.NOT_FOUND);
 
+      const logoValue =
+        dto.logo !== undefined || dto.logo_url !== undefined
+          ? this.getExhibitionLogoValue(dto)
+          : exhibition.logo;
+
       const data: Prisma.ExhibitionUpdateInput = {
-        logo: dto.logo ?? exhibition.logo,
+        logo: logoValue,
         name_vn: dto.name_vn ?? exhibition.name_vn,
         name_en: dto.name_en ?? exhibition.name_en,
         title_vn: dto.title_vn ?? exhibition.title_vn,
