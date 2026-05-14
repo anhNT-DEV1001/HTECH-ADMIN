@@ -41,6 +41,35 @@ const appendExhibitorFormData = (
   }
 };
 
+const appendExhibitionFormData = (
+  formData: FormData,
+  body: Partial<ICreateExhibition>,
+) => {
+  if (body.logo !== undefined) formData.append("logo", body.logo);
+  if (body.name_vn !== undefined) formData.append("name_vn", body.name_vn);
+  if (body.name_en !== undefined) formData.append("name_en", body.name_en);
+  if (body.title_vn !== undefined) formData.append("title_vn", body.title_vn);
+  if (body.title_en !== undefined) formData.append("title_en", body.title_en);
+  if (body.sumary_vn !== undefined) formData.append("sumary_vn", body.sumary_vn);
+  if (body.sumary_en !== undefined) formData.append("sumary_en", body.sumary_en);
+  if (body.content_vn !== undefined) formData.append("content_vn", body.content_vn);
+  if (body.content_en !== undefined) formData.append("content_en", body.content_en);
+  if (body.display_order !== undefined) {
+    formData.append("display_order", String(body.display_order));
+  }
+  if (body.web_id !== undefined) formData.append("web_id", String(body.web_id));
+  if (body.zone_ids !== undefined) formData.append("zone_ids", JSON.stringify(body.zone_ids));
+  if (body.exhibitor_ids !== undefined) {
+    formData.append("exhibitor_ids", JSON.stringify(body.exhibitor_ids));
+  }
+  if (body.remove_img !== undefined) {
+    formData.append("remove_img", String(body.remove_img));
+  }
+  if (body.imgFile) {
+    formData.append("file", body.imgFile);
+  }
+};
+
 export const exhibitionService = {
   async getExhibitions(): Promise<BaseResponse<IExhibition[]>> {
     const response = await axiosClient.get<BaseResponse<IExhibition[]>>("/exhibition");
@@ -49,19 +78,28 @@ export const exhibitionService = {
 
   async createExhibition(body: ICreateExhibition): Promise<BaseResponse<IExhibition>> {
     const { zone_id, ...payload } = body;
-    const response = await axiosClient.post<BaseResponse<IExhibition>>("/exhibition", {
-      ...payload,
-      zone_ids: [zone_id],
+    const formData = new FormData();
+    appendExhibitionFormData(formData, { ...payload, zone_ids: [zone_id] });
+    const response = await axiosClient.post<BaseResponse<IExhibition>>("/exhibition", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   },
 
   async updateExhibition({ id, ...body }: IUpdateExhibition): Promise<BaseResponse<IExhibition>> {
     const { zone_id, ...payload } = body;
-    const response = await axiosClient.patch<BaseResponse<IExhibition>>(`/exhibition/${id}`, {
+    const formData = new FormData();
+    appendExhibitionFormData(formData, {
       ...payload,
       zone_ids: zone_id !== undefined ? [zone_id] : undefined,
     });
+    const response = await axiosClient.patch<BaseResponse<IExhibition>>(
+      `/exhibition/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
     return response.data;
   },
 

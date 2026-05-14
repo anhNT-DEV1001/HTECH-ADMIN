@@ -43,6 +43,24 @@ type ExhibitorFormDataBody = {
   remove_img?: string;
 };
 
+type ExhibitionFormDataBody = {
+  logo?: string;
+  logo_url?: string;
+  name_vn?: string;
+  name_en?: string;
+  title_vn?: string;
+  title_en?: string;
+  sumary_vn?: string;
+  sumary_en?: string;
+  content_vn?: string;
+  content_en?: string;
+  display_order?: string;
+  web_id?: string;
+  zone_ids?: string;
+  exhibitor_ids?: string;
+  remove_img?: string;
+};
+
 const getPublicFilePath = (file: Express.Multer.File) =>
   file.path.replace(/\\/g, '/').split('/public')[1] || '';
 
@@ -96,6 +114,41 @@ const normalizeUpdateExhibitorBody = (body: ExhibitorFormDataBody): UpdateExhibi
   boothId: toNumberValue(body.boothId),
   web_id: toNumberValue(body.web_id),
   exhibition_ids: body.exhibition_ids !== undefined ? toNumberArray(body.exhibition_ids) : undefined,
+  remove_img: toBooleanValue(body.remove_img),
+});
+
+const normalizeCreateExhibitionBody = (body: ExhibitionFormDataBody): CreateExhibitionDto => ({
+  logo: toOptionalText(body.logo),
+  logo_url: toOptionalText(body.logo_url),
+  name_vn: toText(body.name_vn),
+  name_en: toOptionalText(body.name_en),
+  title_vn: toText(body.title_vn),
+  title_en: toOptionalText(body.title_en),
+  sumary_vn: toOptionalText(body.sumary_vn),
+  sumary_en: toOptionalText(body.sumary_en),
+  content_vn: toOptionalText(body.content_vn),
+  content_en: toOptionalText(body.content_en),
+  display_order: toNumberValue(body.display_order),
+  web_id: Number(body.web_id),
+  zone_ids: toNumberArray(body.zone_ids) || [],
+  exhibitor_ids: toNumberArray(body.exhibitor_ids),
+});
+
+const normalizeUpdateExhibitionBody = (body: ExhibitionFormDataBody): UpdateExhibitionDto => ({
+  logo: body.logo !== undefined ? toOptionalText(body.logo) : undefined,
+  logo_url: body.logo_url !== undefined ? toOptionalText(body.logo_url) : undefined,
+  name_vn: body.name_vn !== undefined ? toText(body.name_vn) : undefined,
+  name_en: body.name_en !== undefined ? toOptionalText(body.name_en) : undefined,
+  title_vn: body.title_vn !== undefined ? toText(body.title_vn) : undefined,
+  title_en: body.title_en !== undefined ? toOptionalText(body.title_en) : undefined,
+  sumary_vn: body.sumary_vn !== undefined ? toOptionalText(body.sumary_vn) : undefined,
+  sumary_en: body.sumary_en !== undefined ? toOptionalText(body.sumary_en) : undefined,
+  content_vn: body.content_vn !== undefined ? toOptionalText(body.content_vn) : undefined,
+  content_en: body.content_en !== undefined ? toOptionalText(body.content_en) : undefined,
+  display_order: toNumberValue(body.display_order),
+  web_id: toNumberValue(body.web_id),
+  zone_ids: body.zone_ids !== undefined ? toNumberArray(body.zone_ids) : undefined,
+  exhibitor_ids: body.exhibitor_ids !== undefined ? toNumberArray(body.exhibitor_ids) : undefined,
   remove_img: toBooleanValue(body.remove_img),
 });
 
@@ -433,19 +486,37 @@ export class ExhibitionController {
 
   @Post()
   @RequirePermissions(RoleConstant.CREATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'exhibition')),
+    DeleteFileOnErrorFilter,
+  )
   async createExhibitionController(
-    @Body() dto: CreateExhibitionDto,
+    @Body() body: ExhibitionFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<BaseResponse<Exhibition>> {
+    const dto = normalizeCreateExhibitionBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
     const res = await this.exhibitionService.createExhibitionService(dto);
     return { status: 'success', message: 'Tạo exhibition thành công', data: res };
   }
 
   @Patch(':id')
   @RequirePermissions(RoleConstant.UPDATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'exhibition')),
+    DeleteFileOnErrorFilter,
+  )
   async updateExhibitionController(
     @Param('id') id: string,
-    @Body() dto: UpdateExhibitionDto,
+    @Body() body: ExhibitionFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<BaseResponse<Exhibition>> {
+    const dto = normalizeUpdateExhibitionBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
     const res = await this.exhibitionService.updateExhibitionService(+id, dto);
     return { status: 'success', message: 'Cập nhật exhibition thành công', data: res };
   }

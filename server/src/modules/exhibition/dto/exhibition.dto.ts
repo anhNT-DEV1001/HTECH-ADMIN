@@ -127,6 +127,10 @@ export class CreateExhibitionDto {
 
   @IsString()
   @IsOptional()
+  img?: string;
+
+  @IsString()
+  @IsOptional()
   logo_url?: string;
 
   @IsString()
@@ -189,6 +193,10 @@ export class UpdateExhibitionDto {
 
   @IsString()
   @IsOptional()
+  img?: string;
+
+  @IsString()
+  @IsOptional()
   logo_url?: string;
 
   @IsString()
@@ -244,6 +252,10 @@ export class UpdateExhibitionDto {
   @IsNumber({}, { each: true })
   @IsOptional()
   exhibitor_ids?: number[];
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsOptional()
+  remove_img?: boolean;
 }
 
 export class CreateExhibitorDto {

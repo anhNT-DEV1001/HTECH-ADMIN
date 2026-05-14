@@ -55,6 +55,18 @@ const PAGE_LIMIT_OPTIONS = [10, 20, 50];
 
 const normalizeText = (value?: string | null) => value?.toLowerCase().trim() || "";
 
+const getImageUrl = (path?: string | null) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) {
+    return path;
+  }
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api/v1").replace(
+    "/api/v1",
+    "",
+  );
+  return `${baseUrl}${path}`;
+};
+
 const getComparableValue = (
   item: IExhibition,
   key: ExhibitionSortKey,
@@ -427,9 +439,19 @@ export default function VnsecExhibitionsPage() {
                     <TableRow key={exhibition.id}>
                       <TableCell className="text-center font-mono text-xs text-muted-foreground">{stt}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-blue-50 text-blue-700">
-                            <LucideIconByName name={exhibition.logo} size={16} />
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-20 w-32 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-slate-50">
+                            {exhibition.img ? (
+                              <img
+                                src={getImageUrl(exhibition.img)}
+                                alt={exhibition.name_vn}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-blue-700">
+                                <LucideIconByName name={exhibition.logo} size={22} />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <div className="font-medium">{exhibition.name_vn}</div>

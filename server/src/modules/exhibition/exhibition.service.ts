@@ -283,6 +283,7 @@ export class ExhibitionService {
       const logoValue = this.getExhibitionLogoValue(dto);
       const data: Prisma.ExhibitionCreateInput = {
         logo: logoValue,
+        img: dto.img || null,
         name_vn: dto.name_vn,
         name_en: dto.name_en || '',
         title_vn: dto.title_vn,
@@ -320,6 +321,7 @@ export class ExhibitionService {
 
       const data: Prisma.ExhibitionUpdateInput = {
         logo: logoValue,
+        img: dto.remove_img ? null : (dto.img ?? exhibition.img),
         name_vn: dto.name_vn ?? exhibition.name_vn,
         name_en: dto.name_en ?? exhibition.name_en,
         title_vn: dto.title_vn ?? exhibition.title_vn,

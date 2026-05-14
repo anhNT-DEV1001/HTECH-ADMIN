@@ -55,6 +55,7 @@ export interface IExhibitor {
 export interface IExhibition {
   id: number;
   logo?: string | null;
+  img?: string | null;
   name_vn: string;
   name_en?: string | null;
   title_vn: string;
@@ -84,6 +85,8 @@ export interface IUpdateZone extends Partial<ICreateZone> {
 
 export interface ICreateExhibition {
   logo?: string;
+  img?: string | null;
+  imgFile?: File | null;
   name_vn: string;
   name_en?: string;
   title_vn: string;
@@ -97,6 +100,7 @@ export interface ICreateExhibition {
   zone_id: number;
   zone_ids?: number[];
   exhibitor_ids?: number[];
+  remove_img?: boolean;
 }
 
 export interface IUpdateExhibition extends Partial<ICreateExhibition> {

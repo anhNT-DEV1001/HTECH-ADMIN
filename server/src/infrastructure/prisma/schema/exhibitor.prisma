@@ -77,7 +77,7 @@ model Exhibition { // lĩnh vực
   content_en    String?
   display_order Int         @default(0)
   web_id        Int
-
+  img        String?
   web        Web         @relation(fields: [web_id], references: [id])
   zones      Zone[]
   exhibitors Exhibitor[]
