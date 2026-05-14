@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNSEC - Xác nhận đăng ký</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f8;
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .wrapper {
+            width: 100%;
+            padding: 24px 12px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);
+            padding: 32px 28px;
+            color: #ffffff;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            line-height: 1.3;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 15px;
+            opacity: 0.96;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background-color: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .content p {
+            margin: 0 0 14px;
+            font-size: 15px;
+        }
+
+        .panel {
+            margin: 22px 0;
+            padding: 20px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .highlight {
+            padding: 16px;
+            background-color: #fff7ed;
+            border-left: 4px solid #dc2626;
+            border-radius: 8px;
+            color: #7c2d12;
+        }
+
+        .info-item,
+        .list-item {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        .info-item:last-child,
+        .list-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            display: inline-block;
+            min-width: 150px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .footer {
+            padding: 20px 28px 28px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="hero">
+                <h1>Xác nhận đăng ký tham gia VNSEC</h1>
+                <p>Thông tin đăng ký của bạn đã được hệ thống tiếp nhận thành công.</p>
+                <div class="badge">{{registerTypeLabel}}</div>
+            </div>
+
+            <div class="content">
+                <p>Chào <strong>{{fullName}}</strong>,</p>
+                <p>{{intro}}</p>
+
+                <div class="panel">
+                    <h2>Thông tin đăng ký</h2>
+                    <p class="info-item"><span class="label">Hình thức tham gia:</span> {{registerTypeLabel}}</p>
+                    <p class="info-item"><span class="label">Họ và tên:</span> {{fullName}}</p>
+                    <p class="info-item"><span class="label">Email:</span> {{email}}</p>
+                    <p class="info-item"><span class="label">Số điện thoại:</span> {{phone}}</p>
+                    {{#if company}}
+                    <p class="info-item"><span class="label">Công ty / Tổ chức:</span> {{company}}</p>
+                    {{/if}}
+                    {{#if position}}
+                    <p class="info-item"><span class="label">Chức vụ:</span> {{position}}</p>
+                    {{/if}}
+                    {{#if interest}}
+                    <p class="info-item"><span class="label">Lĩnh vực quan tâm:</span> {{interest}}</p>
+                    {{/if}}
+                </div>
+
+                <div class="panel">
+                    <h2>Giá trị nổi bật</h2>
+                    <p class="highlight">{{highlight}}</p>
+                </div>
+
+                <div class="panel">
+                    <h2>Quyền lợi và cơ hội</h2>
+                    {{#each benefits}}
+                    <p class="list-item">- {{this}}</p>
+                    {{/each}}
+                </div>
+
+                <div class="panel">
+                    <h2>Bước tiếp theo</h2>
+                    {{#each nextSteps}}
+                    <p class="list-item">- {{this}}</p>
+                    {{/each}}
+                </div>
+
+                <p>Cảm ơn bạn đã quan tâm đến VNSEC. Chúng tôi mong sớm được đồng hành cùng bạn tại sự kiện.</p>
+            </div>
+
+            <div class="footer">
+                <p>Email này được gửi tự động để xác nhận đăng ký tham gia VNSEC. Vui lòng không trả lời trực tiếp email này.</p>
+                <p>&copy; 2026 VNSEC by HTECH. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

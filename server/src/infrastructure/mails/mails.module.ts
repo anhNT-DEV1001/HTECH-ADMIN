@@ -3,8 +3,16 @@ import { Module } from '@nestjs/common';
 import { MailsService } from './mails.service';
 import { MailsController } from './mails.controller';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { key } from 'src/configs';
+
+const distTemplatesDir = join(process.cwd(), 'dist/src/infrastructure/mails/templates');
+const srcTemplatesDir = join(process.cwd(), 'src/infrastructure/mails/templates');
+const mailTemplatesDir = existsSync(distTemplatesDir)
+  ? distTemplatesDir
+  : srcTemplatesDir;
+
 @Module({
   imports: [
     MailerModule.forRoot({
@@ -24,7 +32,7 @@ import { key } from 'src/configs';
         from: `"HTECH EVENT" <${key.mail.user}>`, 
       },
       template: {
-        dir: join(__dirname, 'templates'),
+        dir: mailTemplatesDir,
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
