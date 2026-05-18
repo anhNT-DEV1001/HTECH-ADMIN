@@ -1,14 +1,14 @@
-model ExhibitorRank { // Hạng Exhiitor
-  id            Int        @id @default(autoincrement())
+model ExhibitorRank {
+  id            Int     @id @default(autoincrement())
   name_vn       String
   name_en       String?
-  display_order Int        @default(0)
+  display_order Int     @default(0)
   web_id        Int
 
   web        Web         @relation(fields: [web_id], references: [id])
   exhibitors Exhibitor[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
   created_by Int?
   updated_by Int?
 
@@ -16,26 +16,26 @@ model ExhibitorRank { // Hạng Exhiitor
   @@map("exhibitor_ranks")
 }
 
-model Booth { // Gian hàng
+model Booth {
   id     Int     @id @default(autoincrement())
   name   String?
   web_id Int
 
   web        Web         @relation(fields: [web_id], references: [id])
   exhibitors Exhibitor[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
   created_by Int?
   updated_by Int?
 
-  @@index([web_id])
   @@unique([web_id, name])
+  @@index([web_id])
   @@map("booths")
 }
 
-model Exhibitor { 
-  id         Int    @id @default(autoincrement())
-  name       String
+model Exhibitor {
+  id   Int    @id @default(autoincrement())
+  name String
 
   sumary_vn  String
   sumary_en  String?
@@ -46,17 +46,17 @@ model Exhibitor {
   boothId Int
   web_id  Int
 
-  rank ExhibitorRank @relation(fields: [rankId], references: [id])
-  booth Booth        @relation(fields: [boothId], references: [id])
-  web   Web          @relation(fields: [web_id], references: [id])
+  rank  ExhibitorRank @relation(fields: [rankId], references: [id])
+  booth Booth         @relation(fields: [boothId], references: [id])
+  web   Web           @relation(fields: [web_id], references: [id])
 
-  img String? 
+  img String?
 
   exhibitions Exhibition[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  created_by Int?
-  updated_by Int?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  created_by  Int?
+  updated_by  Int?
 
   @@index([web_id])
   @@index([rankId])
@@ -64,7 +64,7 @@ model Exhibitor {
   @@map("exhibitors")
 }
 
-model Exhibition { // lĩnh vực
+model Exhibition {
   id            Int         @id @default(autoincrement())
   logo          String?
   name_vn       String
@@ -77,31 +77,34 @@ model Exhibition { // lĩnh vực
   content_en    String?
   display_order Int         @default(0)
   web_id        Int
-  img        String?
-  web        Web         @relation(fields: [web_id], references: [id])
-  zones      Zone[]
-  exhibitors Exhibitor[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  created_by Int?
-  updated_by Int?
+  img           String?
+  web           Web         @relation(fields: [web_id], references: [id])
+  zones         Zone[]
+  exhibitors    Exhibitor[]
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  created_by    Int?
+  updated_by    Int?
 
   @@index([web_id])
   @@map("exhibitions")
 }
 
 model Zone {
-  id          Int    @id() @default(autoincrement())
-  name_vn     String
-  name_en     String?
-  web_id      Int
+  id      Int     @id() @default(autoincrement())
+  name_vn String
+  name_en String?
+  web_id  Int
+
+  field_vn String?
+  field_en String?
 
   web         Web          @relation(fields: [web_id], references: [id])
   exhibitions Exhibition[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  created_by Int?
-  updated_by Int?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  created_by  Int?
+  updated_by  Int?
 
   @@index([web_id])
   @@map("zones")

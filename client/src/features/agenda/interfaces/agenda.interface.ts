@@ -1,5 +1,4 @@
 import type { IPaginationRequest } from "@/common/interfaces";
-import type { IZone } from "@/features/exhibition/interfaces";
 import type { IWeb } from "@/features/web/interfaces";
 
 export interface IAgendaTimeline {
@@ -33,11 +32,9 @@ export interface IAgenda {
   name_en?: string | null;
   file_url: string;
   web_id: number;
-  zone_id?: number | null;
   SDate: string;
   EDate: string;
   web?: IWeb;
-  zone?: IZone | null;
   agendaDates: IAgendaDate[];
   created_at?: string;
   updated_at?: string;
@@ -68,7 +65,6 @@ export interface ICreateAgenda {
   file_url?: string;
   file?: File | null;
   web_id: number;
-  zone_id: number;
   SDate: string;
   EDate: string;
   agendaDates?: IAgendaDatePayload[];

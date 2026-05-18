@@ -175,6 +175,17 @@ export class ExhibitionController {
   }
 
   @Public()
+  @Get('public/zones/web/:webId')
+  async getPublicZonesByWebIdController(@Param('webId') webId: string) {
+    const res = await this.exhibitionService.getPublicZonesWithExhibitionsByWebIdService(+webId);
+    return {
+      status: 'success',
+      message: 'Lấy danh sách zone theo website public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
   @Get('public/ranks')
   async getPublicExhibitorRanksController(): Promise<BaseResponse<ExhibitorRank[]>> {
     const res = await this.exhibitionService.getAllExhibitorRanksService();

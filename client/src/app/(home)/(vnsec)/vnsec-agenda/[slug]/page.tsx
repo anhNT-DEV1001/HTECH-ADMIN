@@ -19,9 +19,7 @@ import {
 } from "lucide-react";
 import { agendaService } from "@/features/agenda/services";
 import type { IAgenda, IAgendaDatePayload, IAgendaTimelinePayload } from "@/features/agenda/interfaces";
-import { exhibitionService } from "@/features/exhibition/services";
 import { useWeb } from "@/features/web/hooks";
-import { useCommonQuery } from "@/common/hooks";
 import { useToast } from "@/common/providers/ToastProvider";
 import { DatePicker } from "@/common/components/DatePicker";
 import { TimePicker } from "@/common/components/TimePicker";
@@ -110,12 +108,7 @@ export default function VnsecAgendaFormPage() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { webData, isLoading: isLoadingWebsites } = useWeb();
-  const { data: zoneData, isLoading: isLoadingZones } = useCommonQuery(
-    ["exhibition", "getZones"],
-    () => exhibitionService.getZones(),
-  );
   const websites = webData?.data || [];
-  const zones = useMemo(() => zoneData?.data || [], [zoneData?.data]);
 
   const [isLoading, setIsLoading] = useState(!isCreateMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,7 +117,6 @@ export default function VnsecAgendaFormPage() {
   const [fileUrl, setFileUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [webId, setWebId] = useState("");
-  const [zoneId, setZoneId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [agendaDates, setAgendaDates] = useState<AgendaDateForm[]>([createEmptyAgendaDate()]);
@@ -150,7 +142,6 @@ export default function VnsecAgendaFormPage() {
         setNameEn(agenda.name_en || "");
         setFileUrl(agenda.file_url || "");
         setWebId(String(agenda.web_id));
-        setZoneId(agenda.zone_id ? String(agenda.zone_id) : "");
         setStartDate(toDateInputValue(agenda.SDate));
         setEndDate(toDateInputValue(agenda.EDate));
         setAgendaDates(mapAgendaToFormDates(agenda));
@@ -170,20 +161,8 @@ export default function VnsecAgendaFormPage() {
     [agendaDates],
   );
 
-  const zonesByWeb = useMemo(
-    () => zones.filter((zone) => !webId || zone.web_id === Number(webId)),
-    [webId, zones],
-  );
-
-  useEffect(() => {
-    if (!zoneId) return;
-    const selectedZoneBelongsToWeb = zonesByWeb.some((zone) => zone.id === Number(zoneId));
-    if (!selectedZoneBelongsToWeb) setZoneId("");
-  }, [zoneId, zonesByWeb]);
-
   const handleWebChange = (value: string) => {
     setWebId(value);
-    setZoneId("");
   };
 
   const updateAgendaDate = (dateKey: string, field: "date" | "description", value: string) => {
@@ -280,7 +259,6 @@ export default function VnsecAgendaFormPage() {
   const validateForm = () => {
     if (!nameVn.trim()) return "Vui lòng nhập tên agenda tiếng Việt";
     if (!webId) return "Vui lòng chọn web-site";
-    if (!zoneId) return "Vui lòng chọn zone";
     if (!startDate) return "Vui lòng chọn ngày bắt đầu";
     if (!endDate) return "Vui lòng chọn ngày kết thúc";
     if (startDate > endDate) return "Ngày bắt đầu không được lớn hơn ngày kết thúc";
@@ -304,7 +282,6 @@ export default function VnsecAgendaFormPage() {
     formData.append("name_vn", nameVn.trim());
     formData.append("name_en", nameEn.trim());
     formData.append("web_id", webId);
-    formData.append("zone_id", zoneId);
     formData.append("SDate", startDate);
     formData.append("EDate", endDate);
     formData.append(
@@ -408,21 +385,6 @@ export default function VnsecAgendaFormPage() {
                 {websites.map((web) => (
                   <SelectItem key={web.id} value={String(web.id)}>
                     {web.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Zone</Label>
-            <Select value={zoneId} onValueChange={setZoneId} disabled={!webId || isLoadingZones}>
-              <SelectTrigger>
-                <SelectValue placeholder={webId ? "Chọn zone" : "Chọn web-site trước"} />
-              </SelectTrigger>
-              <SelectContent>
-                {zonesByWeb.map((zone) => (
-                  <SelectItem key={zone.id} value={String(zone.id)}>
-                    {zone.name_vn}
                   </SelectItem>
                 ))}
               </SelectContent>

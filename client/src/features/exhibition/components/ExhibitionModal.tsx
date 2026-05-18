@@ -429,7 +429,12 @@ export default function ExhibitionModal({
                 <SelectContent>
                   {zonesByWeb.map((zone) => (
                     <SelectItem key={zone.id} value={String(zone.id)}>
-                      {zone.name_vn}
+                      <div className="flex flex-col">
+                        <span>{zone.name_vn}</span>
+                        {zone.field_vn && (
+                          <span className="text-xs text-muted-foreground">{zone.field_vn}</span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

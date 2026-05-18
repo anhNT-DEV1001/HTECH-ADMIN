@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 export class ExhibitionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private getExhibitionLogoValue(dto: { logo?: string; logo_url?: string }) {
     return dto.logo_url?.trim() || dto.logo?.trim() || '';
@@ -95,12 +95,27 @@ export class ExhibitionService {
     });
   }
 
+  async getPublicZonesWithExhibitionsByWebIdService(webId: number) {
+    return await this.prisma.zone.findMany({
+      where: { web_id: webId },
+      include: {
+        exhibitions: {
+          where: { web_id: webId },
+          orderBy: [{ display_order: 'asc' }, { id: 'asc' }],
+        },
+      },
+      orderBy: { id: 'asc' },
+    });
+  }
+
   async createZoneService(dto: CreateZoneDto) {
     try {
       return await this.prisma.zone.create({
         data: {
           name_vn: dto.name_vn,
           name_en: dto.name_en || '',
+          field_vn: dto.field_vn || '',
+          field_en: dto.field_en || '',
           web_id: dto.web_id,
         },
         include: this.zoneInclude,
@@ -120,6 +135,8 @@ export class ExhibitionService {
         data: {
           name_vn: dto.name_vn ?? zone.name_vn,
           name_en: dto.name_en ?? zone.name_en,
+          field_vn: dto.field_vn ?? zone.field_vn,
+          field_en: dto.field_en ?? zone.field_en,
           web_id: dto.web_id ?? zone.web_id,
         },
         include: this.zoneInclude,

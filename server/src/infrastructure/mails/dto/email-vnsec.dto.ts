@@ -41,7 +41,7 @@ export class VnsecContactDto {
   message!: string;
 }
 
-export const VNSEC_REGISTER_TYPES = ['visitor', 'exhibitor', 'speaker'] as const;
+export const VNSEC_REGISTER_TYPES = ['visitor', 'exhibitor', 'speaker', 'sponsor'] as const;
 
 export type VnsecRegisterType = (typeof VNSEC_REGISTER_TYPES)[number];
 

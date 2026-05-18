@@ -45,6 +45,8 @@ export default function ZoneModal({
     defaultValues: {
       name_vn: "",
       name_en: "",
+      field_vn: "",
+      field_en: "",
       web_id: websites[0]?.id || 0,
     },
   });
@@ -58,6 +60,8 @@ export default function ZoneModal({
       reset({
         name_vn: data.name_vn,
         name_en: data.name_en || "",
+        field_vn: data.field_vn || "",
+        field_en: data.field_en || "",
         web_id: data.web_id,
       });
       return;
@@ -66,6 +70,8 @@ export default function ZoneModal({
     reset({
       name_vn: "",
       name_en: "",
+      field_vn: "",
+      field_en: "",
       web_id: websites[0]?.id || 0,
     });
   }, [data, isOpen, reset, websites]);
@@ -74,6 +80,8 @@ export default function ZoneModal({
     onSave({
       name_vn: formData.name_vn.trim(),
       name_en: formData.name_en?.trim() || "",
+      field_vn: formData.field_vn?.trim() || "",
+      field_en: formData.field_en?.trim() || "",
       web_id: Number(formData.web_id),
     });
   };
@@ -134,6 +142,15 @@ export default function ZoneModal({
         <div className="space-y-1">
           <Label>Tên zone EN</Label>
           <Input {...register("name_en")} placeholder="Vui lòng nhập tên zone EN" />
+        </div>
+        <div className="space-y-1">
+          <Label>Lĩnh vực VN</Label>
+          <Input {...register("field_vn")} placeholder="Vui lòng nhập lĩnh vực VN" />
+        </div>
+
+        <div className="space-y-1">
+          <Label>Lĩnh vực EN</Label>
+          <Input {...register("field_en")} placeholder="Vui lòng nhập lĩnh vực EN" />
         </div>
       </form>
     </DraggableModal>

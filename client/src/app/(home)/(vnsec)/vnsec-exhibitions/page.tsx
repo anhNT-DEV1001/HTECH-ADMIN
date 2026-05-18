@@ -49,7 +49,7 @@ import { useMemo, useState } from "react";
 
 type SortDirection = "asc" | "desc";
 type ExhibitionSortKey = "display_order" | "name_vn" | "web_id" | "zones" | "updated_at";
-type ZoneSortKey = "name_vn" | "web_id" | "updated_at";
+type ZoneSortKey = "name_vn" | "field_vn" | "web_id" | "updated_at";
 
 const PAGE_LIMIT_OPTIONS = [10, 20, 50];
 
@@ -466,8 +466,16 @@ export default function VnsecExhibitionsPage() {
                         <div className="flex flex-wrap justify-center gap-1">
                           {exhibition.zones?.length ? (
                             exhibition.zones.map((zone) => (
-                              <Badge key={zone.id} variant="secondary" className="bg-blue-50 text-blue-700">
-                                {zone.name_vn}
+                              <Badge
+                                key={zone.id}
+                                variant="secondary"
+                                className="flex flex-col items-start bg-blue-50 text-blue-700"
+                                title={zone.field_vn || undefined}
+                              >
+                                <span>{zone.name_vn}</span>
+                                {zone.field_vn && (
+                                  <span className="text-[10px] font-normal text-blue-600">{zone.field_vn}</span>
+                                )}
                               </Badge>
                             ))
                           ) : (
@@ -608,6 +616,12 @@ export default function VnsecExhibitionsPage() {
                     {getZoneSortIcon("web_id")}
                   </div>
                 </TableHead>
+                <TableHead className="min-w-[180px] cursor-pointer" onClick={() => handleZoneSort("field_vn")}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Lĩnh vực</span>
+                    {getZoneSortIcon("field_vn")}
+                  </div>
+                </TableHead>
                 <TableHead className="w-32 text-center">Exhibition</TableHead>
                 <TableHead className="min-w-[150px] cursor-pointer" onClick={() => handleZoneSort("updated_at")}>
                   <div className="flex items-center justify-center gap-2">
@@ -621,14 +635,14 @@ export default function VnsecExhibitionsPage() {
             <TableBody>
               {isLoadingZones ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                     <Loader2 size={24} className="mx-auto mb-2 animate-spin opacity-30" />
                     Đang tải dữ liệu...
                   </TableCell>
                 </TableRow>
               ) : pagedZones.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                     Chưa có zone
                   </TableCell>
                 </TableRow>
@@ -644,6 +658,16 @@ export default function VnsecExhibitionsPage() {
                         {zone.name_en && <div className="text-xs text-muted-foreground">{zone.name_en}</div>}
                       </TableCell>
                       <TableCell className="text-center">{zone.web?.name || "—"}</TableCell>
+                      <TableCell>
+                        {zone.field_vn || zone.field_en ? (
+                          <>
+                            {zone.field_vn && <div className="font-medium">{zone.field_vn}</div>}
+                            {zone.field_en && <div className="text-xs text-muted-foreground">{zone.field_en}</div>}
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-center">
                         <Badge variant="secondary" className="bg-slate-100 text-slate-700">
                           {zone.exhibitions?.length || 0}
@@ -682,7 +706,7 @@ export default function VnsecExhibitionsPage() {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={7}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-sm">
                       Hiển thị <span className="font-medium">{pagedZones.length}</span> / {sortedZones.length} kết quả

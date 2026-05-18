@@ -18,7 +18,7 @@ type RegisterMailMeta = {
 
 @Injectable()
 export class MailsService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(private readonly mailerService: MailerService) { }
 
   private getVnsecRegisterMeta(registerType: VnsecRegisterType): RegisterMailMeta {
     const metaMap: Record<VnsecRegisterType, RegisterMailMeta> = {
@@ -76,6 +76,24 @@ export class MailsService {
           'Nên chuẩn bị tóm tắt nội dung, profile và các tài liệu hỗ trợ nếu có',
         ],
       },
+      sponsor: {
+        typeLabel: 'Nhà tài trợ',
+        subject: 'VNSEC - Xác nhận đăng ký Nhà tài trợ',
+        intro:
+          'Cảm ơn bạn đã đăng ký tham gia VNSEC với vai trò nhà tài trợ. Ban tổ chức đã tiếp nhận thông tin và sẽ đánh giá để phản hồi trong thời gian sớm nhất.',
+        highlight:
+          'Hình thức này phù hợp với các chuyên gia, nhà lãnh đạo và người có kinh nghiệm thực chiến muốn chia sẻ góc nhìn, xu hướng và case study.',
+        benefits: [
+          'Cơ hội xuất hiện tại các phiên hội thảo chuyên đề',
+          'Gia tăng độ tin cậy và nhận diện cá nhân',
+          'Mở rộng kết nối với doanh nghiệp, đối tác và truyền thông',
+          'Tham gia networking và các hoạt động dành riêng cho nhà tài trợ',
+        ],
+        nextSteps: [
+          'Ban tổ chức sẽ liên hệ để trao đổi chủ đề, format và khung thời gian',
+          'Nên chuẩn bị tóm tắt nội dung, profile và các tài liệu hỗ trợ nếu có',
+        ],
+      },
     };
 
     return metaMap[registerType];
@@ -96,7 +114,7 @@ export class MailsService {
     }
   }
 
-  async sendContactEmail(contactData : ContactDto) {
+  async sendContactEmail(contactData: ContactDto) {
     try {
       await this.mailerService.sendMail({
         to: contactData.email,
