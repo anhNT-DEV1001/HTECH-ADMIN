@@ -69,7 +69,7 @@ export class CreateProjectDto {
 
   @IsString()
   @IsOptional()
-  client_name: string
+  url: string
 
   @IsString()
   @IsOptional()
@@ -180,7 +180,7 @@ export class ProjectDto {
 
   @IsString()
   @IsOptional()
-  client_name: string
+  url: string
 
   @IsString()
   @IsOptional()

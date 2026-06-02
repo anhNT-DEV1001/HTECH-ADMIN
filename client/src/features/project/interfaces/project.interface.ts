@@ -29,7 +29,7 @@ export interface IProject {
   title_en?: string;
   summary_en?: string;
   description_en?: string;
-  client_name?: string;
+  url?: string;
   venue_vn?: string;
   venue_en?: string;
   location_url?: string;
@@ -55,7 +55,7 @@ export interface ICreateProject {
   summary_en?: string;
   description_en?: string;
   thumbnail_url?: string;
-  client_name?: string;
+  url?: string;
   venue_vn?: string;
   venue_en?: string;
   location_url?: string;
@@ -80,7 +80,7 @@ export interface IUpdateProject {
   summary_en?: string;
   description_en?: string;
   thumbnail_url?: string;
-  client_name?: string;
+  url?: string;
   venue_vn?: string;
   venue_en?: string;
   location_url?: string;

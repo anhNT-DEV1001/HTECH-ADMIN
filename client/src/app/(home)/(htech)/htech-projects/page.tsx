@@ -429,11 +429,11 @@ function HtechProjectContent() {
             </TableHead>
             <TableHead
               className="cursor-pointer"
-              onClick={() => handleSort("client_name")}
+              onClick={() => handleSort("url")}
             >
               <div className="flex items-center justify-center gap-2 whitespace-nowrap select-none">
-                <span>Khách hàng</span>
-                <span className="shrink-0">{getSortIcon("client_name")}</span>
+                <span>Đường dẫn</span>
+                <span className="shrink-0">{getSortIcon("url")}</span>
               </div>
             </TableHead>
             <TableHead
@@ -517,7 +517,7 @@ function HtechProjectContent() {
                   <TableCell className="text-left truncate max-w-[250px]">
                     {projectItem.summary_vn}
                   </TableCell>
-                  <TableCell>{projectItem.client_name || "—"}</TableCell>
+                  <TableCell>{projectItem.url || "—"}</TableCell>
                   <TableCell className="text-center">
                     {statusInfo ? (
                       <span

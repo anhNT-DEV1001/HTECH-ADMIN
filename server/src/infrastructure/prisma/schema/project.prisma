@@ -30,7 +30,7 @@ model Project {
   description_vn String
   description_en String?
   thumbnail_url  String?
-  client_name    String?
+  url            String?
   venue_vn       String?
   venue_en       String?
   location_url   String? //link map

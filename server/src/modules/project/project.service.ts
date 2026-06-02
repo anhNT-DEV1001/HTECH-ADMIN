@@ -75,7 +75,7 @@ export class ProjectService {
           description_en: dto.description_en || '',
 
           thumbnail_url: dto.thumbnail_url || '',
-          client_name: dto.client_name || '',
+          url: dto.url || '',
           venue_vn: dto.venue_vn || '',
           venue_en: dto.venue_en || '',
           location_url: dto.location_url || '',
@@ -136,7 +136,7 @@ export class ProjectService {
     const where: Prisma.ProjectWhereInput = {}
 
     if (search && searchBy) {
-      const validSearchFields = ['title_vn', 'title_en', 'client_name', 'industry_vn'];
+      const validSearchFields = ['title_vn', 'title_en', 'url', 'industry_vn'];
       const field = validSearchFields.includes(searchBy) ? searchBy : 'title_vn';
       where[field] = {
         contains: String(search),
@@ -195,7 +195,7 @@ export class ProjectService {
       });
 
       if (!project) throw new ApiError('Không tìm thấy project', HttpStatus.NOT_FOUND);
-      
+
       const filesToDelete: string[] = [];
 
       if (dto.thumbnail_url && dto.thumbnail_url !== project.thumbnail_url) {
@@ -223,7 +223,7 @@ export class ProjectService {
         description_en: dto.description_en || project.description_en,
 
         thumbnail_url: dto.thumbnail_url || project.thumbnail_url,
-        client_name: dto.client_name || project.client_name,
+        url: dto.url || project.url,
         venue_vn: dto.venue_vn || project.venue_vn,
         venue_en: dto.venue_en || project.venue_en,
         location_url: dto.location_url || project.location_url,

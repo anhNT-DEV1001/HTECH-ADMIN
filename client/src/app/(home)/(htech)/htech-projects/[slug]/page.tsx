@@ -66,7 +66,7 @@ export default function CreateProjectPage() {
   const [summary_en, setSummaryEn] = useState('');
 
   // State quản lý thông tin dự án
-  const [client_name, setClientName] = useState('');
+  const [url, setUrl] = useState('');
   const [venue_vn, setVenueVn] = useState('');
   const [venue_en, setVenueEn] = useState('');
   const [location_url, setLocationUrl] = useState('');
@@ -118,7 +118,7 @@ export default function CreateProjectPage() {
             setDescriptionEn(project.description_en || '');
             setSummaryEn(project.summary_en || '');
 
-            setClientName(project.client_name || '');
+            setUrl(project.url || '');
             setVenueVn(project.venue_vn || '');
             setVenueEn(project.venue_en || '');
             setLocationUrl(project.location_url || '');
@@ -247,7 +247,7 @@ export default function CreateProjectPage() {
       formData.append('description_en', description_en);
 
       // Thông tin dự án
-      formData.append('client_name', client_name);
+      formData.append('url', url);
       formData.append('venue_vn', venue_vn);
       formData.append('venue_en', venue_en);
       formData.append('location_url', location_url);
@@ -278,7 +278,7 @@ export default function CreateProjectPage() {
       }
 
       if (isCreateMode) {
-        console.log('Creating project with data:' , Object.fromEntries(formData.entries()));
+        console.log('Creating project with data:', Object.fromEntries(formData.entries()));
 
         await projectService.createProject(formData);
         showToast('Tạo dự án thành công!', 'success');
@@ -463,12 +463,12 @@ export default function CreateProjectPage() {
             </div>
 
             <div className="space-y-1">
-              <Label>Khách hàng</Label>
+              <Label>Đường dẫn</Label>
               <Input
                 type="text"
-                value={client_name}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Tên khách hàng..."
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Đường dẫn dự án..."
               />
             </div>
           </div>
