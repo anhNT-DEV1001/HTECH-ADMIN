@@ -25,7 +25,16 @@ import TextEditor from "@/common/components/ui/TextEditor";
 import type { IWeb } from "@/features/web/interfaces";
 import getCroppedImg from "@/lib/cropImage";
 import Cropper, { Area } from "react-easy-crop";
-import { CircleX, Image as ImageIcon, Loader2, RotateCcw, Save, Trash2 } from "lucide-react";
+import {
+  CircleX,
+  ExternalLink,
+  FileText,
+  Image as ImageIcon,
+  Loader2,
+  RotateCcw,
+  Save,
+  Trash2,
+} from "lucide-react";
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
@@ -83,6 +92,7 @@ export default function ExhibitionModal({
     defaultValues: {
       logo: "",
       img: "",
+      document_pdf: "",
       name_vn: "",
       name_en: "",
       title_vn: "",
@@ -96,11 +106,15 @@ export default function ExhibitionModal({
       zone_id: 0,
       exhibitor_ids: [],
       remove_img: false,
+      remove_document_pdf: false,
     },
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [documentPdfFile, setDocumentPdfFile] = useState<File | null>(null);
+  const [documentPdfPreview, setDocumentPdfPreview] = useState("");
+  const [documentPdfName, setDocumentPdfName] = useState("");
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [cropPoint, setCropPoint] = useState({ x: 0, y: 0 });
@@ -135,6 +149,7 @@ export default function ExhibitionModal({
       reset({
         logo: data.logo || "",
         img: data.img || "",
+        document_pdf: data.document_pdf || "",
         name_vn: data.name_vn,
         name_en: data.name_en || "",
         title_vn: data.title_vn,
@@ -148,9 +163,13 @@ export default function ExhibitionModal({
         zone_id: data.zones?.[0]?.id || 0,
         exhibitor_ids: data.exhibitors?.map((exhibitor) => exhibitor.id) || [],
         remove_img: false,
+        remove_document_pdf: false,
       });
       setImageFile(null);
       setImagePreview(getImageUrl(data.img));
+      setDocumentPdfFile(null);
+      setDocumentPdfPreview(getImageUrl(data.document_pdf));
+      setDocumentPdfName(data.document_pdf?.split("/").pop() || "");
       return;
     }
 
@@ -158,6 +177,7 @@ export default function ExhibitionModal({
     reset({
       logo: "",
       img: "",
+      document_pdf: "",
       name_vn: "",
       name_en: "",
       title_vn: "",
@@ -171,9 +191,13 @@ export default function ExhibitionModal({
       zone_id: 0,
       exhibitor_ids: [],
       remove_img: false,
+      remove_document_pdf: false,
     });
     setImageFile(null);
     setImagePreview("");
+    setDocumentPdfFile(null);
+    setDocumentPdfPreview("");
+    setDocumentPdfName("");
   }, [data, isOpen, reset, websites]);
 
   useEffect(() => {
@@ -192,6 +216,14 @@ export default function ExhibitionModal({
       }
     };
   }, [imagePreview]);
+
+  useEffect(() => {
+    return () => {
+      if (documentPdfPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(documentPdfPreview);
+      }
+    };
+  }, [documentPdfPreview]);
 
   useEffect(() => {
     if (!isCropModalOpen || !cropContainerRef.current) return;
@@ -285,6 +317,33 @@ export default function ExhibitionModal({
     setValue("remove_img", true);
   };
 
+  const handleSelectDocumentPdf = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    event.target.value = "";
+
+    if (!file || (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf"))) return;
+
+    if (documentPdfPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(documentPdfPreview);
+    }
+
+    setDocumentPdfFile(file);
+    setDocumentPdfPreview(URL.createObjectURL(file));
+    setDocumentPdfName(file.name);
+    setValue("remove_document_pdf", false);
+  };
+
+  const handleRemoveDocumentPdf = () => {
+    if (documentPdfPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(documentPdfPreview);
+    }
+
+    setDocumentPdfFile(null);
+    setDocumentPdfPreview("");
+    setDocumentPdfName("");
+    setValue("remove_document_pdf", true);
+  };
+
   const clampPercent = (value: number) => Math.min(100, Math.max(20, Math.round(value)));
 
   const handleResizePointerDown = (handle: ResizeHandle) => (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -343,6 +402,8 @@ export default function ExhibitionModal({
       logo: formData.logo?.trim() || "",
       img: data?.img || "",
       imgFile: imageFile,
+      document_pdf: data?.document_pdf || "",
+      documentPdfFile,
       name_vn: formData.name_vn.trim(),
       name_en: formData.name_en?.trim() || "",
       title_vn: formData.title_vn.trim(),
@@ -356,6 +417,7 @@ export default function ExhibitionModal({
       zone_id: Number(formData.zone_id),
       exhibitor_ids: formData.exhibitor_ids || [],
       remove_img: !imageFile && !imagePreview,
+      remove_document_pdf: !documentPdfFile && !documentPdfPreview,
     });
   };
 
@@ -502,6 +564,44 @@ export default function ExhibitionModal({
                     </Button>
                   )}
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label>Tài liệu PDF exhibition</Label>
+              <div className="space-y-3 rounded-lg border border-dashed p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border bg-muted/30 text-red-600">
+                    <FileText size={26} />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Input type="file" accept="application/pdf,.pdf" onChange={handleSelectDocumentPdf} />
+                    <p className="truncate text-xs text-muted-foreground">
+                      {documentPdfName || "Chưa có tài liệu PDF"}
+                    </p>
+                  </div>
+                  {documentPdfPreview && (
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" asChild>
+                        <a href={documentPdfPreview} target="_blank" rel="noreferrer">
+                          <ExternalLink size={16} />
+                          Mở PDF
+                        </a>
+                      </Button>
+                      <Button type="button" variant="outline" onClick={handleRemoveDocumentPdf}>
+                        <Trash2 size={16} />
+                        Xóa PDF
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {documentPdfPreview && (
+                  <iframe
+                    src={documentPdfPreview}
+                    title="Exhibition PDF preview"
+                    className="h-80 w-full rounded-md border bg-white"
+                  />
+                )}
               </div>
             </div>
 

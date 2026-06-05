@@ -64,6 +64,31 @@ model Exhibitor {
   @@map("exhibitors")
 }
 
+model Conferences {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  sumary_vn     String
+  sumary_en     String?
+  content_vn    String
+  content_en    String?
+  display_order Int     @default(0)
+
+  web_id  Int
+  img     String?
+
+  web Web @relation(fields: [web_id], references: [id])
+
+  exhibitions Exhibition[]
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  created_by  Int?
+  updated_by  Int?
+
+  @@index([web_id])
+  @@map("conferences")
+}
+
 model Exhibition {
   id            Int         @id @default(autoincrement())
   logo          String?
@@ -78,9 +103,11 @@ model Exhibition {
   display_order Int         @default(0)
   web_id        Int
   img           String?
+  document_pdf  String?
   web           Web         @relation(fields: [web_id], references: [id])
   zones         Zone[]
   exhibitors    Exhibitor[]
+  conferences   Conferences[]
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
   created_by    Int?

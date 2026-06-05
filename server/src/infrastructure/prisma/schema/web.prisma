@@ -9,6 +9,7 @@ model Web {
   zones          Zone[]
   exhibitions    Exhibition[]
   exhibitors     Exhibitor[]
+  conferences    Conferences[]
   exhibitorRanks ExhibitorRank[]
   booths         Booth[]
 

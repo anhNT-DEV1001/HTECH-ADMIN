@@ -54,10 +54,27 @@ export interface IExhibitor {
   updated_at?: string;
 }
 
+export interface IConference {
+  id: number;
+  name: string;
+  img?: string | null;
+  sumary_vn: string;
+  sumary_en?: string | null;
+  content_vn: string;
+  content_en?: string | null;
+  display_order: number;
+  web_id: number;
+  web?: IWeb;
+  exhibitions?: IExhibition[];
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface IExhibition {
   id: number;
   logo?: string | null;
   img?: string | null;
+  document_pdf?: string | null;
   name_vn: string;
   name_en?: string | null;
   title_vn: string;
@@ -71,6 +88,7 @@ export interface IExhibition {
   web?: IWeb;
   zones?: IZone[];
   exhibitors?: IExhibitor[];
+  conferences?: IConference[];
   created_at?: string;
   updated_at?: string;
 }
@@ -91,6 +109,8 @@ export interface ICreateExhibition {
   logo?: string;
   img?: string | null;
   imgFile?: File | null;
+  document_pdf?: string | null;
+  documentPdfFile?: File | null;
   name_vn: string;
   name_en?: string;
   title_vn: string;
@@ -105,6 +125,7 @@ export interface ICreateExhibition {
   zone_ids?: number[];
   exhibitor_ids?: number[];
   remove_img?: boolean;
+  remove_document_pdf?: boolean;
 }
 
 export interface IUpdateExhibition extends Partial<ICreateExhibition> {
@@ -147,5 +168,23 @@ export interface ICreateExhibitor {
 }
 
 export interface IUpdateExhibitor extends Partial<ICreateExhibitor> {
+  id: number;
+}
+
+export interface ICreateConference {
+  name: string;
+  img?: string | null;
+  imgFile?: File | null;
+  sumary_vn: string;
+  sumary_en?: string;
+  content_vn: string;
+  content_en?: string;
+  display_order?: number;
+  web_id: number;
+  exhibition_ids?: number[];
+  remove_img?: boolean;
+}
+
+export interface IUpdateConference extends Partial<ICreateConference> {
   id: number;
 }

@@ -101,3 +101,41 @@ export const multerPdfOptions = (mainFolder: string, category: string) => {
     },
   } as MulterOptions;
 };
+
+export const multerExhibitionOptions = (mainFolder: string, category: string) => {
+  return {
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const uploadPath = join(process.cwd(), `public/${mainFolder}/${category}`);
+        if (!existsSync(uploadPath)) {
+          mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cb(null, uploadPath);
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        cb(null, filename);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      const ext = extname(file.originalname).toLowerCase();
+      const isImageFile =
+        file.fieldname === 'file' && file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/);
+      const isPdfFile =
+        file.fieldname === 'document_pdf_file' &&
+        (file.mimetype === 'application/pdf' || ext === '.pdf');
+
+      if (isImageFile || isPdfFile) {
+        cb(null, true);
+      } else {
+        cb(new ApiError(`Unsupported file type ${extname(file.originalname)}`, HttpStatus.BAD_REQUEST), false);
+      }
+    },
+    limits: {
+      fileSize: PDF_FILE_SIZE_LIMIT,
+    },
+  } as MulterOptions;
+};

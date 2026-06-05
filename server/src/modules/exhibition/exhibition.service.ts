@@ -4,11 +4,13 @@ import { ApiError } from 'src/common/apis';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import {
   CreateBoothDto,
+  CreateConferenceDto,
   CreateExhibitionDto,
   CreateExhibitorDto,
   CreateExhibitorRankDto,
   CreateZoneDto,
   UpdateBoothDto,
+  UpdateConferenceDto,
   UpdateExhibitionDto,
   UpdateExhibitorDto,
   UpdateExhibitorRankDto,
@@ -48,6 +50,9 @@ export class ExhibitionService {
       },
       orderBy: { id: 'asc' as const },
     },
+    conferences: {
+      orderBy: [{ display_order: 'asc' as const }, { id: 'asc' as const }],
+    },
   } satisfies Prisma.ExhibitionInclude;
 
   private readonly exhibitorInclude = {
@@ -62,6 +67,16 @@ export class ExhibitionService {
     },
   } satisfies Prisma.ExhibitorInclude;
 
+  private readonly conferenceInclude = {
+    web: true,
+    exhibitions: {
+      include: {
+        zones: true,
+      },
+      orderBy: { display_order: 'asc' as const },
+    },
+  } satisfies Prisma.ConferencesInclude;
+
   async getAllZonesService() {
     return await this.prisma.zone.findMany({
       include: this.zoneInclude,
@@ -70,11 +85,12 @@ export class ExhibitionService {
   }
 
   async getPublicExhibitionDataService() {
-    const [zones, ranks, booths, exhibitors, exhibitions] = await Promise.all([
+    const [zones, ranks, booths, exhibitors, conferences, exhibitions] = await Promise.all([
       this.getAllZonesService(),
       this.getAllExhibitorRanksService(),
       this.getAllBoothsService(),
       this.getAllExhibitorsService(),
+      this.getAllConferencesService(),
       this.getAllExhibitionsService(),
     ]);
 
@@ -83,6 +99,7 @@ export class ExhibitionService {
       ranks,
       booths,
       exhibitors,
+      conferences,
       exhibitions,
     };
   }
@@ -271,6 +288,113 @@ export class ExhibitionService {
     }
   }
 
+  async getAllConferencesService() {
+    return await this.prisma.conferences.findMany({
+      include: this.conferenceInclude,
+      orderBy: [{ display_order: 'asc' }, { id: 'asc' }],
+    });
+  }
+
+  async getConferencesByWebIdService(webId: number) {
+    return await this.prisma.conferences.findMany({
+      where: { web_id: webId },
+      include: this.conferenceInclude,
+      orderBy: [{ display_order: 'asc' }, { id: 'asc' }],
+    });
+  }
+
+  async getConferenceByIdService(id: number) {
+    const conference = await this.prisma.conferences.findUnique({
+      where: { id },
+      include: this.conferenceInclude,
+    });
+    if (!conference) throw new ApiError('Conference không tồn tại', HttpStatus.NOT_FOUND);
+    return conference;
+  }
+
+  async getPublicConferencesByExhibitionIdService(exhibitionId: number) {
+    await this.ensureExists('exhibition', exhibitionId, 'Exhibition không tồn tại');
+
+    return await this.prisma.conferences.findMany({
+      where: {
+        exhibitions: {
+          some: { id: exhibitionId },
+        },
+      },
+      include: this.conferenceInclude,
+      orderBy: [{ display_order: 'asc' }, { id: 'asc' }],
+    });
+  }
+
+  async createConferenceService(dto: CreateConferenceDto) {
+    try {
+      const data: Prisma.ConferencesCreateInput = {
+        name: dto.name,
+        img: dto.img || null,
+        sumary_vn: dto.sumary_vn,
+        sumary_en: dto.sumary_en || '',
+        content_vn: dto.content_vn,
+        content_en: dto.content_en || '',
+        display_order: dto.display_order ?? 0,
+        web: { connect: { id: dto.web_id } },
+        exhibitions: dto.exhibition_ids?.length
+          ? { connect: dto.exhibition_ids.map((id) => ({ id })) }
+          : undefined,
+      };
+
+      return await this.prisma.conferences.create({
+        data,
+        include: this.conferenceInclude,
+      });
+    } catch (error: any) {
+      this.throwHandledError(error);
+    }
+  }
+
+  async updateConferenceService(id: number, dto: UpdateConferenceDto) {
+    try {
+      const conference = await this.prisma.conferences.findUnique({ where: { id } });
+      if (!conference) throw new ApiError('Conference không tồn tại', HttpStatus.NOT_FOUND);
+
+      const data: Prisma.ConferencesUpdateInput = {
+        name: dto.name ?? conference.name,
+        img: dto.remove_img ? null : (dto.img ?? conference.img),
+        sumary_vn: dto.sumary_vn ?? conference.sumary_vn,
+        sumary_en: dto.sumary_en ?? conference.sumary_en,
+        content_vn: dto.content_vn ?? conference.content_vn,
+        content_en: dto.content_en ?? conference.content_en,
+        display_order: dto.display_order ?? conference.display_order,
+        web: dto.web_id !== undefined ? { connect: { id: dto.web_id } } : undefined,
+        exhibitions: dto.exhibition_ids !== undefined
+          ? { set: dto.exhibition_ids.map((exhibitionId) => ({ id: exhibitionId })) }
+          : undefined,
+      };
+
+      return await this.prisma.conferences.update({
+        where: { id },
+        data,
+        include: this.conferenceInclude,
+      });
+    } catch (error: any) {
+      this.throwHandledError(error);
+    }
+  }
+
+  async deleteConferenceService(id: number) {
+    try {
+      await this.ensureExists('conference', id, 'Conference không tồn tại');
+      return await this.prisma.$transaction(async (db) => {
+        await db.conferences.update({
+          where: { id },
+          data: { exhibitions: { set: [] } },
+        });
+        return await db.conferences.delete({ where: { id } });
+      });
+    } catch (error: any) {
+      this.throwHandledError(error);
+    }
+  }
+
   async getAllExhibitionsService() {
     return await this.prisma.exhibition.findMany({
       include: this.exhibitionInclude,
@@ -301,6 +425,7 @@ export class ExhibitionService {
       const data: Prisma.ExhibitionCreateInput = {
         logo: logoValue,
         img: dto.img || null,
+        document_pdf: dto.document_pdf || null,
         name_vn: dto.name_vn,
         name_en: dto.name_en || '',
         title_vn: dto.title_vn,
@@ -339,6 +464,9 @@ export class ExhibitionService {
       const data: Prisma.ExhibitionUpdateInput = {
         logo: logoValue,
         img: dto.remove_img ? null : (dto.img ?? exhibition.img),
+        document_pdf: dto.remove_document_pdf
+          ? null
+          : (dto.document_pdf ?? exhibition.document_pdf),
         name_vn: dto.name_vn ?? exhibition.name_vn,
         name_en: dto.name_en ?? exhibition.name_en,
         title_vn: dto.title_vn ?? exhibition.title_vn,
@@ -373,7 +501,7 @@ export class ExhibitionService {
       return await this.prisma.$transaction(async (db) => {
         await db.exhibition.update({
           where: { id },
-          data: { exhibitors: { set: [] }, zones: { set: [] } },
+          data: { exhibitors: { set: [] }, conferences: { set: [] }, zones: { set: [] } },
         });
         return await db.exhibition.delete({ where: { id } });
       });
@@ -510,7 +638,7 @@ export class ExhibitionService {
   }
 
   private async ensureExists(
-    model: 'zone' | 'exhibitorRank' | 'booth' | 'exhibition' | 'exhibitor',
+    model: 'zone' | 'exhibitorRank' | 'booth' | 'exhibition' | 'exhibitor' | 'conference',
     id: number,
     message: string,
   ) {
@@ -531,6 +659,9 @@ export class ExhibitionService {
         break;
       case 'exhibitor':
         data = await this.prisma.exhibitor.findUnique({ where: { id } });
+        break;
+      case 'conference':
+        data = await this.prisma.conferences.findUnique({ where: { id } });
         break;
     }
 

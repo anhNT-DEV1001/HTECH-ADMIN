@@ -7,22 +7,25 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import type { Booth, Exhibition, Exhibitor, ExhibitorRank, Zone } from '@prisma/client';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import type { Booth, Conferences, Exhibition, Exhibitor, ExhibitorRank, Zone } from '@prisma/client';
 import { BaseResponse } from 'src/common/apis';
 import { RoleConstant } from 'src/common/constants';
 import { Public, RequirePermissions } from 'src/common/decorators';
 import { DeleteFileOnErrorFilter } from 'src/common/interceptors';
-import { multerOptions } from 'src/configs';
+import { multerExhibitionOptions, multerOptions } from 'src/configs';
 import {
   CreateBoothDto,
+  CreateConferenceDto,
   CreateExhibitionDto,
   CreateExhibitorDto,
   CreateExhibitorRankDto,
   CreateZoneDto,
   UpdateBoothDto,
+  UpdateConferenceDto,
   UpdateExhibitionDto,
   UpdateExhibitorDto,
   UpdateExhibitorRankDto,
@@ -46,6 +49,7 @@ type ExhibitorFormDataBody = {
 type ExhibitionFormDataBody = {
   logo?: string;
   logo_url?: string;
+  document_pdf?: string;
   name_vn?: string;
   name_en?: string;
   title_vn?: string;
@@ -58,6 +62,19 @@ type ExhibitionFormDataBody = {
   web_id?: string;
   zone_ids?: string;
   exhibitor_ids?: string;
+  remove_img?: string;
+  remove_document_pdf?: string;
+};
+
+type ConferenceFormDataBody = {
+  name?: string;
+  sumary_vn?: string;
+  sumary_en?: string;
+  content_vn?: string;
+  content_en?: string;
+  display_order?: string;
+  web_id?: string;
+  exhibition_ids?: string;
   remove_img?: string;
 };
 
@@ -120,6 +137,7 @@ const normalizeUpdateExhibitorBody = (body: ExhibitorFormDataBody): UpdateExhibi
 const normalizeCreateExhibitionBody = (body: ExhibitionFormDataBody): CreateExhibitionDto => ({
   logo: toOptionalText(body.logo),
   logo_url: toOptionalText(body.logo_url),
+  document_pdf: toOptionalText(body.document_pdf),
   name_vn: toText(body.name_vn),
   name_en: toOptionalText(body.name_en),
   title_vn: toText(body.title_vn),
@@ -137,6 +155,7 @@ const normalizeCreateExhibitionBody = (body: ExhibitionFormDataBody): CreateExhi
 const normalizeUpdateExhibitionBody = (body: ExhibitionFormDataBody): UpdateExhibitionDto => ({
   logo: body.logo !== undefined ? toOptionalText(body.logo) : undefined,
   logo_url: body.logo_url !== undefined ? toOptionalText(body.logo_url) : undefined,
+  document_pdf: body.document_pdf !== undefined ? toOptionalText(body.document_pdf) : undefined,
   name_vn: body.name_vn !== undefined ? toText(body.name_vn) : undefined,
   name_en: body.name_en !== undefined ? toOptionalText(body.name_en) : undefined,
   title_vn: body.title_vn !== undefined ? toText(body.title_vn) : undefined,
@@ -149,6 +168,30 @@ const normalizeUpdateExhibitionBody = (body: ExhibitionFormDataBody): UpdateExhi
   web_id: toNumberValue(body.web_id),
   zone_ids: body.zone_ids !== undefined ? toNumberArray(body.zone_ids) : undefined,
   exhibitor_ids: body.exhibitor_ids !== undefined ? toNumberArray(body.exhibitor_ids) : undefined,
+  remove_img: toBooleanValue(body.remove_img),
+  remove_document_pdf: toBooleanValue(body.remove_document_pdf),
+});
+
+const normalizeCreateConferenceBody = (body: ConferenceFormDataBody): CreateConferenceDto => ({
+  name: toText(body.name),
+  sumary_vn: toText(body.sumary_vn),
+  sumary_en: toOptionalText(body.sumary_en),
+  content_vn: toText(body.content_vn),
+  content_en: toOptionalText(body.content_en),
+  display_order: toNumberValue(body.display_order),
+  web_id: Number(body.web_id),
+  exhibition_ids: toNumberArray(body.exhibition_ids),
+});
+
+const normalizeUpdateConferenceBody = (body: ConferenceFormDataBody): UpdateConferenceDto => ({
+  name: body.name !== undefined ? toText(body.name) : undefined,
+  sumary_vn: body.sumary_vn !== undefined ? toText(body.sumary_vn) : undefined,
+  sumary_en: body.sumary_en !== undefined ? toOptionalText(body.sumary_en) : undefined,
+  content_vn: body.content_vn !== undefined ? toText(body.content_vn) : undefined,
+  content_en: body.content_en !== undefined ? toOptionalText(body.content_en) : undefined,
+  display_order: toNumberValue(body.display_order),
+  web_id: toNumberValue(body.web_id),
+  exhibition_ids: body.exhibition_ids !== undefined ? toNumberArray(body.exhibition_ids) : undefined,
   remove_img: toBooleanValue(body.remove_img),
 });
 
@@ -249,6 +292,39 @@ export class ExhibitionController {
     return {
       status: 'success',
       message: 'Lấy danh sách exhibitor theo exhibition public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/conferences')
+  async getPublicConferencesController(): Promise<BaseResponse<Conferences[]>> {
+    const res = await this.exhibitionService.getAllConferencesService();
+    return {
+      status: 'success',
+      message: 'Lấy danh sách conference public thành công',
+      data: res,
+    };
+  }
+
+  @Public()
+  @Get('public/conferences/:id')
+  async getPublicConferenceByIdController(
+    @Param('id') id: string,
+  ): Promise<BaseResponse<Conferences>> {
+    const res = await this.exhibitionService.getConferenceByIdService(+id);
+    return { status: 'success', message: 'Lấy chi tiết conference public thành công', data: res };
+  }
+
+  @Public()
+  @Get('public/exhibitions/:id/conferences')
+  async getPublicConferencesByExhibitionIdController(
+    @Param('id') id: string,
+  ): Promise<BaseResponse<Conferences[]>> {
+    const res = await this.exhibitionService.getPublicConferencesByExhibitionIdService(+id);
+    return {
+      status: 'success',
+      message: 'Lấy danh sách conference theo exhibition public thành công',
       data: res,
     };
   }
@@ -468,6 +544,77 @@ export class ExhibitionController {
     return { status: 'success', message: 'Xóa exhibitor thành công', data: res };
   }
 
+  @Get('conferences')
+  @RequirePermissions(RoleConstant.VIEW)
+  async getAllConferencesController(): Promise<BaseResponse<Conferences[]>> {
+    const res = await this.exhibitionService.getAllConferencesService();
+    return { status: 'success', message: 'Lấy danh sách conference thành công', data: res };
+  }
+
+  @Get('conferences/web/:webId')
+  @RequirePermissions(RoleConstant.VIEW)
+  async getConferencesByWebIdController(
+    @Param('webId') webId: string,
+  ): Promise<BaseResponse<Conferences[]>> {
+    const res = await this.exhibitionService.getConferencesByWebIdService(+webId);
+    return {
+      status: 'success',
+      message: 'Lấy danh sách conference theo website thành công',
+      data: res,
+    };
+  }
+
+  @Get('conferences/:id')
+  @RequirePermissions(RoleConstant.VIEW)
+  async getConferenceByIdController(@Param('id') id: string): Promise<BaseResponse<Conferences>> {
+    const res = await this.exhibitionService.getConferenceByIdService(+id);
+    return { status: 'success', message: 'Lấy chi tiết conference thành công', data: res };
+  }
+
+  @Post('conferences')
+  @RequirePermissions(RoleConstant.CREATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'conference')),
+    DeleteFileOnErrorFilter,
+  )
+  async createConferenceController(
+    @Body() body: ConferenceFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<BaseResponse<Conferences>> {
+    const dto = normalizeCreateConferenceBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
+    const res = await this.exhibitionService.createConferenceService(dto);
+    return { status: 'success', message: 'Tạo conference thành công', data: res };
+  }
+
+  @Patch('conferences/:id')
+  @RequirePermissions(RoleConstant.UPDATE)
+  @UseInterceptors(
+    FileInterceptor('file', multerOptions('vnsec', 'conference')),
+    DeleteFileOnErrorFilter,
+  )
+  async updateConferenceController(
+    @Param('id') id: string,
+    @Body() body: ConferenceFormDataBody,
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<BaseResponse<Conferences>> {
+    const dto = normalizeUpdateConferenceBody(body);
+    if (file) {
+      dto.img = getPublicFilePath(file);
+    }
+    const res = await this.exhibitionService.updateConferenceService(+id, dto);
+    return { status: 'success', message: 'Cập nhật conference thành công', data: res };
+  }
+
+  @Delete('conferences/:id')
+  @RequirePermissions(RoleConstant.DELETE)
+  async deleteConferenceController(@Param('id') id: string): Promise<BaseResponse<Conferences>> {
+    const res = await this.exhibitionService.deleteConferenceService(+id);
+    return { status: 'success', message: 'Xóa conference thành công', data: res };
+  }
+
   @Get()
   @RequirePermissions(RoleConstant.VIEW)
   async getAllExhibitionsController(): Promise<BaseResponse<Exhibition[]>> {
@@ -498,16 +645,31 @@ export class ExhibitionController {
   @Post()
   @RequirePermissions(RoleConstant.CREATE)
   @UseInterceptors(
-    FileInterceptor('file', multerOptions('vnsec', 'exhibition')),
+    FileFieldsInterceptor(
+      [
+        { name: 'file', maxCount: 1 },
+        { name: 'document_pdf_file', maxCount: 1 },
+      ],
+      multerExhibitionOptions('vnsec', 'exhibition'),
+    ),
     DeleteFileOnErrorFilter,
   )
   async createExhibitionController(
     @Body() body: ExhibitionFormDataBody,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles()
+    files?: {
+      file?: Express.Multer.File[];
+      document_pdf_file?: Express.Multer.File[];
+    },
   ): Promise<BaseResponse<Exhibition>> {
     const dto = normalizeCreateExhibitionBody(body);
+    const file = files?.file?.[0];
+    const documentPdfFile = files?.document_pdf_file?.[0];
     if (file) {
       dto.img = getPublicFilePath(file);
+    }
+    if (documentPdfFile) {
+      dto.document_pdf = getPublicFilePath(documentPdfFile);
     }
     const res = await this.exhibitionService.createExhibitionService(dto);
     return { status: 'success', message: 'Tạo exhibition thành công', data: res };
@@ -516,17 +678,32 @@ export class ExhibitionController {
   @Patch(':id')
   @RequirePermissions(RoleConstant.UPDATE)
   @UseInterceptors(
-    FileInterceptor('file', multerOptions('vnsec', 'exhibition')),
+    FileFieldsInterceptor(
+      [
+        { name: 'file', maxCount: 1 },
+        { name: 'document_pdf_file', maxCount: 1 },
+      ],
+      multerExhibitionOptions('vnsec', 'exhibition'),
+    ),
     DeleteFileOnErrorFilter,
   )
   async updateExhibitionController(
     @Param('id') id: string,
     @Body() body: ExhibitionFormDataBody,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles()
+    files?: {
+      file?: Express.Multer.File[];
+      document_pdf_file?: Express.Multer.File[];
+    },
   ): Promise<BaseResponse<Exhibition>> {
     const dto = normalizeUpdateExhibitionBody(body);
+    const file = files?.file?.[0];
+    const documentPdfFile = files?.document_pdf_file?.[0];
     if (file) {
       dto.img = getPublicFilePath(file);
+    }
+    if (documentPdfFile) {
+      dto.document_pdf = getPublicFilePath(documentPdfFile);
     }
     const res = await this.exhibitionService.updateExhibitionService(+id, dto);
     return { status: 'success', message: 'Cập nhật exhibition thành công', data: res };

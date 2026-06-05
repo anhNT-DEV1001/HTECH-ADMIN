@@ -147,6 +147,10 @@ export class CreateExhibitionDto {
 
   @IsString()
   @IsOptional()
+  document_pdf?: string;
+
+  @IsString()
+  @IsOptional()
   logo_url?: string;
 
   @IsString()
@@ -213,6 +217,10 @@ export class UpdateExhibitionDto {
 
   @IsString()
   @IsOptional()
+  document_pdf?: string;
+
+  @IsString()
+  @IsOptional()
   logo_url?: string;
 
   @IsString()
@@ -272,6 +280,10 @@ export class UpdateExhibitionDto {
   @Transform(({ value }) => toBoolean(value))
   @IsOptional()
   remove_img?: boolean;
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsOptional()
+  remove_document_pdf?: boolean;
 }
 
 export class CreateExhibitorDto {
@@ -352,6 +364,93 @@ export class UpdateExhibitorDto {
   @IsNumber()
   @IsOptional()
   boothId?: number;
+
+  @Transform(({ value }) => toNumber(value))
+  @IsNumber()
+  @IsOptional()
+  web_id?: number;
+
+  @Transform(({ value }) => toNumberArray(value))
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  exhibition_ids?: number[];
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsOptional()
+  remove_img?: boolean;
+}
+
+export class CreateConferenceDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  sumary_vn: string;
+
+  @IsString()
+  @IsOptional()
+  sumary_en?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content_vn: string;
+
+  @IsString()
+  @IsOptional()
+  content_en?: string;
+
+  @Transform(({ value }) => toNumber(value))
+  @IsNumber()
+  @IsOptional()
+  display_order?: number;
+
+  @Transform(({ value }) => toNumber(value))
+  @IsNumber()
+  web_id: number;
+
+  @Transform(({ value }) => toNumberArray(value))
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  exhibition_ids?: number[];
+}
+
+export class UpdateConferenceDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  img?: string;
+
+  @IsString()
+  @IsOptional()
+  sumary_vn?: string;
+
+  @IsString()
+  @IsOptional()
+  sumary_en?: string;
+
+  @IsString()
+  @IsOptional()
+  content_vn?: string;
+
+  @IsString()
+  @IsOptional()
+  content_en?: string;
+
+  @Transform(({ value }) => toNumber(value))
+  @IsNumber()
+  @IsOptional()
+  display_order?: number;
 
   @Transform(({ value }) => toNumber(value))
   @IsNumber()

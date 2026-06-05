@@ -22,11 +22,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BoothModal, ExhibitorModal, ExhibitorRankModal } from "@/features/exhibition/components";
+import { BoothModal, ConferenceModal, ExhibitorModal, ExhibitorRankModal } from "@/features/exhibition/components";
 import { useExhibition } from "@/features/exhibition/hooks";
 import type {
   IBooth,
+  IConference,
   ICreateBooth,
+  ICreateConference,
   ICreateExhibitor,
   ICreateExhibitorRank,
   IExhibitor,
@@ -52,6 +54,7 @@ import { useMemo, useState } from "react";
 type SortDirection = "asc" | "desc";
 type RankSortKey = "display_order" | "name_vn" | "web_id" | "updated_at";
 type BoothSortKey = "name" | "web_id" | "updated_at";
+type ConferenceSortKey = "display_order" | "name" | "web_id" | "updated_at";
 type ExhibitorSortKey = "name" | "rank" | "booth" | "web_id" | "updated_at";
 
 const PAGE_LIMIT_OPTIONS = [10, 20, 50];
@@ -92,6 +95,11 @@ const getBoothComparableValue = (item: IBooth, key: BoothSortKey): string | numb
   return item[key] ?? "";
 };
 
+const getConferenceComparableValue = (item: IConference, key: ConferenceSortKey): string | number => {
+  if (key === "updated_at") return item.updated_at || "";
+  return item[key] ?? "";
+};
+
 const getExhibitorComparableValue = (item: IExhibitor, key: ExhibitorSortKey): string | number => {
   if (key === "updated_at") return item.updated_at || "";
   if (key === "rank") return item.rank?.name_vn || "";
@@ -106,13 +114,16 @@ export default function VnsecExhibitorsPage() {
     exhibitionData,
     exhibitorRankData,
     boothData,
+    conferenceData,
     exhibitorData,
     isLoadingExhibitions,
     isLoadingExhibitorRanks,
     isLoadingBooths,
+    isLoadingConferences,
     isLoadingExhibitors,
     isFetchingExhibitorRanks,
     isFetchingBooths,
+    isFetchingConferences,
     isFetchingExhibitors,
     createExhibitorRank,
     updateExhibitorRank,
@@ -120,6 +131,9 @@ export default function VnsecExhibitorsPage() {
     createBooth,
     updateBooth,
     deleteBooth,
+    createConference,
+    updateConference,
+    deleteConference,
     createExhibitor,
     updateExhibitor,
     deleteExhibitor,
@@ -129,6 +143,9 @@ export default function VnsecExhibitorsPage() {
     isCreatingBooth,
     isUpdatingBooth,
     isDeletingBooth,
+    isCreatingConference,
+    isUpdatingConference,
+    isDeletingConference,
     isCreatingExhibitor,
     isUpdatingExhibitor,
     isDeletingExhibitor,
@@ -149,6 +166,11 @@ export default function VnsecExhibitorsPage() {
   const [boothSortKey, setBoothSortKey] = useState<BoothSortKey>("name");
   const [boothSortDirection, setBoothSortDirection] = useState<SortDirection>("asc");
 
+  const [conferencePage, setConferencePage] = useState(1);
+  const [conferenceLimit, setConferenceLimit] = useState(10);
+  const [conferenceSortKey, setConferenceSortKey] = useState<ConferenceSortKey>("display_order");
+  const [conferenceSortDirection, setConferenceSortDirection] = useState<SortDirection>("asc");
+
   const [exhibitorPage, setExhibitorPage] = useState(1);
   const [exhibitorLimit, setExhibitorLimit] = useState(10);
   const [exhibitorSortKey, setExhibitorSortKey] = useState<ExhibitorSortKey>("name");
@@ -156,15 +178,18 @@ export default function VnsecExhibitorsPage() {
 
   const [isRankModalOpen, setIsRankModalOpen] = useState(false);
   const [isBoothModalOpen, setIsBoothModalOpen] = useState(false);
+  const [isConferenceModalOpen, setIsConferenceModalOpen] = useState(false);
   const [isExhibitorModalOpen, setIsExhibitorModalOpen] = useState(false);
   const [selectedRank, setSelectedRank] = useState<IExhibitorRank | undefined>();
   const [selectedBooth, setSelectedBooth] = useState<IBooth | undefined>();
+  const [selectedConference, setSelectedConference] = useState<IConference | undefined>();
   const [selectedExhibitor, setSelectedExhibitor] = useState<IExhibitor | undefined>();
 
   const debouncedSearch = useDebouncedValue(searchInput, 400);
   const websites = webData?.data || [];
   const ranks = exhibitorRankData?.data || [];
   const booths = boothData?.data || [];
+  const conferences = conferenceData?.data || [];
   const exhibitors = exhibitorData?.data || [];
   const exhibitions = exhibitionData?.data || [];
   const query = normalizeText(debouncedSearch);
@@ -200,6 +225,26 @@ export default function VnsecExhibitorsPage() {
     [boothSortDirection, boothSortKey, booths, query, webFilter],
   );
 
+  const filteredConferences = useMemo(
+    () =>
+      sortByValue(
+        conferences.filter((conference) => {
+          const matchesWeb = webFilter === "all" || conference.web_id === Number(webFilter);
+          const matchesSearch =
+            !query ||
+            normalizeText(conference.name).includes(query) ||
+            normalizeText(conference.sumary_vn).includes(query) ||
+            normalizeText(conference.sumary_en).includes(query) ||
+            conference.exhibitions?.some((exhibition) => normalizeText(exhibition.name_vn).includes(query));
+
+          return matchesWeb && matchesSearch;
+        }),
+        (conference) => getConferenceComparableValue(conference, conferenceSortKey),
+        conferenceSortDirection,
+      ),
+    [conferenceSortDirection, conferenceSortKey, conferences, query, webFilter],
+  );
+
   const filteredExhibitors = useMemo(
     () =>
       sortByValue(
@@ -233,6 +278,10 @@ export default function VnsecExhibitorsPage() {
 
   const pagedRanks = filteredRanks.slice((rankPage - 1) * rankLimit, rankPage * rankLimit);
   const pagedBooths = filteredBooths.slice((boothPage - 1) * boothLimit, boothPage * boothLimit);
+  const pagedConferences = filteredConferences.slice(
+    (conferencePage - 1) * conferenceLimit,
+    conferencePage * conferenceLimit,
+  );
   const pagedExhibitors = filteredExhibitors.slice(
     (exhibitorPage - 1) * exhibitorLimit,
     exhibitorPage * exhibitorLimit,
@@ -240,10 +289,12 @@ export default function VnsecExhibitorsPage() {
 
   const rankTotalPages = Math.max(1, Math.ceil(filteredRanks.length / rankLimit));
   const boothTotalPages = Math.max(1, Math.ceil(filteredBooths.length / boothLimit));
+  const conferenceTotalPages = Math.max(1, Math.ceil(filteredConferences.length / conferenceLimit));
   const exhibitorTotalPages = Math.max(1, Math.ceil(filteredExhibitors.length / exhibitorLimit));
   const activeFilterCount =
     (webFilter !== "all" ? 1 : 0) + (rankFilter !== "all" ? 1 : 0) + (boothFilter !== "all" ? 1 : 0);
-  const isFetching = isFetchingExhibitorRanks || isFetchingBooths || isFetchingExhibitors;
+  const isFetching =
+    isFetchingExhibitorRanks || isFetchingBooths || isFetchingConferences || isFetchingExhibitors;
 
   const handleRankSort = (key: RankSortKey) => {
     setRankSortKey(key);
@@ -255,6 +306,14 @@ export default function VnsecExhibitorsPage() {
     setBoothSortKey(key);
     setBoothSortDirection((current) => (boothSortKey === key && current === "asc" ? "desc" : "asc"));
     setBoothPage(1);
+  };
+
+  const handleConferenceSort = (key: ConferenceSortKey) => {
+    setConferenceSortKey(key);
+    setConferenceSortDirection((current) =>
+      conferenceSortKey === key && current === "asc" ? "desc" : "asc",
+    );
+    setConferencePage(1);
   };
 
   const handleExhibitorSort = (key: ExhibitorSortKey) => {
@@ -283,6 +342,15 @@ export default function VnsecExhibitorsPage() {
     );
   };
 
+  const getConferenceSortIcon = (key: ConferenceSortKey) => {
+    if (conferenceSortKey !== key) return <ArrowDownWideNarrow size={14} />;
+    return conferenceSortDirection === "asc" ? (
+      <ChevronUp size={14} className="text-blue-600" />
+    ) : (
+      <ChevronDown size={14} className="text-blue-600" />
+    );
+  };
+
   const getExhibitorSortIcon = (key: ExhibitorSortKey) => {
     if (exhibitorSortKey !== key) return <ArrowDownWideNarrow size={14} />;
     return exhibitorSortDirection === "asc" ? (
@@ -298,6 +366,7 @@ export default function VnsecExhibitorsPage() {
     setBoothFilter("all");
     setRankPage(1);
     setBoothPage(1);
+    setConferencePage(1);
     setExhibitorPage(1);
   };
 
@@ -361,6 +430,36 @@ export default function VnsecExhibitorsPage() {
     });
   };
 
+  const handleSaveConference = async (formData: ICreateConference) => {
+    const accepted = await confirm({
+      title: selectedConference ? "Cập nhật conference" : "Tạo conference",
+      message: selectedConference
+        ? `Bạn có muốn cập nhật "${selectedConference.name}"?`
+        : `Bạn có muốn tạo "${formData.name}"?`,
+      variant: "info",
+    });
+    if (!accepted) return;
+
+    if (selectedConference) {
+      updateConference(
+        { id: selectedConference.id, ...formData },
+        {
+          onSuccess: () => {
+            setSelectedConference(undefined);
+            setIsConferenceModalOpen(false);
+          },
+        },
+      );
+      return;
+    }
+    createConference(formData, {
+      onSuccess: () => {
+        setSelectedConference(undefined);
+        setIsConferenceModalOpen(false);
+      },
+    });
+  };
+
   const handleSaveExhibitor = async (formData: ICreateExhibitor) => {
     const accepted = await confirm({
       title: selectedExhibitor ? "Cập nhật exhibitor" : "Tạo exhibitor",
@@ -407,6 +506,15 @@ export default function VnsecExhibitorsPage() {
       variant: "danger",
     });
     if (accepted) deleteBooth(booth.id);
+  };
+
+  const handleDeleteConference = async (conference: IConference) => {
+    const accepted = await confirm({
+      title: "Xóa conference",
+      message: `Bạn có chắc chắn muốn xóa "${conference.name}"?`,
+      variant: "danger",
+    });
+    if (accepted) deleteConference(conference.id);
   };
 
   const handleDeleteExhibitor = async (exhibitor: IExhibitor) => {
@@ -495,7 +603,7 @@ export default function VnsecExhibitorsPage() {
         <div>
           <h1 className="text-xl font-bold text-gray-800">Quản lý Exhibitor</h1>
           <p className="text-sm text-muted-foreground">
-            Quản lý rank, booth và nhà triển lãm thuộc hệ thống VNSEC
+            Quản lý rank, booth, hội thảo và nhà triển lãm thuộc hệ thống VNSEC
           </p>
         </div>
         {isFetching && (
@@ -514,9 +622,10 @@ export default function VnsecExhibitorsPage() {
               setSearchInput(event.target.value);
               setRankPage(1);
               setBoothPage(1);
+              setConferencePage(1);
               setExhibitorPage(1);
             }}
-            placeholder="Tìm rank, booth, exhibitor"
+            placeholder="Tìm rank, booth, conference, exhibitor"
             className="pr-9"
           />
           <Search
@@ -533,6 +642,7 @@ export default function VnsecExhibitorsPage() {
             setBoothFilter("all");
             setRankPage(1);
             setBoothPage(1);
+            setConferencePage(1);
             setExhibitorPage(1);
           }}
         >
@@ -553,6 +663,7 @@ export default function VnsecExhibitorsPage() {
           value={rankFilter}
           onValueChange={(value) => {
             setRankFilter(value);
+            setConferencePage(1);
             setExhibitorPage(1);
           }}
         >
@@ -765,12 +876,13 @@ export default function VnsecExhibitorsPage() {
         <Tabs defaultValue="ranks" className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-base font-semibold text-gray-800">Danh mục rank và booth</h2>
-              <p className="text-xs text-muted-foreground">Quản lý loại xếp hạng và gian hàng</p>
+              <h2 className="text-base font-semibold text-gray-800">Danh mục rank, booth và conference</h2>
+              <p className="text-xs text-muted-foreground">Quản lý loại xếp hạng, gian hàng và hội thảo</p>
             </div>
             <TabsList>
               <TabsTrigger value="ranks">Rank ({filteredRanks.length})</TabsTrigger>
               <TabsTrigger value="booths">Booth ({filteredBooths.length})</TabsTrigger>
+              <TabsTrigger value="conferences">Conferences ({filteredConferences.length})</TabsTrigger>
             </TabsList>
           </div>
 
@@ -1019,6 +1131,155 @@ export default function VnsecExhibitorsPage() {
               </Table>
             </div>
           </TabsContent>
+
+          <TabsContent value="conferences" className="space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Danh sách conference</h3>
+                <p className="text-xs text-muted-foreground">Hội thảo được gán vào từng exhibition</p>
+              </div>
+              <Button
+                onClick={() => {
+                  setSelectedConference(undefined);
+                  setIsConferenceModalOpen(true);
+                }}
+              >
+                <Plus size={16} />
+                <span className="whitespace-nowrap">Thêm conference</span>
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16 text-center">STT</TableHead>
+                    <TableHead className="min-w-[240px] cursor-pointer" onClick={() => handleConferenceSort("name")}>
+                      <div className="flex items-center justify-center gap-2">
+                        <span>Hội thảo</span>
+                        {getConferenceSortIcon("name")}
+                      </div>
+                    </TableHead>
+                    <TableHead className="min-w-[160px] cursor-pointer" onClick={() => handleConferenceSort("web_id")}>
+                      <div className="flex items-center justify-center gap-2">
+                        <span>Web-site</span>
+                        {getConferenceSortIcon("web_id")}
+                      </div>
+                    </TableHead>
+                    <TableHead className="min-w-[220px] text-center">Exhibition</TableHead>
+                    <TableHead className="w-28 cursor-pointer" onClick={() => handleConferenceSort("display_order")}>
+                      <div className="flex items-center justify-center gap-2">
+                        <span>Thứ tự</span>
+                        {getConferenceSortIcon("display_order")}
+                      </div>
+                    </TableHead>
+                    <TableHead className="min-w-[150px] cursor-pointer" onClick={() => handleConferenceSort("updated_at")}>
+                      <div className="flex items-center justify-center gap-2">
+                        <span>Cập nhật cuối</span>
+                        {getConferenceSortIcon("updated_at")}
+                      </div>
+                    </TableHead>
+                    <TableHead className="w-28 text-center">Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoadingConferences || isLoadingExhibitions ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                        <Loader2 size={24} className="mx-auto mb-2 animate-spin opacity-30" />
+                        Đang tải dữ liệu...
+                      </TableCell>
+                    </TableRow>
+                  ) : pagedConferences.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                        Chưa có conference
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagedConferences.map((conference, index) => (
+                      <TableRow key={conference.id}>
+                        <TableCell className="text-center font-mono text-xs text-muted-foreground">
+                          {(conferencePage - 1) * conferenceLimit + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {conference.img ? (
+                              <img
+                                src={getImageUrl(conference.img)}
+                                alt={conference.name}
+                                className="h-9 w-9 shrink-0 rounded-md border object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted text-xs text-muted-foreground">
+                                N/A
+                              </div>
+                            )}
+                            <div className="font-medium">{conference.name}</div>
+                          </div>
+                          <div className="line-clamp-2 text-xs text-muted-foreground">{conference.sumary_vn}</div>
+                        </TableCell>
+                        <TableCell className="text-center">{conference.web?.name || "—"}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {conference.exhibitions?.length ? (
+                              conference.exhibitions.map((exhibition) => (
+                                <Badge key={exhibition.id} variant="secondary" className="bg-blue-50 text-blue-700">
+                                  {exhibition.name_vn}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">{conference.display_order}</TableCell>
+                        <TableCell className="text-center text-xs">
+                          {conference.updated_at ? dayjs(conference.updated_at).format("DD/MM/YYYY HH:mm") : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => {
+                                setSelectedConference(conference);
+                                setIsConferenceModalOpen(true);
+                              }}
+                              className="text-blue-600 hover:bg-blue-100"
+                              title="Cập nhật"
+                            >
+                              <Pencil size={15} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => handleDeleteConference(conference)}
+                              disabled={isDeletingConference}
+                              className="text-red-600 hover:bg-red-100"
+                              title="Xóa"
+                            >
+                              <Trash2 size={15} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+                {renderPagination(
+                  pagedConferences.length,
+                  filteredConferences.length,
+                  conferenceLimit,
+                  setConferenceLimit,
+                  conferencePage,
+                  setConferencePage,
+                  conferenceTotalPages,
+                  7,
+                )}
+              </Table>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -1044,6 +1305,19 @@ export default function VnsecExhibitorsPage() {
         data={selectedBooth}
         websites={websites}
         loading={isCreatingBooth || isUpdatingBooth}
+      />
+
+      <ConferenceModal
+        isOpen={isConferenceModalOpen}
+        onClose={() => {
+          setSelectedConference(undefined);
+          setIsConferenceModalOpen(false);
+        }}
+        onSave={handleSaveConference}
+        data={selectedConference}
+        websites={websites}
+        exhibitions={exhibitions}
+        loading={isCreatingConference || isUpdatingConference}
       />
 
       <ExhibitorModal

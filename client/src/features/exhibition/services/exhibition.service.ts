@@ -2,7 +2,9 @@ import type { BaseResponse } from "@/common/types";
 import axiosClient from "@/lib/axios";
 import type {
   IBooth,
+  IConference,
   ICreateBooth,
+  ICreateConference,
   ICreateExhibition,
   ICreateExhibitor,
   ICreateExhibitorRank,
@@ -11,6 +13,7 @@ import type {
   IExhibitor,
   IExhibitorRank,
   IUpdateBooth,
+  IUpdateConference,
   IUpdateExhibition,
   IUpdateExhibitor,
   IUpdateExhibitorRank,
@@ -46,6 +49,9 @@ const appendExhibitionFormData = (
   body: Partial<ICreateExhibition>,
 ) => {
   if (body.logo !== undefined) formData.append("logo", body.logo);
+  if (body.document_pdf !== undefined && body.document_pdf !== null) {
+    formData.append("document_pdf", body.document_pdf);
+  }
   if (body.name_vn !== undefined) formData.append("name_vn", body.name_vn);
   if (body.name_en !== undefined) formData.append("name_en", body.name_en);
   if (body.title_vn !== undefined) formData.append("title_vn", body.title_vn);
@@ -61,6 +67,36 @@ const appendExhibitionFormData = (
   if (body.zone_ids !== undefined) formData.append("zone_ids", JSON.stringify(body.zone_ids));
   if (body.exhibitor_ids !== undefined) {
     formData.append("exhibitor_ids", JSON.stringify(body.exhibitor_ids));
+  }
+  if (body.remove_img !== undefined) {
+    formData.append("remove_img", String(body.remove_img));
+  }
+  if (body.remove_document_pdf !== undefined) {
+    formData.append("remove_document_pdf", String(body.remove_document_pdf));
+  }
+  if (body.imgFile) {
+    formData.append("file", body.imgFile);
+  }
+  if (body.documentPdfFile) {
+    formData.append("document_pdf_file", body.documentPdfFile);
+  }
+};
+
+const appendConferenceFormData = (
+  formData: FormData,
+  body: Partial<ICreateConference>,
+) => {
+  if (body.name !== undefined) formData.append("name", body.name);
+  if (body.sumary_vn !== undefined) formData.append("sumary_vn", body.sumary_vn);
+  if (body.sumary_en !== undefined) formData.append("sumary_en", body.sumary_en);
+  if (body.content_vn !== undefined) formData.append("content_vn", body.content_vn);
+  if (body.content_en !== undefined) formData.append("content_en", body.content_en);
+  if (body.display_order !== undefined) {
+    formData.append("display_order", String(body.display_order));
+  }
+  if (body.web_id !== undefined) formData.append("web_id", String(body.web_id));
+  if (body.exhibition_ids !== undefined) {
+    formData.append("exhibition_ids", JSON.stringify(body.exhibition_ids));
   }
   if (body.remove_img !== undefined) {
     formData.append("remove_img", String(body.remove_img));
@@ -171,6 +207,42 @@ export const exhibitionService = {
 
   async deleteBooth(id: number): Promise<BaseResponse<IBooth>> {
     const response = await axiosClient.delete<BaseResponse<IBooth>>(`/exhibition/booths/${id}`);
+    return response.data;
+  },
+
+  async getConferences(): Promise<BaseResponse<IConference[]>> {
+    const response = await axiosClient.get<BaseResponse<IConference[]>>("/exhibition/conferences");
+    return response.data;
+  },
+
+  async createConference(body: ICreateConference): Promise<BaseResponse<IConference>> {
+    const formData = new FormData();
+    appendConferenceFormData(formData, body);
+    const response = await axiosClient.post<BaseResponse<IConference>>(
+      "/exhibition/conferences",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return response.data;
+  },
+
+  async updateConference({ id, ...body }: IUpdateConference): Promise<BaseResponse<IConference>> {
+    const formData = new FormData();
+    appendConferenceFormData(formData, body);
+    const response = await axiosClient.patch<BaseResponse<IConference>>(
+      `/exhibition/conferences/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return response.data;
+  },
+
+  async deleteConference(id: number): Promise<BaseResponse<IConference>> {
+    const response = await axiosClient.delete<BaseResponse<IConference>>(`/exhibition/conferences/${id}`);
     return response.data;
   },
 

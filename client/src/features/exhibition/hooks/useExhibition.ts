@@ -7,11 +7,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import type {
   ICreateBooth,
+  ICreateConference,
   ICreateExhibition,
   ICreateExhibitor,
   ICreateExhibitorRank,
   ICreateZone,
   IUpdateBooth,
+  IUpdateConference,
   IUpdateExhibition,
   IUpdateExhibitor,
   IUpdateExhibitorRank,
@@ -23,6 +25,7 @@ const EXHIBITION_QUERY_KEY = ["exhibition", "getExhibitions"];
 const ZONE_QUERY_KEY = ["exhibition", "getZones"];
 const EXHIBITOR_RANK_QUERY_KEY = ["exhibition", "getExhibitorRanks"];
 const BOOTH_QUERY_KEY = ["exhibition", "getBooths"];
+const CONFERENCE_QUERY_KEY = ["exhibition", "getConferences"];
 const EXHIBITOR_QUERY_KEY = ["exhibition", "getExhibitors"];
 
 const getErrorMessage = (error: Error, fallback: string) => {
@@ -43,6 +46,7 @@ export const useExhibition = () => {
     exhibitionService.getExhibitorRanks(),
   );
   const boothQuery = useCommonQuery(BOOTH_QUERY_KEY, () => exhibitionService.getBooths());
+  const conferenceQuery = useCommonQuery(CONFERENCE_QUERY_KEY, () => exhibitionService.getConferences());
   const exhibitorQuery = useCommonQuery(EXHIBITOR_QUERY_KEY, () => exhibitionService.getExhibitors());
 
   const invalidateExhibitionData = () => {
@@ -50,6 +54,7 @@ export const useExhibition = () => {
     queryClient.invalidateQueries({ queryKey: ZONE_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: EXHIBITOR_RANK_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: BOOTH_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: CONFERENCE_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: EXHIBITOR_QUERY_KEY });
   };
 
@@ -167,6 +172,39 @@ export const useExhibition = () => {
     onError: (error) => showToast(getErrorMessage(error, "Lỗi khi xóa booth"), "error"),
   });
 
+  const createConferenceMutation = useCommonMutate(
+    (body: ICreateConference) => exhibitionService.createConference(body),
+    {
+      onSuccess: (data) => {
+        invalidateExhibitionData();
+        showToast(data.message, "success");
+      },
+      onError: (error) => showToast(getErrorMessage(error, "Lỗi khi tạo conference"), "error"),
+    },
+  );
+
+  const updateConferenceMutation = useCommonMutate(
+    (body: IUpdateConference) => exhibitionService.updateConference(body),
+    {
+      onSuccess: (data) => {
+        invalidateExhibitionData();
+        showToast(data.message, "success");
+      },
+      onError: (error) => showToast(getErrorMessage(error, "Lỗi khi cập nhật conference"), "error"),
+    },
+  );
+
+  const deleteConferenceMutation = useCommonMutate(
+    (id: number) => exhibitionService.deleteConference(id),
+    {
+      onSuccess: (data) => {
+        invalidateExhibitionData();
+        showToast(data.message, "success");
+      },
+      onError: (error) => showToast(getErrorMessage(error, "Lỗi khi xóa conference"), "error"),
+    },
+  );
+
   const createExhibitorMutation = useCommonMutate(
     (body: ICreateExhibitor) => exhibitionService.createExhibitor(body),
     {
@@ -205,16 +243,19 @@ export const useExhibition = () => {
     zoneData: zoneQuery.data,
     exhibitorRankData: exhibitorRankQuery.data,
     boothData: boothQuery.data,
+    conferenceData: conferenceQuery.data,
     exhibitorData: exhibitorQuery.data,
     isLoadingExhibitions: exhibitionQuery.isLoading,
     isLoadingZones: zoneQuery.isLoading,
     isLoadingExhibitorRanks: exhibitorRankQuery.isLoading,
     isLoadingBooths: boothQuery.isLoading,
+    isLoadingConferences: conferenceQuery.isLoading,
     isLoadingExhibitors: exhibitorQuery.isLoading,
     isFetchingExhibitions: exhibitionQuery.isFetching,
     isFetchingZones: zoneQuery.isFetching,
     isFetchingExhibitorRanks: exhibitorRankQuery.isFetching,
     isFetchingBooths: boothQuery.isFetching,
+    isFetchingConferences: conferenceQuery.isFetching,
     isFetchingExhibitors: exhibitorQuery.isFetching,
     createExhibition: createExhibitionMutation.mutate,
     updateExhibition: updateExhibitionMutation.mutate,
@@ -228,6 +269,9 @@ export const useExhibition = () => {
     createBooth: createBoothMutation.mutate,
     updateBooth: updateBoothMutation.mutate,
     deleteBooth: deleteBoothMutation.mutate,
+    createConference: createConferenceMutation.mutate,
+    updateConference: updateConferenceMutation.mutate,
+    deleteConference: deleteConferenceMutation.mutate,
     createExhibitor: createExhibitorMutation.mutate,
     updateExhibitor: updateExhibitorMutation.mutate,
     deleteExhibitor: deleteExhibitorMutation.mutate,
@@ -243,6 +287,9 @@ export const useExhibition = () => {
     isCreatingBooth: createBoothMutation.isPending,
     isUpdatingBooth: updateBoothMutation.isPending,
     isDeletingBooth: deleteBoothMutation.isPending,
+    isCreatingConference: createConferenceMutation.isPending,
+    isUpdatingConference: updateConferenceMutation.isPending,
+    isDeletingConference: deleteConferenceMutation.isPending,
     isCreatingExhibitor: createExhibitorMutation.isPending,
     isUpdatingExhibitor: updateExhibitorMutation.isPending,
     isDeletingExhibitor: deleteExhibitorMutation.isPending,
