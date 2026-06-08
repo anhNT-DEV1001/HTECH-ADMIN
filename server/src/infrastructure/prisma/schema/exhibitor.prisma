@@ -19,7 +19,7 @@ model ExhibitorRank {
 model Booth {
   id     Int     @id @default(autoincrement())
   name   String?
-  web_id Int
+  web_id Int 
 
   web        Web         @relation(fields: [web_id], references: [id])
   exhibitors Exhibitor[]
@@ -132,6 +132,9 @@ model Zone {
   updated_at  DateTime     @updatedAt
   created_by  Int?
   updated_by  Int?
+
+  description_vn String?
+  description_en String?
 
   @@index([web_id])
   @@map("zones")

@@ -6,6 +6,8 @@ export interface IZone {
   name_en?: string | null;
   field_vn?: string | null;
   field_en?: string | null;
+  description_vn?: string | null;
+  description_en?: string | null;
   web_id: number;
   web?: IWeb;
   exhibitions?: IExhibition[];
@@ -98,6 +100,8 @@ export interface ICreateZone {
   name_en?: string;
   field_vn?: string;
   field_en?: string;
+  description_vn?: string;
+  description_en?: string;
   web_id: number;
 }
 

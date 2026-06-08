@@ -1,0 +1,30 @@
+model QA {
+  id Int @id @default(autoincrement())
+  category_id Int
+
+  question_vn String
+
+  ans_vn String?
+
+  question_en String?
+
+  ans_en String?
+  category QACategory @relation(fields: [category_id], references: [id])
+
+  @@index([category_id])
+  @@map("question_ans")
+}
+
+model QACategory {
+  id Int @id @default(autoincrement())
+
+  name_vn String
+  name_en String?
+
+  web_id Int
+  web Web @relation(fields: [web_id], references: [id])
+  qas QA[]
+
+  @@index([web_id])
+  @@map("question_ans_categories")
+}

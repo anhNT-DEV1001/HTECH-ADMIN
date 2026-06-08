@@ -39,6 +39,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: "Agenda", icon: CalendarDays, href: "/vnsec-agenda" },
       { label: "Exhibition", icon: PanelsTopLeft, href: "/vnsec-exhibitions" },
       { label: "Exhibitor", icon: UsersRound, href: "/vnsec-exhibitors" },
+      { label: "Q & A", icon: UsersRound, href: "/vnsec-qa" },
     ],
   }
 ];

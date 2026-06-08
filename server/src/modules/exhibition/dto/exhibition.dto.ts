@@ -48,6 +48,14 @@ export class CreateZoneDto {
   @IsOptional()
   field_en?: string;
 
+  @IsString()
+  @IsOptional()
+  description_vn?: string;
+
+  @IsString()
+  @IsOptional()
+  description_en?: string;
+
   @Transform(({ value }) => toNumber(value))
   @IsNumber()
   web_id: number;
@@ -69,6 +77,14 @@ export class UpdateZoneDto {
   @IsString()
   @IsOptional()
   field_en?: string;
+
+  @IsString()
+  @IsOptional()
+  description_vn?: string;
+
+  @IsString()
+  @IsOptional()
+  description_en?: string;
 
   @Transform(({ value }) => toNumber(value))
   @IsNumber()

@@ -12,6 +12,7 @@ model Web {
   conferences    Conferences[]
   exhibitorRanks ExhibitorRank[]
   booths         Booth[]
+  qaCategories   QACategory[]
 
   @@map("webs")
 }

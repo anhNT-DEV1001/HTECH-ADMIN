@@ -17,9 +17,10 @@ import { CompanyModule } from './modules/company/company.module';
 import { AgendaModule } from './modules/agenda/agenda.module';
 import { WebModule } from './modules/web/web.module';
 import { ExhibitionModule } from './modules/exhibition/exhibition.module';
+import { QaModule } from './modules/qa/qa.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule, CompanyModule, AgendaModule, WebModule, ExhibitionModule],
+  imports: [PrismaModule, AuthModule, ResourceModule, RoleModule, PermissionModule, UserModule, NewsModule, ProjectModule, JobsModule, StatisticsModule, MasterdataModule, MailsModule, CompanyModule, AgendaModule, WebModule, ExhibitionModule, QaModule],
   controllers: [],
   providers: [
     {

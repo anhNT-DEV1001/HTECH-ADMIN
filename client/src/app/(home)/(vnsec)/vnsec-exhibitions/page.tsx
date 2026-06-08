@@ -622,6 +622,7 @@ export default function VnsecExhibitionsPage() {
                     {getZoneSortIcon("field_vn")}
                   </div>
                 </TableHead>
+                <TableHead className="min-w-[260px]">Mô tả</TableHead>
                 <TableHead className="w-32 text-center">Exhibition</TableHead>
                 <TableHead className="min-w-[150px] cursor-pointer" onClick={() => handleZoneSort("updated_at")}>
                   <div className="flex items-center justify-center gap-2">
@@ -635,14 +636,14 @@ export default function VnsecExhibitionsPage() {
             <TableBody>
               {isLoadingZones ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                     <Loader2 size={24} className="mx-auto mb-2 animate-spin opacity-30" />
                     Đang tải dữ liệu...
                   </TableCell>
                 </TableRow>
               ) : pagedZones.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                     Chưa có zone
                   </TableCell>
                 </TableRow>
@@ -664,6 +665,20 @@ export default function VnsecExhibitionsPage() {
                             {zone.field_vn && <div className="font-medium">{zone.field_vn}</div>}
                             {zone.field_en && <div className="text-xs text-muted-foreground">{zone.field_en}</div>}
                           </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {zone.description_vn || zone.description_en ? (
+                          <div className="space-y-1">
+                            {zone.description_vn && (
+                              <p className="line-clamp-3 text-sm text-slate-700">{zone.description_vn}</p>
+                            )}
+                            {zone.description_en && (
+                              <p className="line-clamp-2 text-xs text-muted-foreground">{zone.description_en}</p>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
@@ -706,7 +721,7 @@ export default function VnsecExhibitionsPage() {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={8}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-sm">
                       Hiển thị <span className="font-medium">{pagedZones.length}</span> / {sortedZones.length} kết quả
